@@ -18,7 +18,7 @@ const index = posts.findIndex(p => p.id === current);
 
 <nav class="series-nav" aria-label={`Series: ${series}`}>
   <p class="small-caps text-muted-foreground text-sm">
-    Part {index + 1} of {posts.length} in
+    Part {index + 1} of {posts.length} in{" "}
     <a class="text-sage hover:underline" href={getRelativeLocaleUrl(locale, `series/${slugifyStr(series)}/`)}>{series}</a>
   </p>
   <ol>

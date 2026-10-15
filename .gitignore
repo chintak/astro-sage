@@ -33,3 +33,5 @@ public/pagefind
 compose.override.yaml
 apps/*/dist/
 apps/*/.astro/
+.dev.vars
+.wrangler/

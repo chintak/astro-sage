@@ -95,6 +95,21 @@ const ROUTES: Array<[pattern: string, entry: string]> = [
   ["/tags/[tag]/[...page]", "routes/tags/[tag]/[...page].astro"],
 ];
 
+const BUILD_ONLY_DEPS = [
+  "astro-sage",
+  "@tailwindcss/vite",
+  "@tailwindcss/oxide",
+  "tailwindcss",
+  "satori",
+  "sharp",
+];
+
+const COMMENT_ROUTES: Array<[pattern: string, entry: string]> = [
+  ["/api/auth/[...all]", "routes/api/auth/[...all].ts"],
+  ["/api/comments", "routes/api/comments/index.ts"],
+  ["/api/comments/[id]", "routes/api/comments/[id].ts"],
+];
+
 /**
  * AstroSage theme integration.
  *
@@ -201,11 +216,31 @@ export default function astroSage(config: SageConfig): AstroIntegration {
               },
             ],
             resolve: { alias: { "@sage": srcDir } },
+            // Build-time tooling (Tailwind's native binary, fonts, Satori) must
+            // never be pre-bundled into the Workers runtime.
+            optimizeDeps: { exclude: BUILD_ONLY_DEPS },
+            ssr: { optimizeDeps: { exclude: BUILD_ONLY_DEPS } },
           },
         });
 
         for (const [pattern, entry] of ROUTES) {
           injectRoute({ pattern, entrypoint: join(srcDir, entry) });
+        }
+
+        if (config.comments?.provider === "cloudflare-d1") {
+          for (const [pattern, entry] of COMMENT_ROUTES) {
+            injectRoute({ pattern, entrypoint: join(srcDir, entry) });
+          }
+        }
+      },
+      "astro:config:done": ({ config: astroConfig }) => {
+        if (
+          config.comments?.provider === "cloudflare-d1" &&
+          astroConfig.adapter?.name !== "@astrojs/cloudflare"
+        ) {
+          throw new Error(
+            'astro-sage: comments.provider "cloudflare-d1" needs the Cloudflare adapter. Add `adapter: cloudflare()` from "@astrojs/cloudflare" to astro.config, or set comments.provider to false.'
+          );
         }
       },
     },

@@ -14,6 +14,7 @@ import AdjacentPostNav from "./_components/AdjacentPostNav.astro";
 import config from "@sage/config";
 import TableOfContents from "@sage/components/TableOfContents.astro";
 import SeriesNav from "@sage/components/SeriesNav.astro";
+import Comments from "@sage/components/Comments.astro";
 import { readingTime } from "@sage/utils/readingTime";
 import { getSeriesPosts } from "@sage/utils/getSeries";
 import { postFilter } from "@sage/utils/postFilter";
@@ -170,7 +171,11 @@ const ogImage = ogImageUrl
           <EditPost {hideEditPost} {post} />
         </div>
 
-        <slot name="comments" />
+        {
+          config.comments.provider && post.data.comments && (
+            <Comments slug={getPostSlug(post.id, post.filePath).replace(/^\//, "")} />
+          )
+        }
 
         <hr class="border-border" />
 

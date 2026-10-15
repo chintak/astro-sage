@@ -19,7 +19,7 @@ export default defineSageConfig({
     intro:
       "A quiet, warm theme for long-form technical writing. Serif type set for reading, math and code that look like they belong, and a table of contents that keeps its place.",
   },
-  comments: { provider: false },
+  comments: { provider: "cloudflare-d1", admins: ["github:chintak"] },
   posts: { perPage: 8, perIndex: 6, scheduledPostMargin: 15 * 60 * 1000 },
   features: {
     lightAndDarkMode: true,
