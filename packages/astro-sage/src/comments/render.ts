@@ -15,7 +15,7 @@ function inline(text: string): string {
   const codes: string[] = [];
   let s = escape(text).replace(/`([^`\n]+)`/g, (_, c) => {
     codes.push(`<code>${c}</code>`);
-    return `\u0000${codes.length - 1}\u0000`;
+    return `\uE000${codes.length - 1}\uE000`;
   });
   s = s
     .replace(
@@ -31,7 +31,7 @@ function inline(text: string): string {
     .replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>")
     .replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>")
     .replace(/\n/g, "<br>");
-  return s.replace(/\u0000(\d+)\u0000/g, (_, i) => codes[Number(i)]);
+  return s.replace(/\uE000(\d+)\uE000/g, (_, i) => codes[Number(i)]);
 }
 
 export function renderComment(md: string): string {

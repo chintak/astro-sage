@@ -16,12 +16,22 @@ const { src, alt, caption, fullBleed = false, width, height } = Astro.props;
 ---
 
 <figure class:list={{ "full-bleed": fullBleed }}>
-  {
-    typeof src === "string" ? (
-      <img src={src} alt={alt} width={width} height={height} loading="lazy" decoding="async" />
-    ) : (
-      <Image src={src} alt={alt} widths={fullBleed ? [800, 1200, 1600] : [640, 960, 1280]} sizes={fullBleed ? "min(100vw, 64rem)" : "min(100vw, 68ch)"} />
-    )
-  }
+  {typeof src === "string" ? (
+    <img
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      loading="lazy"
+      decoding="async"
+    />
+  ) : (
+    <Image
+      src={src}
+      alt={alt}
+      widths={fullBleed ? [800, 1200, 1600] : [640, 960, 1280]}
+      sizes={fullBleed ? "min(100vw, 64rem)" : "min(100vw, 68ch)"}
+    />
+  )}
   {caption && <figcaption>{caption}</figcaption>}
 </figure>

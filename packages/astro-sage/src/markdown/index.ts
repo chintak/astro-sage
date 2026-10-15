@@ -23,7 +23,11 @@ const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 type Node = any;
 
 /** In MDX, custom mdast nodes can't be encoded; emit JSX elements instead. */
-function jsx(name: string, attrs: Record<string, string>, children: Node[]): Node {
+function jsx(
+  name: string,
+  attrs: Record<string, string>,
+  children: Node[]
+): Node {
   return {
     type: "mdxJsxFlowElement",
     name,

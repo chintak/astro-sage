@@ -158,8 +158,6 @@ export interface ResolvedSageConfig {
  * Type helper for astro-paper.config.ts.
  * Provides full IntelliSense without any runtime overhead.
  */
-export function defineSageConfig(
-  config: SageConfig
-): SageConfig {
+export function defineSageConfig(config: SageConfig): SageConfig {
   return config;
 }

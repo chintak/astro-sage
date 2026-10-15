@@ -42,13 +42,11 @@ const date = new Intl.DateTimeFormat(config.site.lang, {
       { "scale-90": size === "sm" },
     ]}
   />
-  {
-    isModified && (
-      <span class:list={["text-sm", { "sm:text-base": size === "lg" }]}>
-        {t.post.updatedAt}:
-      </span>
-    )
-  }
+  {isModified && (
+    <span class:list={["text-sm", { "sm:text-base": size === "lg" }]}>
+      {t.post.updatedAt}:
+    </span>
+  )}
   <time
     class:list={["text-sm", { "sm:text-base": size === "lg" }]}
     datetime={datetime.toISOString()}

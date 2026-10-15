@@ -28,13 +28,13 @@
   --fg-muted: #6b5f4f;
   --accent: #9c4a24;
   --accent-fg: #fffaf0;
-  --sage: #56704a;
+  --sage: #4e6743;
   --border: #e2d4b9;
   --selection: #f0d6a2;
   --mark: #f6dc9a;
 
-  --callout-note: #4f6f8a;
-  --callout-tip: #56704a;
+  --callout-note: #46657f;
+  --callout-tip: #4e6743;
   --callout-important: #7a5390;
   --callout-warning: #8a5e0f;
   --callout-caution: #a43d2c;

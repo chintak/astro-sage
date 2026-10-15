@@ -1,5 +1,4 @@
 ---
-
 type Props = {
   pageTitle: string | [string, string];
   pageDesc?: string;
@@ -7,16 +6,16 @@ type Props = {
 };
 
 const { pageTitle, pageDesc, class: className } = Astro.props;
-
 ---
 
-<main
-  id="main-content"
-  class:list={["app-layout pb-12", className]}
->
+<main id="main-content" class:list={["app-layout pb-12", className]}>
   <div class="max-w-measure mx-auto pt-10 sm:pt-14">
-    <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">{pageTitle}</h1>
-    {pageDesc && <p class="text-muted-foreground mt-3 mb-8 text-lg italic">{pageDesc}</p>}
+    <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">
+      {pageTitle}
+    </h1>
+    {pageDesc && (
+      <p class="text-muted-foreground mt-3 mb-8 text-lg italic">{pageDesc}</p>
+    )}
     <slot />
   </div>
 </main>

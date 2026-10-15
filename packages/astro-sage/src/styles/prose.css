@@ -30,6 +30,7 @@
       & p,
       & li {
         hyphens: auto;
+        hyphenate-limit-chars: 10 4 4;
       }
     }
 
@@ -92,7 +93,11 @@
       text-decoration-line: underline;
       text-decoration-thickness: 0.06em;
       text-underline-offset: 0.18em;
-      text-decoration-color: color-mix(in oklab, var(--accent) 40%, transparent);
+      text-decoration-color: color-mix(
+        in oklab,
+        var(--accent) 40%,
+        transparent
+      );
       transition: text-decoration-color 120ms;
     }
     & a:hover {

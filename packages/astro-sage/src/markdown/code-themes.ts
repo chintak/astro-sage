@@ -5,9 +5,12 @@ import type { ExpressiveCodeTheme } from "astro-expressive-code";
  * backgrounds are then pinned to the theme's own raised-surface colour so code
  * blocks sit on the same paper as callouts and the TOC.
  */
-export const sageCodeThemes = ["gruvbox-light-soft", "gruvbox-dark-medium"];
+export const sageCodeThemes = [
+  "gruvbox-light-soft",
+  "gruvbox-dark-medium",
+] as const;
 
-const SURFACE = { light: "#f1e7d3", dark: "#262019" } as const;
+const SURFACE = { light: "#f1e7d3", dark: "#27211a" } as const;
 
 export function customizeCodeTheme(theme: ExpressiveCodeTheme) {
   const surface = theme.type === "dark" ? SURFACE.dark : SURFACE.light;

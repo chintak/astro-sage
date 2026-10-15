@@ -12,36 +12,37 @@ const { headings, variant, class: className } = Astro.props;
 const items = headings.filter(h => h.depth >= 2 && h.depth <= 3);
 ---
 
-{
-  items.length > 1 &&
-    (variant === "rail" ? (
-      <nav class:list={["toc toc-rail", className]} aria-labelledby="toc-rail-label">
-        <p id="toc-rail-label" class="toc-label small-caps">
-          On this page
-        </p>
-        <ol>
-          {items.map(h => (
-            <li data-depth={h.depth}>
-              <a href={`#${h.slug}`} data-toc-link={h.slug}>
-                {h.text}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </nav>
-    ) : (
-      <details class:list={["toc toc-inline", className]}>
-        <summary class="small-caps">On this page</summary>
-        <ol>
-          {items.map(h => (
-            <li data-depth={h.depth}>
-              <a href={`#${h.slug}`}>{h.text}</a>
-            </li>
-          ))}
-        </ol>
-      </details>
-    ))
-}
+{items.length > 1 &&
+  (variant === "rail" ? (
+    <nav
+      class:list={["toc toc-rail", className]}
+      aria-labelledby="toc-rail-label"
+    >
+      <p id="toc-rail-label" class="toc-label small-caps">
+        On this page
+      </p>
+      <ol>
+        {items.map(h => (
+          <li data-depth={h.depth}>
+            <a href={`#${h.slug}`} data-toc-link={h.slug}>
+              {h.text}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  ) : (
+    <details class:list={["toc toc-inline", className]}>
+      <summary class="small-caps">On this page</summary>
+      <ol>
+        {items.map(h => (
+          <li data-depth={h.depth}>
+            <a href={`#${h.slug}`}>{h.text}</a>
+          </li>
+        ))}
+      </ol>
+    </details>
+  ))}
 
 <style>
   .toc ol {
@@ -71,7 +72,11 @@ const items = headings.filter(h => h.depth >= 2 && h.depth <= 3);
     scrollbar-width: none;
     font-size: 0.875rem;
     padding-block: 0.25rem 1rem;
-    mask-image: linear-gradient(to bottom, #000 calc(100% - 1.5rem), transparent);
+    mask-image: linear-gradient(
+      to bottom,
+      #000 calc(100% - 1.5rem),
+      transparent
+    );
   }
   .toc-label {
     color: var(--fg);

@@ -6,12 +6,21 @@ type Props = {
 const { slug } = Astro.props;
 ---
 
-<section id="comments" class="comments" data-slug={slug} aria-labelledby="comments-heading">
-  <h2 id="comments-heading" class="comments-heading">Comments</h2>
+<section
+  id="comments"
+  class="comments"
+  data-slug={slug}
+  aria-labelledby="comments-heading"
+>
+  <h2 id="comments-heading" class="comments-heading">
+    Comments
+  </h2>
   <div class="comments-root" aria-live="polite">
     <p class="comments-muted">Loading comments…</p>
   </div>
-  <noscript><p class="comments-muted">Comments need JavaScript.</p></noscript>
+  <noscript>
+    <p class="comments-muted">Comments need JavaScript.</p>
+  </noscript>
 </section>
 
 <script>
@@ -64,7 +73,9 @@ const { slug } = Astro.props;
     background: var(--bg-raised);
     color: var(--fg);
     font-size: 0.9rem;
-    transition: border-color 120ms, color 120ms;
+    transition:
+      border-color 120ms,
+      color 120ms;
   }
   .c-btn:hover {
     border-color: var(--accent);

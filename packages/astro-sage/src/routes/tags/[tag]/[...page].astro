@@ -39,13 +39,14 @@ const t = useTranslations(locale);
 <Layout title={`${t.pages.tagTitle}: ${tagName} | ${config.site.title}`}>
   <Header />
 
-
   <Main
     pageTitle={`${t.pages.tagTitle}: ${tagName}`}
     pageDesc={`${t.pages.tagDesc} "${tagName}".`}
   >
     <ul>
-      {page.data.map(data => <Card {...data} />)}
+      {page.data.map(data => (
+        <Card {...data} />
+      ))}
     </ul>
   </Main>
 

@@ -29,7 +29,9 @@ export const SERIF_FACES = {
 export type SerifFace = keyof typeof SERIF_FACES;
 
 function fontsourceFile(pkg: string, file: string): URL {
-  const root = dirname(require.resolve(`@fontsource-variable/${pkg}/package.json`));
+  const root = dirname(
+    require.resolve(`@fontsource-variable/${pkg}/package.json`)
+  );
   return pathToFileURL(join(root, "files", file));
 }
 
@@ -44,16 +46,16 @@ function serifFont(face: SerifFace) {
         {
           src: [fontsourceFile(face, `${face}-latin-opsz-normal.woff2`)],
           weight: "200 900",
-          style: "normal",
+          style: "normal" as const,
         },
         {
           src: [fontsourceFile(face, `${face}-latin-opsz-italic.woff2`)],
           weight: "200 900",
-          style: "italic",
+          style: "italic" as const,
         },
       ],
     },
-  } as const;
+  };
 }
 
 const monoFont = {
@@ -64,18 +66,28 @@ const monoFont = {
   options: {
     variants: [
       {
-        src: [fontsourceFile("jetbrains-mono", "jetbrains-mono-latin-wght-normal.woff2")],
+        src: [
+          fontsourceFile(
+            "jetbrains-mono",
+            "jetbrains-mono-latin-wght-normal.woff2"
+          ),
+        ],
         weight: "100 800",
-        style: "normal",
+        style: "normal" as const,
       },
       {
-        src: [fontsourceFile("jetbrains-mono", "jetbrains-mono-latin-wght-italic.woff2")],
+        src: [
+          fontsourceFile(
+            "jetbrains-mono",
+            "jetbrains-mono-latin-wght-italic.woff2"
+          ),
+        ],
         weight: "100 800",
-        style: "italic",
+        style: "italic" as const,
       },
     ],
   },
-} as const;
+};
 
 const ROUTES: Array<[pattern: string, entry: string]> = [
   ["/", "routes/index.astro"],
@@ -124,13 +136,21 @@ export default function astroSage(config: SageConfig): AstroIntegration {
   return {
     name: "astro-sage",
     hooks: {
-      "astro:config:setup": ({ updateConfig, injectRoute, config: astroConfig }) => {
+      "astro:config:setup": ({
+        updateConfig,
+        injectRoute,
+        config: astroConfig,
+      }) => {
         updateConfig({
           site: astroConfig.site ?? config.site.url,
           i18n: {
             locales: [config.site.lang ?? "en"],
             defaultLocale: config.site.lang ?? "en",
-            routing: { prefixDefaultLocale: false },
+            routing: {
+              prefixDefaultLocale: false,
+              redirectToDefaultLocale: false,
+              fallbackType: "redirect",
+            },
           },
           markdown: {
             processor: satteri({
@@ -141,7 +161,8 @@ export default function astroSage(config: SageConfig): AstroIntegration {
                 subscript: true,
                 smartPunctuation: true,
               },
-              mdastPlugins: [katexPlugin, calloutsPlugin],
+              // Our plugins are typed against `satteri`; the processor re-exports its own copy.
+              mdastPlugins: [katexPlugin, calloutsPlugin] as never[],
             }),
           },
           fonts: [serifFont(face), monoFont],
@@ -156,7 +177,7 @@ export default function astroSage(config: SageConfig): AstroIntegration {
           },
           integrations: [
             expressiveCode({
-              themes: sageCodeThemes,
+              themes: [...sageCodeThemes],
               customizeTheme: customizeCodeTheme,
               themeCssSelector: theme =>
                 `[data-theme="${theme.type === "dark" ? "dark" : "light"}"]`,
@@ -185,12 +206,16 @@ export default function astroSage(config: SageConfig): AstroIntegration {
                   editorTabBarBorderBottomColor: "var(--border)",
                 },
                 textMarkers: {
-                  markBackground: "color-mix(in oklab, var(--mark) 55%, transparent)",
-                  markBorderColor: "color-mix(in oklab, var(--callout-warning) 60%, transparent)",
-                  insBackground: "color-mix(in oklab, var(--callout-tip) 18%, transparent)",
+                  markBackground:
+                    "color-mix(in oklab, var(--mark) 55%, transparent)",
+                  markBorderColor:
+                    "color-mix(in oklab, var(--callout-warning) 60%, transparent)",
+                  insBackground:
+                    "color-mix(in oklab, var(--callout-tip) 18%, transparent)",
                   insBorderColor: "var(--callout-tip)",
                   insDiffIndicatorColor: "var(--callout-tip)",
-                  delBackground: "color-mix(in oklab, var(--callout-caution) 15%, transparent)",
+                  delBackground:
+                    "color-mix(in oklab, var(--callout-caution) 15%, transparent)",
                   delBorderColor: "var(--callout-caution)",
                   delDiffIndicatorColor: "var(--callout-caution)",
                 },
@@ -208,7 +233,8 @@ export default function astroSage(config: SageConfig): AstroIntegration {
               tailwindcss(),
               {
                 name: "astro-sage:user-config",
-                resolveId: id => (id === virtualId ? `\0${virtualId}` : undefined),
+                resolveId: id =>
+                  id === virtualId ? `\0${virtualId}` : undefined,
                 load: id =>
                   id === `\0${virtualId}`
                     ? `export default ${JSON.stringify(config)};`

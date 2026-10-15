@@ -1,3 +1,4 @@
+import type { D1Database } from "@cloudflare/workers-types/index.ts";
 /** Bindings and secrets the comments feature reads from the Worker env. */
 export interface SageCommentsEnv {
   /** D1 database with the astro-sage migrations applied. */

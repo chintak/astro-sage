@@ -25,10 +25,11 @@ const t = useTranslations(locale);
 <Layout title={`${t.pages.postsTitle} | ${config.site.title}`}>
   <Header />
 
-
   <Main pageTitle={t.pages.postsTitle} pageDesc={t.pages.postsDesc}>
     <ul>
-      {page.data.map(data => <Card {...data} />)}
+      {page.data.map(data => (
+        <Card {...data} />
+      ))}
     </ul>
   </Main>
 

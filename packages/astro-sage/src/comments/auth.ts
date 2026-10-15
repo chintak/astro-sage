@@ -9,7 +9,8 @@ import type { SageCommentsEnv } from "./env";
  * named unambiguously in `comments.admins`.
  */
 export function createAuth(env: SageCommentsEnv, baseURL: string) {
-  const socialProviders: Parameters<typeof betterAuth>[0]["socialProviders"] = {};
+  const socialProviders: Parameters<typeof betterAuth>[0]["socialProviders"] =
+    {};
 
   if (env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET) {
     socialProviders.github = {
@@ -43,7 +44,10 @@ export function createAuth(env: SageCommentsEnv, baseURL: string) {
       cookieCache: { enabled: true, maxAge: 5 * 60 },
     },
     advanced: {
-      defaultCookieAttributes: { sameSite: "lax", secure: baseURL.startsWith("https:") },
+      defaultCookieAttributes: {
+        sameSite: "lax",
+        secure: baseURL.startsWith("https:"),
+      },
     },
     telemetry: { enabled: false },
   });

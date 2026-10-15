@@ -18,10 +18,13 @@ export const PATCH: APIRoute = async ctx => {
   if (!comment || comment.deletedAt) return error("Not found", 404);
   if (comment.userId !== viewer.id) return error("Forbidden", 403);
 
-  const input = (await ctx.request.json().catch(() => null)) as { body?: string } | null;
+  const input = (await ctx.request.json().catch(() => null)) as {
+    body?: string;
+  } | null;
   const body = input?.body?.trim() ?? "";
   if (!body) return error("Comment is empty", 400);
-  if (body.length > MAX_COMMENT_LENGTH) return error("Comment is too long", 400);
+  if (body.length > MAX_COMMENT_LENGTH)
+    return error("Comment is too long", 400);
 
   await updateComment(env.DB, comment.id, body);
   return json({ ok: true });
@@ -34,7 +37,8 @@ export const DELETE: APIRoute = async ctx => {
   if (!viewer) return error("Sign in first", 401);
   const comment = await getComment(env.DB, ctx.params.id!);
   if (!comment || comment.deletedAt) return error("Not found", 404);
-  if (comment.userId !== viewer.id && !viewer.isAdmin) return error("Forbidden", 403);
+  if (comment.userId !== viewer.id && !viewer.isAdmin)
+    return error("Forbidden", 403);
 
   await softDeleteComment(env.DB, comment.id);
   return json({ ok: true });

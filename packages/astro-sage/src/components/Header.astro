@@ -15,13 +15,16 @@ const t = useTranslations(locale);
 
 const currentPath = stripLocale(stripBase(Astro.url.pathname), locale);
 const isActive = (path: string) =>
-  currentPath.split("/").filter(Boolean)[0] === path.split("/").filter(Boolean)[0];
+  currentPath.split("/").filter(Boolean)[0] ===
+  path.split("/").filter(Boolean)[0];
 
 const links = [
   { path: "/posts", label: t.nav.posts },
   { path: "/series", label: t.nav.series },
   { path: "/tags", label: t.nav.tags },
-  ...(features.showArchives ? [{ path: "/archives", label: t.nav.archives }] : []),
+  ...(features.showArchives
+    ? [{ path: "/archives", label: t.nav.archives }]
+    : []),
   { path: "/about", label: t.nav.about },
 ];
 ---
@@ -45,48 +48,42 @@ const links = [
 
     <nav aria-label="Main" class="flex items-center gap-1 sm:gap-2">
       <ul class="hidden items-center gap-5 md:flex">
-        {
-          links.map(l => (
-            <li>
-              <a
-                href={getRelativeLocaleUrl(locale, l.path.slice(1))}
-                class:list={["nav-link", { "active-nav": isActive(l.path) }]}
-                aria-current={isActive(l.path) ? "page" : undefined}
-              >
-                {l.label}
-              </a>
-            </li>
-          ))
-        }
+        {links.map(l => (
+          <li>
+            <a
+              href={getRelativeLocaleUrl(locale, l.path.slice(1))}
+              class:list={["nav-link", { "active-nav": isActive(l.path) }]}
+              aria-current={isActive(l.path) ? "page" : undefined}
+            >
+              {l.label}
+            </a>
+          </li>
+        ))}
       </ul>
 
-      {
-        features.search !== false && (
-          <a
-            href={getRelativeLocaleUrl(locale, "search")}
-            class="icon-btn"
-            title={t.nav.search}
-            aria-label={t.nav.search}
-          >
-            <IconSearch class="size-5" />
-          </a>
-        )
-      }
+      {features.search !== false && (
+        <a
+          href={getRelativeLocaleUrl(locale, "search")}
+          class="icon-btn"
+          title={t.nav.search}
+          aria-label={t.nav.search}
+        >
+          <IconSearch class="size-5" />
+        </a>
+      )}
 
-      {
-        features.lightAndDarkMode && (
-          <button
-            id="theme-btn"
-            class="icon-btn"
-            title={t.a11y.toggleTheme}
-            aria-label="auto"
-            aria-live="polite"
-          >
-            <IconMoon class="size-5 dark:hidden" />
-            <IconSunHigh class="hidden size-5 dark:block" />
-          </button>
-        )
-      }
+      {features.lightAndDarkMode && (
+        <button
+          id="theme-btn"
+          class="icon-btn"
+          title={t.a11y.toggleTheme}
+          aria-label="auto"
+          aria-live="polite"
+        >
+          <IconMoon class="size-5 dark:hidden" />
+          <IconSunHigh class="hidden size-5 dark:block" />
+        </button>
+      )}
 
       <slot name="actions" />
 
@@ -95,18 +92,16 @@ const links = [
           <IconMenuDeep class="size-5" />
         </summary>
         <ul>
-          {
-            links.map(l => (
-              <li>
-                <a
-                  href={getRelativeLocaleUrl(locale, l.path.slice(1))}
-                  class:list={{ "active-nav": isActive(l.path) }}
-                >
-                  {l.label}
-                </a>
-              </li>
-            ))
-          }
+          {links.map(l => (
+            <li>
+              <a
+                href={getRelativeLocaleUrl(locale, l.path.slice(1))}
+                class:list={{ "active-nav": isActive(l.path) }}
+              >
+                {l.label}
+              </a>
+            </li>
+          ))}
         </ul>
       </details>
     </nav>
@@ -132,7 +127,9 @@ const links = [
     height: 2.25rem;
     border-radius: 999px;
     color: var(--fg-muted);
-    transition: color 120ms, background-color 120ms;
+    transition:
+      color 120ms,
+      background-color 120ms;
   }
   .icon-btn:hover {
     color: var(--fg);

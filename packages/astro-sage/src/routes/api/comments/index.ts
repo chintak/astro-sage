@@ -7,6 +7,7 @@ import {
   getComment,
   listComments,
   recentCount,
+  type CommentRow,
 } from "@sage/comments/store";
 
 export const prerender = false;
@@ -22,17 +23,22 @@ export const GET: APIRoute = async ctx => {
   return json({
     viewer,
     providers,
-    comments: rows.map(c => ({
+    comments: rows.map((c: CommentRow) => ({
       id: c.id,
       parentId: c.parentId,
       bodyHtml: c.bodyHtml,
-      bodyMd: viewer && (viewer.id === c.userId) ? c.bodyMd : undefined,
+      bodyMd: viewer && viewer.id === c.userId ? c.bodyMd : undefined,
       createdAt: c.createdAt,
       editedAt: c.editedAt,
       deleted: !!c.deletedAt,
-      author: { name: c.authorName, image: c.authorImage, username: c.authorUsername },
+      author: {
+        name: c.authorName,
+        image: c.authorImage,
+        username: c.authorUsername,
+      },
       canEdit: !!viewer && viewer.id === c.userId && !c.deletedAt,
-      canDelete: !!viewer && (viewer.id === c.userId || viewer.isAdmin) && !c.deletedAt,
+      canDelete:
+        !!viewer && (viewer.id === c.userId || viewer.isAdmin) && !c.deletedAt,
     })),
   });
 };
@@ -51,12 +57,14 @@ export const POST: APIRoute = async ctx => {
   const body = input?.body?.trim() ?? "";
   if (!input?.slug || !SLUG.test(input.slug)) return error("Invalid slug", 400);
   if (!body) return error("Comment is empty", 400);
-  if (body.length > MAX_COMMENT_LENGTH) return error("Comment is too long", 400);
+  if (body.length > MAX_COMMENT_LENGTH)
+    return error("Comment is too long", 400);
 
   let parentId: string | null = null;
   if (input.parentId) {
     const parent = await getComment(env.DB, input.parentId);
-    if (!parent || parent.postSlug !== input.slug) return error("Unknown parent", 400);
+    if (!parent || parent.postSlug !== input.slug)
+      return error("Unknown parent", 400);
     // One level of replies: replying to a reply attaches to its root.
     parentId = parent.parentId ?? parent.id;
   }

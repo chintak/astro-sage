@@ -21,19 +21,22 @@ const t = useTranslations(locale);
   <Header />
   <Main pageTitle={t.pages.seriesTitle} pageDesc={t.pages.seriesDesc}>
     <ul class="divide-border divide-y">
-      {
-        series.map(s => (
-          <li class="py-5">
-            <a href={getRelativeLocaleUrl(locale, `series/${s.slug}/`)} class="group block">
-              <h2 class="group-hover:text-accent text-xl font-semibold transition-colors">{s.name}</h2>
-              <p class="text-muted-foreground mt-1">
-                {s.posts.length} {s.posts.length === 1 ? "part" : "parts"} · started{" "}
-                {s.posts[0].data.pubDatetime.getFullYear()}
-              </p>
-            </a>
-          </li>
-        ))
-      }
+      {series.map(s => (
+        <li class="py-5">
+          <a
+            href={getRelativeLocaleUrl(locale, `series/${s.slug}/`)}
+            class="group block"
+          >
+            <h2 class="group-hover:text-accent text-xl font-semibold transition-colors">
+              {s.name}
+            </h2>
+            <p class="text-muted-foreground mt-1">
+              {s.posts.length} {s.posts.length === 1 ? "part" : "parts"} ·
+              started {s.posts[0].data.pubDatetime.getFullYear()}
+            </p>
+          </a>
+        </li>
+      ))}
     </ul>
   </Main>
   <Footer />

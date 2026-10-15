@@ -1,4 +1,10 @@
-type Viewer = { id: string; name: string; image: string | null; username: string | null; isAdmin: boolean };
+type Viewer = {
+  id: string;
+  name: string;
+  image: string | null;
+  username: string | null;
+  isAdmin: boolean;
+};
 type Comment = {
   id: string;
   parentId: string | null;
@@ -11,7 +17,11 @@ type Comment = {
   canEdit: boolean;
   canDelete: boolean;
 };
-type Payload = { viewer: Viewer | null; providers: ("github" | "twitter")[]; comments: Comment[] };
+type Payload = {
+  viewer: Viewer | null;
+  providers: ("github" | "twitter")[];
+  comments: Comment[];
+};
 
 const PROVIDER_LABEL = { github: "GitHub", twitter: "X" } as const;
 const ICON = {
@@ -22,9 +32,18 @@ const ICON = {
 };
 
 const esc = (s: string) =>
-  s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+  s.replace(
+    /[&<>"']/g,
+    c =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ]!
+  );
 
-const fmt = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" });
+const fmt = new Intl.DateTimeFormat(undefined, {
+  dateStyle: "medium",
+  timeStyle: "short",
+});
 
 export function mount(section: HTMLElement) {
   const slug = section.dataset.slug!;
@@ -40,7 +59,8 @@ export function mount(section: HTMLElement) {
       headers: { "Content-Type": "application/json", ...init?.headers },
     });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error ?? `Request failed (${res.status})`);
+    if (!res.ok)
+      throw new Error(data.error ?? `Request failed (${res.status})`);
     return data;
   }
 
@@ -62,7 +82,10 @@ export function mount(section: HTMLElement) {
   function handle(username: string | null) {
     if (!username) return "";
     const [provider, name] = username.split(":");
-    const href = provider === "github" ? `https://github.com/${name}` : `https://x.com/${name}`;
+    const href =
+      provider === "github"
+        ? `https://github.com/${name}`
+        : `https://x.com/${name}`;
     return `<a class="c-meta" href="${esc(href)}" rel="nofollow noopener" target="_blank">@${esc(name)}</a>`;
   }
 
@@ -151,14 +174,19 @@ export function mount(section: HTMLElement) {
       try {
         const { url } = await api("/api/auth/sign-in/social", {
           method: "POST",
-          body: JSON.stringify({ provider: t.dataset.signin, callbackURL: t.dataset.callback }),
+          body: JSON.stringify({
+            provider: t.dataset.signin,
+            callbackURL: t.dataset.callback,
+          }),
         });
         location.href = url;
       } catch {
         t.removeAttribute("disabled");
       }
     } else if ("signout" in t.dataset) {
-      await api("/api/auth/sign-out", { method: "POST", body: "{}" }).catch(() => {});
+      await api("/api/auth/sign-out", { method: "POST", body: "{}" }).catch(
+        () => {}
+      );
       await load();
     } else if (t.dataset.reply) {
       replyTo = t.dataset.reply;
@@ -172,7 +200,9 @@ export function mount(section: HTMLElement) {
       root.querySelector<HTMLTextAreaElement>(`#c-edit-${editing}`)?.focus();
     } else if (t.dataset.delete) {
       if (!confirm("Delete this comment?")) return;
-      await api(`/api/comments/${t.dataset.delete}`, { method: "DELETE" }).catch(err => alert(err.message));
+      await api(`/api/comments/${t.dataset.delete}`, {
+        method: "DELETE",
+      }).catch(err => alert(err.message));
       await load();
     } else if ("cancel" in t.dataset) {
       replyTo = editing = null;
@@ -191,11 +221,18 @@ export function mount(section: HTMLElement) {
     err.textContent = "";
     try {
       if (id.startsWith("edit-")) {
-        await api(`/api/comments/${id.slice(5)}`, { method: "PATCH", body: JSON.stringify({ body }) });
+        await api(`/api/comments/${id.slice(5)}`, {
+          method: "PATCH",
+          body: JSON.stringify({ body }),
+        });
       } else {
         await api("/api/comments", {
           method: "POST",
-          body: JSON.stringify({ slug, body, parentId: id.startsWith("reply-") ? id.slice(6) : null }),
+          body: JSON.stringify({
+            slug,
+            body,
+            parentId: id.startsWith("reply-") ? id.slice(6) : null,
+          }),
         });
       }
       replyTo = editing = null;

@@ -8,13 +8,21 @@ export function getSeriesPosts(
 ): CollectionEntry<"posts">[] {
   return posts
     .filter(p => p.data.series === series)
-    .sort((a, b) => a.data.pubDatetime.valueOf() - b.data.pubDatetime.valueOf());
+    .sort(
+      (a, b) => a.data.pubDatetime.valueOf() - b.data.pubDatetime.valueOf()
+    );
 }
 
 /** All series with their posts, keyed by slug. */
 export function getAllSeries(posts: CollectionEntry<"posts">[]) {
-  const names = [...new Set(posts.map(p => p.data.series).filter(Boolean))] as string[];
+  const names = [
+    ...new Set(posts.map(p => p.data.series).filter(Boolean)),
+  ] as string[];
   return names
-    .map(name => ({ name, slug: slugifyStr(name), posts: getSeriesPosts(posts, name) }))
+    .map(name => ({
+      name,
+      slug: slugifyStr(name),
+      posts: getSeriesPosts(posts, name),
+    }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }

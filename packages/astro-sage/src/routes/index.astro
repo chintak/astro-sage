@@ -41,35 +41,31 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
         </div>
       </section>
 
-      {
-        featuredPosts.length > 0 && (
-          <section aria-labelledby="featured-heading" class="mt-14">
-            <h2 id="featured-heading" class="section-label small-caps">
-              {t.home.featured}
-            </h2>
-            <ul>
-              {featuredPosts.map(data => (
-                <Card variant="h3" {...data} />
-              ))}
-            </ul>
-          </section>
-        )
-      }
+      {featuredPosts.length > 0 && (
+        <section aria-labelledby="featured-heading" class="mt-14">
+          <h2 id="featured-heading" class="section-label small-caps">
+            {t.home.featured}
+          </h2>
+          <ul>
+            {featuredPosts.map(data => (
+              <Card variant="h3" {...data} />
+            ))}
+          </ul>
+        </section>
+      )}
 
-      {
-        recentPosts.length > 0 && (
-          <section aria-labelledby="recent-heading" class="mt-14">
-            <h2 id="recent-heading" class="section-label small-caps">
-              {t.home.recentPosts}
-            </h2>
-            <ul>
-              {recentPosts.slice(0, postsConfig.perIndex).map(data => (
-                <Card variant="h3" {...data} />
-              ))}
-            </ul>
-          </section>
-        )
-      }
+      {recentPosts.length > 0 && (
+        <section aria-labelledby="recent-heading" class="mt-14">
+          <h2 id="recent-heading" class="section-label small-caps">
+            {t.home.recentPosts}
+          </h2>
+          <ul>
+            {recentPosts.slice(0, postsConfig.perIndex).map(data => (
+              <Card variant="h3" {...data} />
+            ))}
+          </ul>
+        </section>
+      )}
 
       <div class="mt-10">
         <a
