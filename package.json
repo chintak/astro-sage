@@ -12,8 +12,8 @@
     "preview": "pnpm --filter @astro-sage/demo preview",
     "check": "pnpm --filter @astro-sage/demo exec astro check",
     "lint": "oxlint",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "prettier --write \"packages/**/*.{ts,astro,css}\" \"apps/demo/**/*.ts\"",
+    "format:check": "prettier --check \"packages/**/*.{ts,astro,css}\" \"apps/demo/**/*.ts\"",
     "test": "pnpm --filter @astro-sage/demo test"
   },
   "devDependencies": {
