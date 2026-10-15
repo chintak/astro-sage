@@ -368,7 +368,8 @@
       }
     }
     & [data-footnote-ref] {
-      text-decoration: none;
+      text-decoration-line: underline;
+      text-decoration-style: dotted;
       font-variant-numeric: lining-nums;
       padding-inline: 0.1em;
       &::before {
@@ -379,7 +380,8 @@
       }
     }
     & .data-footnote-backref {
-      text-decoration: none;
+      text-decoration-line: underline;
+      text-decoration-style: dotted;
     }
     & .sr-only {
       position: absolute;

@@ -1,5 +1,5 @@
 import katex from "katex";
-import type { MdastPluginDefinition } from "satteri";
+import type { HastPluginDefinition, MdastPluginDefinition } from "satteri";
 
 /** Callout kinds, matching GitHub alert types. Unknown kinds render as `note`. */
 export const CALLOUT_TYPES = [
@@ -158,5 +158,28 @@ export const katexPlugin: MdastPluginDefinition = {
       output: "htmlAndMathml",
     });
     ctx.replaceNode(node, rawHtml(html, ctx.sourceFormat === "mdx", true));
+  },
+};
+
+/**
+ * Accessibility fixes on the rendered HTML:
+ * - GFM task-list checkboxes get an accessible name from their list item.
+ * - Tables (which scroll horizontally when wide) become keyboard-focusable.
+ */
+export const a11yPlugin: HastPluginDefinition = {
+  name: "astro-sage-a11y",
+  element: {
+    filter: ["input", "table"],
+    visit(node: Node, ctx: Node) {
+      if (node.tagName === "table") {
+        ctx.setProperty(node, "tabIndex", 0);
+        return;
+      }
+      if (node.properties?.type !== "checkbox") return;
+      const item = ctx.parent(node);
+      const label = item ? ctx.textContent(item).trim() : "";
+      const done = node.properties?.checked ? "Done" : "To do";
+      ctx.setProperty(node, "ariaLabel", label ? `${done}: ${label}` : done);
+    },
   },
 };

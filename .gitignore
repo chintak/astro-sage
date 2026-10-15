@@ -35,3 +35,5 @@ apps/*/dist/
 apps/*/.astro/
 .dev.vars
 .wrangler/
+apps/*/test-results/
+apps/*/playwright-report/

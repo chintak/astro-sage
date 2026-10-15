@@ -95,6 +95,12 @@ interface ShareLink {
 interface TypographyConfig {
   /** Body serif. All bundled faces are variable with optical sizing. */
   serif?: "source-serif-4" | "literata" | "newsreader";
+  /**
+   * Ship the optical-size axis (finer headings, sturdier small text).
+   * Costs ~70 KB more font per style and ~5 points of mobile Lighthouse
+   * performance on slow connections. Defaults to false.
+   */
+  opticalSizing?: boolean;
 }
 
 interface HomeConfig {
@@ -145,7 +151,7 @@ type ResolvedSiteConfig = Required<
 
 export interface ResolvedSageConfig {
   site: ResolvedSiteConfig;
-  typography: Required<TypographyConfig>;
+  typography: Required<Pick<TypographyConfig, "serif">> & TypographyConfig;
   home: HomeConfig;
   comments: Required<CommentsConfig>;
   posts: Required<PostsConfig>;

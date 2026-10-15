@@ -18,7 +18,7 @@ import Comments from "@sage/components/Comments.astro";
 import { readingTime } from "@sage/utils/readingTime";
 import { getSeriesPosts } from "@sage/utils/getSeries";
 import { postFilter } from "@sage/utils/postFilter";
-import "katex/dist/katex.min.css";
+import katexCss from "katex/dist/katex.min.css?url";
 
 export async function getStaticPaths() {
   const posts = await getCollection("posts");
@@ -82,6 +82,7 @@ const {
   hideEditPost,
   series,
   toc,
+  math,
 } = post.data;
 
 const { Content, headings } = await render(post);
@@ -113,6 +114,7 @@ const ogImage = ogImageUrl
 ---
 
 <PostLayout
+  stylesheets={math ? [katexCss] : []}
   title={`${title} | ${config.site.title}`}
   description={description}
   ogImage={ogImage}

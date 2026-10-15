@@ -10,7 +10,7 @@ import expressiveCode from "astro-expressive-code";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
 import tailwindcss from "@tailwindcss/vite";
-import { calloutsPlugin, katexPlugin } from "./markdown";
+import { a11yPlugin, calloutsPlugin, katexPlugin } from "./markdown";
 import { customizeCodeTheme, sageCodeThemes } from "./markdown/code-themes";
 import type { SageConfig } from "./types/config";
 
@@ -35,7 +35,8 @@ function fontsourceFile(pkg: string, file: string): URL {
   return pathToFileURL(join(root, "files", file));
 }
 
-function serifFont(face: SerifFace) {
+function serifFont(face: SerifFace, opticalSizing: boolean) {
+  const axes = opticalSizing ? "opsz" : "wght";
   return {
     name: SERIF_FACES[face],
     cssVariable: "--font-serif",
@@ -44,12 +45,12 @@ function serifFont(face: SerifFace) {
     options: {
       variants: [
         {
-          src: [fontsourceFile(face, `${face}-latin-opsz-normal.woff2`)],
+          src: [fontsourceFile(face, `${face}-latin-${axes}-normal.woff2`)],
           weight: "200 900",
           style: "normal" as const,
         },
         {
-          src: [fontsourceFile(face, `${face}-latin-opsz-italic.woff2`)],
+          src: [fontsourceFile(face, `${face}-latin-${axes}-italic.woff2`)],
           weight: "200 900",
           style: "italic" as const,
         },
@@ -163,9 +164,13 @@ export default function astroSage(config: SageConfig): AstroIntegration {
               },
               // Our plugins are typed against `satteri`; the processor re-exports its own copy.
               mdastPlugins: [katexPlugin, calloutsPlugin] as never[],
+              hastPlugins: [a11yPlugin] as never[],
             }),
           },
-          fonts: [serifFont(face), monoFont],
+          fonts: [
+            serifFont(face, config.typography?.opticalSizing ?? false),
+            monoFont,
+          ],
           env: {
             schema: {
               PUBLIC_GOOGLE_SITE_VERIFICATION: envField.string({
@@ -207,15 +212,15 @@ export default function astroSage(config: SageConfig): AstroIntegration {
                 },
                 textMarkers: {
                   markBackground:
-                    "color-mix(in oklab, var(--mark) 55%, transparent)",
+                    "color-mix(in oklab, var(--mark) 30%, transparent)",
                   markBorderColor:
                     "color-mix(in oklab, var(--callout-warning) 60%, transparent)",
                   insBackground:
-                    "color-mix(in oklab, var(--callout-tip) 18%, transparent)",
+                    "color-mix(in oklab, var(--callout-tip) 11%, transparent)",
                   insBorderColor: "var(--callout-tip)",
                   insDiffIndicatorColor: "var(--callout-tip)",
                   delBackground:
-                    "color-mix(in oklab, var(--callout-caution) 15%, transparent)",
+                    "color-mix(in oklab, var(--callout-caution) 10%, transparent)",
                   delBorderColor: "var(--callout-caution)",
                   delDiffIndicatorColor: "var(--callout-caution)",
                 },

@@ -9,12 +9,21 @@ type Props = {
   canonicalURL?: string;
   pubDatetime?: Date;
   modDatetime?: Date | null;
+  /** Extra stylesheet URLs for this page only (e.g. KaTeX when the post has math). */
+  stylesheets?: string[];
 };
 
 const { site } = config;
 
-const { title, description, ogImage, canonicalURL, pubDatetime, modDatetime } =
-  Astro.props;
+const {
+  title,
+  description,
+  ogImage,
+  canonicalURL,
+  pubDatetime,
+  modDatetime,
+  stylesheets = [],
+} = Astro.props;
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -35,6 +44,9 @@ const structuredData = {
 
 <Layout {title} {description} {ogImage} {canonicalURL}>
   <Fragment slot="head">
+    {stylesheets.map(href => (
+      <link rel="stylesheet" href={href} />
+    ))}
     <!-- Override og:type for article pages -->
     <meta property="og:type" content="article" />
 
