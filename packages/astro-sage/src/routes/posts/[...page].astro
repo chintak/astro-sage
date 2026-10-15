@@ -3,7 +3,6 @@ import type { GetStaticPaths } from "astro";
 import { getCollection } from "astro:content";
 import Layout from "@sage/layouts/Layout.astro";
 import Header from "@sage/components/Header.astro";
-import Breadcrumb from "@sage/components/Breadcrumb.astro";
 import Main from "@sage/components/Main.astro";
 import Card from "@sage/components/Card.astro";
 import Footer from "@sage/components/Footer.astro";
@@ -26,7 +25,6 @@ const t = useTranslations(locale);
 <Layout title={`${t.pages.postsTitle} | ${config.site.title}`}>
   <Header />
 
-  <Breadcrumb />
 
   <Main pageTitle={t.pages.postsTitle} pageDesc={t.pages.postsDesc}>
     <ul>

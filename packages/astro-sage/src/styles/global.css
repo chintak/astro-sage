@@ -75,4 +75,8 @@
   html {
     scroll-behavior: smooth;
   }
+  /* Native cross-document view transitions: zero JavaScript. */
+  @view-transition {
+    navigation: auto;
+  }
 }

@@ -89,6 +89,8 @@ const ROUTES: Array<[pattern: string, entry: string]> = [
   ["/robots.txt", "routes/robots.txt.ts"],
   ["/rss.xml", "routes/rss.xml.ts"],
   ["/search", "routes/search.astro"],
+  ["/series", "routes/series/index.astro"],
+  ["/series/[series]", "routes/series/[series].astro"],
   ["/tags", "routes/tags/index.astro"],
   ["/tags/[tag]/[...page]", "routes/tags/[tag]/[...page].astro"],
 ];

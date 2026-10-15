@@ -1,15 +1,13 @@
 ---
 import type { HTMLAttributes } from "astro/types";
 import Socials from "./Socials.astro";
-import { useTranslations } from "@sage/i18n";
+import config from "@sage/config";
 
 type Props = {
   noMarginTop?: boolean;
 } & HTMLAttributes<"footer">;
 
 const { noMarginTop = false, class: className, ...attrs } = Astro.props;
-
-const t = useTranslations(Astro.currentLocale);
 const currentYear = new Date().getFullYear();
 ---
 
@@ -18,13 +16,12 @@ const currentYear = new Date().getFullYear();
   {...attrs}
 >
   <div
-    class="border-border flex flex-col items-center justify-between border-t py-6 sm:flex-row-reverse sm:py-4"
+    class="border-border text-muted-foreground flex flex-col items-center justify-between gap-3 border-t py-8 text-sm sm:flex-row"
   >
+    <p>
+      © {currentYear} {config.site.author} · Set in
+      <a class="hover:text-accent underline decoration-dotted underline-offset-4" href="https://github.com/chintak/astro-sage">AstroSage</a>
+    </p>
     <Socials />
-    <div class="my-2 flex flex-col items-center whitespace-nowrap sm:flex-row">
-      <span>{t.footer.copyright} &#169; {currentYear}</span>
-      <span class="hidden sm:inline">&nbsp;|&nbsp;</span>
-      <span>{t.footer.allRightsReserved}</span>
-    </div>
   </div>
 </footer>

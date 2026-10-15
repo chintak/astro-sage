@@ -2,7 +2,6 @@
 import { getEntry, render } from "astro:content";
 import Layout from "@sage/layouts/Layout.astro";
 import Header from "@sage/components/Header.astro";
-import Breadcrumb from "@sage/components/Breadcrumb.astro";
 import Main from "@sage/components/Main.astro";
 import Footer from "@sage/components/Footer.astro";
 import config from "@sage/config";
@@ -26,7 +25,6 @@ const { Content } = await render(about);
 >
   <Header />
 
-  <Breadcrumb />
 
   <Main pageTitle={about.data.title} class="app-prose">
     <Content />

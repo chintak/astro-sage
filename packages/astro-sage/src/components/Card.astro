@@ -1,7 +1,6 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import { getPostUrl } from "@sage/utils/getPostPaths";
-import { toTransitionName } from "@sage/utils/toTransitionName";
 import Datetime from "./Datetime.astro";
 
 type Props = {
@@ -10,22 +9,49 @@ type Props = {
 
 const { variant: Heading = "h2", id, data, filePath } = Astro.props;
 
-const { title, description, ...props } = data;
+const { title, description, series, ...props } = data;
 ---
 
-<li class="my-6">
-  <a
-    href={getPostUrl(id, filePath, Astro.currentLocale)}
-    class:list={[
-      "text-accent inline-block text-lg font-medium",
-      "decoration-dashed underline-offset-4 hover:underline",
-      "focus-visible:no-underline focus-visible:underline-offset-0",
-    ]}
-  >
-    <Heading transition:name={toTransitionName(id)}>
-      {title}
-    </Heading>
+<li class="post-card">
+  <a href={getPostUrl(id, filePath, Astro.currentLocale)} class="group block">
+    <Heading class="card-title group-hover:text-accent">{title}</Heading>
+    <p class="card-desc">{description}</p>
   </a>
-  <Datetime {...props} />
-  <p>{description}</p>
+  <div class="card-meta">
+    <Datetime {...props} />
+    {series && <span aria-hidden="true">·</span>}
+    {series && <span class="text-sage">{series}</span>}
+  </div>
 </li>
+
+<style>
+  .post-card {
+    padding-block: 1.4rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .post-card:last-child {
+    border-bottom: 0;
+  }
+  .card-title {
+    font-size: 1.35rem;
+    line-height: 1.25;
+    font-weight: 600;
+    text-wrap: balance;
+    transition: color 120ms;
+  }
+  .card-desc {
+    margin-top: 0.4rem;
+    color: var(--fg-muted);
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+  .card-meta {
+    margin-top: 0.6rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+  }
+</style>

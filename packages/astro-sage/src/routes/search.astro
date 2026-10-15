@@ -3,7 +3,6 @@ import { getRelativeLocaleUrl } from "astro:i18n";
 import "@pagefind/default-ui/css/ui.css";
 import Layout from "@sage/layouts/Layout.astro";
 import Header from "@sage/components/Header.astro";
-import Breadcrumb from "@sage/components/Breadcrumb.astro";
 import Main from "@sage/components/Main.astro";
 import Footer from "@sage/components/Footer.astro";
 import { getAssetPath } from "@sage/utils/withBase";
@@ -30,7 +29,6 @@ const t = useTranslations(locale);
 <Layout title={`${t.pages.searchTitle} | ${config.site.title}`}>
   <Header />
 
-  <Breadcrumb />
 
   <Main pageTitle={t.pages.searchTitle} pageDesc={t.pages.searchDesc}>
     <div

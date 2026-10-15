@@ -1,6 +1,5 @@
 ---
 import { Font } from "astro:assets";
-import { ClientRouter } from "astro:transitions";
 import { getRelativeLocaleUrl } from "astro:i18n";
 import { resolveDefaultOgImagePath } from "@sage/utils/resolveDefaultOgImagePath";
 import { getAssetPath } from "@sage/utils/withBase";
@@ -112,7 +111,6 @@ const rssHref = getRelativeLocaleUrl(
       })();
     </script>
 
-    <ClientRouter />
   </head>
   <body
     class="bg-background font-app text-foreground flex min-h-svh flex-col"
