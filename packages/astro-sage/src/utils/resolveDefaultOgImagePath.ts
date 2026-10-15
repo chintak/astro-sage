@@ -1,10 +1,10 @@
 import type { ResolvedSageConfig } from "@sage/types/config";
 import { getAssetPath } from "./withBase";
 
-const publicFiles = import.meta.glob("/public/*", { eager: false });
+import { publicFiles } from "virtual:astro-sage/user-config";
 
 function existsInPublic(filename: string): boolean {
-  return `/public/${filename}` in publicFiles;
+  return publicFiles.includes(filename);
 }
 
 /**

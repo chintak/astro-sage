@@ -1,3 +1,4 @@
+import { existsSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -142,6 +143,11 @@ export default function astroSage(config: SageConfig): AstroIntegration {
         injectRoute,
         config: astroConfig,
       }) => {
+        // Top-level public/ files, so layouts can link only icons that exist.
+        const publicFiles = existsSync(astroConfig.publicDir)
+          ? readdirSync(astroConfig.publicDir)
+          : [];
+
         updateConfig({
           site: astroConfig.site ?? config.site.url,
           i18n: {
@@ -242,7 +248,7 @@ export default function astroSage(config: SageConfig): AstroIntegration {
                   id === virtualId ? `\0${virtualId}` : undefined,
                 load: id =>
                   id === `\0${virtualId}`
-                    ? `export default ${JSON.stringify(config)};`
+                    ? `export default ${JSON.stringify(config)};\nexport const publicFiles = ${JSON.stringify(publicFiles)};`
                     : undefined,
               },
             ],

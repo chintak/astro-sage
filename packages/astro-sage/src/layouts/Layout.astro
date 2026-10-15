@@ -4,6 +4,7 @@ import { getRelativeLocaleUrl } from "astro:i18n";
 import { resolveDefaultOgImagePath } from "@sage/utils/resolveDefaultOgImagePath";
 import { getAssetPath } from "@sage/utils/withBase";
 import config from "@sage/config";
+import { publicFiles } from "virtual:astro-sage/user-config";
 import "@sage/styles/global.css";
 
 type Props = {
@@ -16,8 +17,7 @@ type Props = {
 const { site } = config;
 
 // Link only the icons the site actually ships in public/.
-const publicFiles = import.meta.glob("/public/*", { eager: false });
-const has = (name: string) => `/public/${name}` in publicFiles;
+const has = (name: string) => publicFiles.includes(name);
 const icons = {
   svg: has("favicon.svg"),
   ico: has("favicon.ico"),

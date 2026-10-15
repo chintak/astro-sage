@@ -20,7 +20,8 @@
     "./styles/*": "./src/styles/*"
   },
   "files": [
-    "src"
+    "src",
+    "migrations"
   ],
   "peerDependencies": {
     "astro": "^7.0.0"
