@@ -1,0 +1,10 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "include": [".astro/types.d.ts", "**/*", "../../packages/astro-sage/src/**/*"],
+  "exclude": ["dist"],
+  "compilerOptions": {
+    "paths": {
+      "@sage/*": ["../../packages/astro-sage/src/*"]
+    }
+  }
+}

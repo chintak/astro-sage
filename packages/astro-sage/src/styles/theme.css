@@ -1,0 +1,61 @@
+/*
+ * AstroSage design tokens. Every colour in the theme comes from here.
+ * Light is warm paper; dark is warm ink. Body text targets ≥ 7:1 contrast,
+ * muted text and links ≥ 4.5:1 (see docs/decisions/003-palette.md).
+ */
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-surface: var(--bg-raised);
+  --color-foreground: var(--fg);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-fg);
+  --color-sage: var(--sage);
+  --color-muted: var(--bg-raised);
+  --color-muted-foreground: var(--fg-muted);
+  --color-border: var(--border);
+  --font-app: var(--font-serif);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+}
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f8f1e3;
+  --bg-raised: #f1e7d3;
+  --fg: #3a3126;
+  --fg-muted: #6b5f4f;
+  --accent: #9c4a24;
+  --accent-fg: #fffaf0;
+  --sage: #56704a;
+  --border: #e2d4b9;
+  --selection: #f0d6a2;
+  --mark: #f6dc9a;
+
+  --callout-note: #4f6f8a;
+  --callout-tip: #56704a;
+  --callout-important: #7a5390;
+  --callout-warning: #8a5e0f;
+  --callout-caution: #a43d2c;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #1d1913;
+  --bg-raised: #27211a;
+  --fg: #e8dcc6;
+  --fg-muted: #ab9d86;
+  --accent: #e4915f;
+  --accent-fg: #1d1913;
+  --sage: #a3b993;
+  --border: #3b3228;
+  --selection: #5a4630;
+  --mark: #5c4a22;
+
+  --callout-note: #8fb0cc;
+  --callout-tip: #a3b993;
+  --callout-important: #c4a2d6;
+  --callout-warning: #dcb25e;
+  --callout-caution: #e8907e;
+}

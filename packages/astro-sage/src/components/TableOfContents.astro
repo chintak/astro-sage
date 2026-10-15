@@ -1,0 +1,163 @@
+---
+import type { MarkdownHeading } from "astro";
+
+type Props = {
+  headings: MarkdownHeading[];
+  /** "rail" = pinned right column (desktop); "inline" = collapsible block (mobile). */
+  variant: "rail" | "inline";
+  class?: string;
+};
+
+const { headings, variant, class: className } = Astro.props;
+const items = headings.filter(h => h.depth >= 2 && h.depth <= 3);
+---
+
+{
+  items.length > 1 &&
+    (variant === "rail" ? (
+      <nav class:list={["toc toc-rail", className]} aria-labelledby="toc-rail-label">
+        <p id="toc-rail-label" class="toc-label small-caps">
+          On this page
+        </p>
+        <ol>
+          {items.map(h => (
+            <li data-depth={h.depth}>
+              <a href={`#${h.slug}`} data-toc-link={h.slug}>
+                {h.text}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    ) : (
+      <details class:list={["toc toc-inline", className]}>
+        <summary class="small-caps">On this page</summary>
+        <ol>
+          {items.map(h => (
+            <li data-depth={h.depth}>
+              <a href={`#${h.slug}`}>{h.text}</a>
+            </li>
+          ))}
+        </ol>
+      </details>
+    ))
+}
+
+<style>
+  .toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .toc a {
+    display: block;
+    color: var(--fg-muted);
+    text-decoration: none;
+    line-height: 1.35;
+    transition: color 120ms;
+    text-wrap: pretty;
+  }
+  .toc a:hover {
+    color: var(--fg);
+  }
+
+  /* ---- Pinned rail ---- */
+  .toc-rail {
+    position: sticky;
+    top: 2rem;
+    max-height: calc(100svh - 4rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    font-size: 0.875rem;
+    padding-block: 0.25rem 1rem;
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 1.5rem), transparent);
+  }
+  .toc-label {
+    color: var(--fg);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+  .toc-rail ol {
+    border-inline-start: 1px solid var(--border);
+  }
+  .toc-rail li a {
+    padding: 0.3rem 0 0.3rem 0.9rem;
+    margin-inline-start: -1px;
+    border-inline-start: 2px solid transparent;
+  }
+  .toc-rail li[data-depth="3"] a {
+    padding-inline-start: 1.75rem;
+    font-size: 0.8125rem;
+  }
+  .toc-rail a[aria-current="location"] {
+    color: var(--accent);
+    border-inline-start-color: var(--accent);
+  }
+
+  /* ---- Inline (narrow screens) ---- */
+  .toc-inline {
+    border-block: 1px solid var(--border);
+    padding-block: 0.6rem;
+    font-size: 0.95rem;
+  }
+  .toc-inline summary {
+    cursor: pointer;
+    color: var(--fg-muted);
+    font-weight: 600;
+  }
+  .toc-inline ol {
+    margin-top: 0.5rem;
+  }
+  .toc-inline li a {
+    padding-block: 0.25rem;
+  }
+  .toc-inline li[data-depth="3"] a {
+    padding-inline-start: 1rem;
+  }
+</style>
+
+<script>
+  // Scroll-spy: highlight the section currently being read. A heading becomes
+  // "current" once it crosses the top 25% of the viewport.
+  function initTocSpy() {
+    const links = new Map<string, HTMLAnchorElement>();
+    document
+      .querySelectorAll<HTMLAnchorElement>("[data-toc-link]")
+      .forEach(a => links.set(a.dataset.tocLink!, a));
+    if (links.size === 0) return;
+
+    const headings = [...links.keys()]
+      .map(id => document.getElementById(id))
+      .filter((h): h is HTMLElement => h !== null);
+
+    let current: HTMLAnchorElement | undefined;
+    const update = () => {
+      const line = window.innerHeight * 0.25;
+      let active = headings[0];
+      for (const h of headings) {
+        if (h.getBoundingClientRect().top <= line) active = h;
+        else break;
+      }
+      const link = links.get(active.id);
+      if (link === current) return;
+      current?.removeAttribute("aria-current");
+      link?.setAttribute("aria-current", "location");
+      current = link;
+      // Keep the active item visible inside a long rail without moving the page.
+      const rail = link?.closest<HTMLElement>(".toc-rail");
+      if (rail && link) {
+        const top = link.offsetTop - rail.clientHeight / 2;
+        rail.scrollTo({ top, behavior: "instant" });
+      }
+    };
+
+    const observer = new IntersectionObserver(update, {
+      rootMargin: "0px 0px -75% 0px",
+      threshold: [0, 1],
+    });
+    headings.forEach(h => observer.observe(h));
+    update();
+  }
+  initTocSpy();
+</script>

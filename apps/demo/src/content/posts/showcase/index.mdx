@@ -1,0 +1,242 @@
+---
+title: "AstroSage: every element, set in type"
+description: "A single long post that exercises every feature of the theme: typography, math, code, callouts, tables, figures and footnotes."
+pubDatetime: 2026-10-15T09:00:00Z
+tags: ["astrosage", "typography", "showcase"]
+series: "Building AstroSage"
+featured: true
+---
+
+import Figure from "astro-sage/components/Figure.astro";
+import hills from "./paper-hills.svg";
+
+Good typography is invisible. You notice it only when it fails: when a line runs so long your eye loses its place, when a heading floats closer to the paragraph above than the one it introduces, or when a code block shouts over the prose around it. This post is a field test. It uses every element the theme supports, so each one can be checked at a glance in light and dark, on a phone and on a wide monitor.
+
+The body is set in a variable serif with **optical sizing**, so small text gets sturdier strokes and large headings get finer detail. Paragraphs use `text-wrap: pretty` to avoid lonely last words, and the measure stays around 66 characters. That's near the classic sweet spot of 45 to 75 characters per line.[^measure]
+
+## Inline elements
+
+Within a paragraph you'll find **strong emphasis**, *italic emphasis*, and ***both at once***. There are [links that sit quietly](https://astro.build) until you hover, `inline code` for identifiers like `useState()`, and <mark>highlighted passages</mark> for the bits worth rereading. Keyboard shortcuts look like <kbd>⌘</kbd> + <kbd>K</kbd>. Chemistry needs subscripts, as in H~2~O, and footnote-style references need superscripts, as in x^2^. Abbreviations such as <abbr title="Cascading Style Sheets">CSS</abbr> carry their expansion on hover.
+
+Smart punctuation turns "straight quotes" into curly ones, `--` into an en dash for ranges like 1990--2026, `---` into an em dash for asides --- like this one --- and three dots into an ellipsis...
+
+### Old-style figures
+
+Numbers inside prose use old-style figures, which sit in the text like lowercase letters: the build took 1,284 ms across 37 pages in 2026. Tables switch to lining, tabular figures so columns of digits line up.
+
+## Headings and rhythm
+
+Headings are tighter than body text and sit closer to the paragraph they introduce than to the one before them. The table of contents on the right is built from the `h2` and `h3` headings on this page. It stays **pinned** while you scroll and highlights the section you're reading.
+
+### A third-level heading
+
+Third-level headings are smaller and still bold. They appear indented in the table of contents.
+
+#### A fourth-level heading
+
+Fourth-level headings switch to italic and are left out of the table of contents to keep it calm.
+
+## Quotations
+
+> The details are not the details. They make the design.
+>
+> <cite>Charles Eames</cite>
+
+Quotes can nest when a conversation needs it:
+
+> Someone once wrote to me:
+>
+> > Typography exists to honor content.
+>
+> I've kept that note above my desk ever since.
+
+## Callouts
+
+Callouts come in five flavors. You can write them as **GitHub alerts**, which keeps posts portable:
+
+> [!NOTE]
+> Useful information the reader should notice even when skimming.
+
+> [!TIP] Pro tip
+> Helpful advice for doing things better or more easily. The title is optional.
+
+> [!IMPORTANT]
+> Key information the reader needs to succeed.
+
+Or as **container directives**, which can hold richer content:
+
+:::warning[Mind the cache]
+Changing the slug of a published post breaks inbound links. If you must, add a redirect in `astro.config.ts`:
+
+```ts title="astro.config.ts"
+export default defineConfig({
+  redirects: { "/posts/old-slug": "/posts/new-slug" },
+});
+```
+:::
+
+:::caution
+Callouts can contain math too: a learning rate of $\eta > 2/\lambda_{\max}$ will make gradient descent diverge on a quadratic.
+:::
+
+## Lists
+
+An unordered list:
+
+- Typography first: serif body, generous leading, comfortable measure
+- Warm colours
+  - Paper background in light mode
+  - Warm ink in dark mode
+- Fast pages with almost no JavaScript
+
+An ordered list:
+
+1. Write the post in Markdown or MDX.
+2. Run `pnpm dev` and read it in the browser.
+3. Publish.
+
+A task list:
+
+- [x] Pinned table of contents
+- [x] KaTeX at build time
+- [ ] Write the next post
+
+Definition lists use HTML:
+
+<dl>
+  <dt>Measure</dt>
+  <dd>The length of a line of text, usually counted in characters.</dd>
+  <dt>Leading</dt>
+  <dd>The vertical space between lines, named after the strips of lead in metal type.</dd>
+</dl>
+
+## Mathematics
+
+KaTeX renders math **at build time**, so pages ship no math JavaScript. Inline math such as $e^{i\pi} + 1 = 0$ or $\nabla_\theta \mathcal{L}(\theta)$ sits on the baseline with the text around it.
+
+Display math gets its own line:
+
+$$
+\operatorname{softmax}(z)_i = \frac{e^{z_i}}{\sum_{j=1}^{K} e^{z_j}}
+$$
+
+Multi-line derivations use `aligned`:
+
+$$
+\begin{aligned}
+\mathcal{L}(\theta) &= -\frac{1}{N} \sum_{n=1}^{N} \log p_\theta(y_n \mid x_n) \\
+\nabla_\theta \mathcal{L} &= -\frac{1}{N} \sum_{n=1}^{N} \nabla_\theta \log p_\theta(y_n \mid x_n)
+\end{aligned}
+$$
+
+Matrices work too. Here's scaled dot-product attention:
+
+$$
+\operatorname{Attention}(Q, K, V) = \operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V,
+\qquad
+Q = \begin{bmatrix} q_{11} & q_{12} \\ q_{21} & q_{22} \end{bmatrix}
+$$
+
+An equation that is too wide for a phone screen scrolls sideways instead of breaking the layout:
+
+$$
+p(x_1, x_2, \ldots, x_n) = p(x_1)\, p(x_2 \mid x_1)\, p(x_3 \mid x_1, x_2) \cdots p(x_n \mid x_1, \ldots, x_{n-1}) = \prod_{i=1}^{n} p(x_i \mid x_{<i})
+$$
+
+## Code
+
+Code blocks use Expressive Code. Each one has a frame, a copy button, and syntax colours tuned to the warm palette.
+
+```ts title="src/utils/readingTime.ts" {3-4}
+/** Estimated minutes to read `markdown`, at ~230 words per minute. */
+export function readingTime(markdown: string): number {
+  const words = markdown.split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 230));
+}
+```
+
+Line numbers, inserted and deleted lines, and word highlights:
+
+```python showLineNumbers del={4} ins={5} "softmax"
+import numpy as np
+
+def softmax(z):
+    return np.exp(z) / np.exp(z).sum()
+    return np.exp(z - z.max()) / np.exp(z - z.max()).sum()
+```
+
+A terminal frame for shell sessions:
+
+```bash
+pnpm create astro@latest -- --template chintak/astro-sage
+pnpm dev
+```
+
+A diff:
+
+```diff
+- const theme = "astro-paper";
++ const theme = "astro-sage";
+```
+
+Rust, with a collapsed section:
+
+```rust collapse={1-4}
+use std::collections::HashMap;
+use std::fs;
+use std::io::{self, Read};
+
+fn word_counts(text: &str) -> HashMap<&str, usize> {
+    let mut counts = HashMap::new();
+    for word in text.split_whitespace() {
+        *counts.entry(word).or_insert(0) += 1;
+    }
+    counts
+}
+```
+
+A very long line scrolls horizontally instead of wrapping:
+
+```js
+const url = new URL("https://example.com/api/v1/posts?include=author,tags,series&sort=-pubDatetime&page[size]=20&page[number]=1&filter[draft]=false");
+```
+
+## Tables
+
+A numeric table with tabular figures, so the digits line up:
+
+| Model        | Params | Top-1 (%) | Latency (ms) |
+| :----------- | -----: | --------: | -----------: |
+| ResNet-50    |  25.6M |      76.1 |          4.1 |
+| ViT-B/16     |  86.6M |      81.1 |          8.7 |
+| ConvNeXt-T   |  28.6M |      82.1 |          4.9 |
+| EfficientNet |   5.3M |      77.1 |          2.6 |
+
+A wide table scrolls inside the column, never the page:
+
+| Feature | AstroPaper | AstroSage | Notes | Since | Status | Owner | Docs |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Serif body | No | Yes | Source Serif 4 with optical sizing | 0.1 | Shipped | theme | Typography |
+| Pinned TOC | No | Yes | Right rail with scroll-spy | 0.1 | Shipped | theme | Layout |
+| KaTeX | Guide | Built-in | Rendered at build time | 0.1 | Shipped | markdown | Math |
+
+## Figures
+
+An image with a caption:
+
+<Figure src={hills} alt="Stylized hills in warm sepia tones under a pale sun" caption="Figures get a caption set in italic, centred under the image." />
+
+A full-bleed image breaks out of the text column:
+
+<Figure src={hills} alt="The same hills, wider" caption="Full-bleed figures stretch past the measure on wide screens." fullBleed />
+
+## Footnotes
+
+Footnotes collect at the end of the post, each with a link back to its reference.[^ref]
+
+## Wrapping up
+
+That covers the full set. If any of it looks off (a heading too close, a code block too loud, a colour too cold), it's a bug in the theme, not in your writing.
+
+[^measure]: Robert Bringhurst suggests 45–75 characters for single-column text, with 66 as a comfortable ideal.
+[^ref]: Footnote text is set smaller and in the muted colour so it doesn't compete with the body.

@@ -1,0 +1,32 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@sage/layouts/Layout.astro";
+import Header from "@sage/components/Header.astro";
+import Breadcrumb from "@sage/components/Breadcrumb.astro";
+import Main from "@sage/components/Main.astro";
+import Footer from "@sage/components/Footer.astro";
+import Tag from "@sage/components/Tag.astro";
+import { getUniqueTags } from "@sage/utils/getUniqueTags";
+import { useTranslations } from "@sage/i18n";
+import config from "@sage/config";
+
+const posts = await getCollection("posts", ({ data }) => !data.draft);
+const tags = getUniqueTags(posts);
+
+const locale = Astro.currentLocale ?? config.site.lang;
+const t = useTranslations(locale);
+---
+
+<Layout title={`${t.pages.tagsTitle} | ${config.site.title}`}>
+  <Header />
+
+  <Breadcrumb />
+
+  <Main pageTitle={t.pages.tagsTitle} pageDesc={t.pages.tagsDesc}>
+    <ul class="flex flex-wrap gap-6">
+      {tags.map(({ tag, tagName }) => <Tag {tag} {tagName} />)}
+    </ul>
+  </Main>
+
+  <Footer />
+</Layout>

@@ -1,0 +1,78 @@
+@import "tailwindcss";
+@import "./theme.css";
+@import "./prose.css";
+
+/* Theme files live outside the site root; tell Tailwind to scan them. */
+@source "../";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@layer base {
+  html {
+    font-family: var(--font-serif), Georgia, serif;
+    font-optical-sizing: auto;
+    font-kerning: normal;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-size-adjust: 100%;
+    hanging-punctuation: first;
+  }
+  * {
+    @apply border-border outline-accent/75;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  ::selection {
+    background: var(--selection);
+    color: var(--fg);
+  }
+  a,
+  button,
+  summary,
+  #main-content {
+    @apply outline-accent outline-offset-2 focus-visible:outline-2 focus-visible:outline-solid;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono), ui-monospace, monospace;
+  }
+}
+
+@utility max-w-app {
+  max-width: 72rem;
+}
+
+@utility app-layout {
+  @apply max-w-app mx-auto w-full px-5 sm:px-8;
+}
+
+/* Reading column; ~66 characters at body size. */
+@utility max-w-measure {
+  max-width: 68ch;
+}
+
+@utility active-nav {
+  @apply text-accent underline decoration-1 underline-offset-[6px];
+}
+
+@utility small-caps {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.04em;
+}
+
+:target {
+  scroll-margin-block-start: 1.5rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
