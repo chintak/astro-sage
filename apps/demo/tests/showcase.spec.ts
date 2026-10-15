@@ -123,3 +123,12 @@ test("series, tags, archives, search pages render", async ({ page }) => {
     expect(res?.status(), path).toBe(200);
   }
 });
+
+test("social and share icons render", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator('footer a[title*="on Github"] svg')).toBeVisible();
+  await page.goto(SHOWCASE);
+  await expect(
+    page.locator('a[title*="Share this post"] svg').first()
+  ).toBeAttached();
+});
