@@ -25,7 +25,7 @@ docs/decisions/        ADRs
 
 ## Conventions
 
-- `pnpm lint && pnpm format:check && pnpm check && pnpm build && pnpm test` must pass before a PR. Run `pnpm build` before `pnpm test`: tests run against `apps/demo/dist`.
+- `pnpm lint && pnpm format:check && pnpm check && pnpm build && pnpm test` must pass before a PR. Each PR push also uploads a demo preview (`.github/workflows/preview.yml`); its URL is in the PR's "Demo preview" comment. Run `pnpm build` before `pnpm test`: tests run against `apps/demo/dist`.
 - New content features get a showcase section and a Playwright test.
 - The theme is pure SSG and host-agnostic: no adapters, server routes, databases or host-specific APIs. Do work at build time; client JS must be small and lazy-loaded.
 - Text and UI colours stay ≥ 4.5:1 in both themes (the axe tests enforce it). Use tokens from `src/styles/theme.css`, never raw colours.
