@@ -60,6 +60,8 @@ const items = headings.filter(h => h.depth >= 2 && h.depth <= 3);
     line-height: 1.35;
     transition: color 120ms;
     text-wrap: pretty;
+    /* Long identifiers (e.g. numpy.lib.stride_tricks.as_strided) have no break points in mono. */
+    overflow-wrap: anywhere;
   }
   .toc a:hover {
     color: var(--fg);
