@@ -695,6 +695,29 @@ test("Series nav link shows when a published post is in a series", async ({
   ).toBeAttached();
 });
 
+test("home RSS link matches the social icons", async ({ page }) => {
+  await page.goto("/");
+  const hero = page.locator(".hero");
+  const rss = hero.locator('a[href="/rss.xml"]');
+  await expect(rss).toHaveAccessibleName("AstroSage RSS feed");
+  // Icon only: the only text is the screen-reader label.
+  const visibleText = await rss.evaluate(a => {
+    const clone = a.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll(".sr-only").forEach(e => e.remove());
+    return clone.textContent!.trim();
+  });
+  expect(visibleText).toBe("");
+  const box = (sel: string) =>
+    hero.locator(sel).locator("svg").first().boundingBox();
+  const [rssIcon, github] = await Promise.all([
+    box('a[href="/rss.xml"]'),
+    box('a[href*="github.com"]'),
+  ]);
+  expect(rssIcon!.width).toBeCloseTo(github!.width, 0);
+  expect(rssIcon!.height).toBeCloseTo(github!.height, 0);
+  expect(Math.abs(rssIcon!.y - github!.y)).toBeLessThan(2);
+});
+
 test("task-list checkboxes are round, filled when checked", async ({
   page,
 }) => {

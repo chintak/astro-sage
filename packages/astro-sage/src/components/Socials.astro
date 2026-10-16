@@ -1,7 +1,14 @@
 ---
 import config from "@sage/config";
+import IconRss from "@sage/assets/icons/IconRss.svg";
 import LinkButton from "./LinkButton.astro";
 
+type Props = {
+  /** Also show the RSS feed, as an icon matching the social links. */
+  rss?: string;
+};
+
+const { rss } = Astro.props;
 const { site, socials } = config;
 
 const icons = import.meta.glob<{
@@ -20,6 +27,8 @@ const items = await Promise.all(
     return { url, title, Icon };
   })
 );
+if (rss)
+  items.push({ url: rss, title: `${site.title} RSS feed`, Icon: IconRss });
 ---
 
 <div class="flex flex-wrap items-center gap-1">
