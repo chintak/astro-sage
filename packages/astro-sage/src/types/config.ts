@@ -79,16 +79,16 @@ interface SocialLink {
 interface ShareLink {
   /**
    * Must match an SVG filename in src/assets/icons/socials/.
-   * e.g. "facebook" → src/assets/icons/socials/facebook.svg
+   * e.g. "bluesky" → src/assets/icons/socials/bluesky.svg
    */
   name: string;
-  /** Base share URL. The post URL will be appended as a query param. */
-  url: string;
   /**
-   * Accessible label for the icon link (aria-label, title attribute).
-   * Auto-generated if omitted: "Share this post on Facebook", "Share this post via WhatsApp", etc.
-   * Override when the default wording doesn't fit.
+   * Share URL. Use `{url}` and `{title}` placeholders (both are encoded), e.g.
+   * "https://news.ycombinator.com/submitlink?u={url}&t={title}". Without
+   * placeholders, the encoded post URL is appended (legacy behaviour).
    */
+  url: string;
+  /** Accessible label; defaults to "Share on <Platform>". */
   linkTitle?: string;
 }
 
@@ -130,8 +130,18 @@ interface CommentsConfig {
   admins?: string[];
 }
 
+interface CitationConfig {
+  /** Show the "Cite this post" block (text + BibTeX). Defaults to true. */
+  enabled?: boolean;
+  /** Name as it should appear in citations, e.g. "Sheth, Chintak". Defaults to "Last, First" of the post author. */
+  author?: string;
+  /** Publication / journal field. Defaults to the site hostname. */
+  publication?: string;
+}
+
 export interface SageConfig {
   site: SiteConfig;
+  citation?: CitationConfig;
   typography?: TypographyConfig;
   home?: HomeConfig;
   comments?: CommentsConfig;
@@ -160,6 +170,7 @@ type ResolvedSiteConfig = Required<
 
 export interface ResolvedSageConfig {
   site: ResolvedSiteConfig;
+  citation: { enabled: boolean } & Omit<CitationConfig, "enabled">;
   typography: Required<Pick<TypographyConfig, "serif">> & TypographyConfig;
   home: HomeConfig;
   comments: Required<CommentsConfig>;

@@ -10,6 +10,27 @@ import { PUBLIC_GOOGLE_SITE_VERIFICATION } from "astro:env/client";
 
 const DEFAULT_OG_IMAGE = "default-og.jpg";
 
+export const DEFAULT_SHARE_LINKS = [
+  { name: "x", url: "https://x.com/intent/post?url={url}&text={title}" },
+  {
+    name: "linkedin",
+    url: "https://www.linkedin.com/sharing/share-offsite/?url={url}",
+  },
+  {
+    name: "bluesky",
+    url: "https://bsky.app/intent/compose?text={title}%20{url}",
+  },
+  {
+    name: "reddit",
+    url: "https://www.reddit.com/submit?url={url}&title={title}",
+  },
+  {
+    name: "hackernews",
+    url: "https://news.ycombinator.com/submitlink?u={url}&t={title}",
+  },
+  { name: "mail", url: "mailto:?subject={title}&body={url}" },
+];
+
 const config: ResolvedSageConfig = {
   site: {
     ...userConfig.site,
@@ -19,6 +40,10 @@ const config: ResolvedSageConfig = {
     dir: userConfig.site.dir ?? "ltr",
     googleVerification:
       userConfig.site.googleVerification || PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
+  citation: {
+    ...userConfig.citation,
+    enabled: userConfig.citation?.enabled ?? true,
   },
   typography: { serif: userConfig.typography?.serif ?? "newsreader" },
   home: userConfig.home ?? {},
@@ -41,7 +66,7 @@ const config: ResolvedSageConfig = {
     search: userConfig.features?.search ?? "pagefind",
   },
   socials: userConfig.socials ?? [],
-  shareLinks: userConfig.shareLinks ?? [],
+  shareLinks: userConfig.shareLinks ?? DEFAULT_SHARE_LINKS,
 };
 
 export default config;

@@ -19,7 +19,9 @@ Forked from [AstroPaper](https://github.com/satnaing/astro-paper) by Sat Naing a
 - **Callouts:** GitHub alerts (`> [!NOTE]`) or directives (`:::warning[Title]`). Both produce the same markup.
 - **Series:** `series: "Name"` in frontmatter gives an index page, a per-series page and "Part N of M" navigation.
 - **Comments (optional):** GitHub and X sign-in, comments, replies, edit, delete and moderation on Cloudflare Workers + D1 (free tier). Off by default.
-- Pagefind search, RSS, sitemap, generated OG images, reading time, archives, tags, native view transitions.
+- **Sharing:** X, LinkedIn, Bluesky, Reddit, Hacker News and email, plus copy-link and the native share sheet on supporting devices. Configure with `shareLinks` (`{url}` / `{title}` placeholders).
+- **Citations:** a "Cite this post" block with a text citation and copyable BibTeX on every post (`citation: { author: "Sheth, Chintak" }`; `cite: false` in frontmatter to hide).
+- Pagefind search, RSS, sitemap, generated OG images, reading time, archives, tags with post counts, native view transitions.
 - About 2.8 KB of gzipped JS on an article page. Lighthouse desktop 100/100/100/100.
 
 ## Quick start
@@ -82,6 +84,7 @@ featured: true             # optional
 toc: true                  # default true
 math: true                 # default true; set false to skip KaTeX CSS
 comments: true             # default true (when comments are configured)
+cite: true                 # default true: show the "Cite this post" block
 ```
 
 ## Diagrams

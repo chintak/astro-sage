@@ -16,6 +16,7 @@ import config from "@sage/config";
 import TableOfContents from "@sage/components/TableOfContents.astro";
 import SeriesNav from "@sage/components/SeriesNav.astro";
 import Comments from "@sage/components/Comments.astro";
+import Citation from "@sage/components/Citation.astro";
 import { readingTime } from "@sage/utils/readingTime";
 import { getSeriesPosts } from "@sage/utils/getSeries";
 import { postFilter } from "@sage/utils/postFilter";
@@ -176,12 +177,26 @@ const ogImage = ogImageUrl
       )}
 
       <footer class="post-footer" data-pagefind-ignore>
+        {config.citation.enabled && post.data.cite && (
+          <Citation
+            title={title}
+            url={
+              new URL(
+                getPostUrl(post.id, post.filePath, locale),
+                Astro.site ?? Astro.url
+              ).href
+            }
+            pubDatetime={pubDatetime}
+            author={post.data.author}
+            slug={getPostSlug(post.id, post.filePath)}
+          />
+        )}
         {seriesPosts.length > 1 && (
           <SeriesNav posts={seriesPosts} current={post.id} series={series!} />
         )}
 
         <div class="flex flex-wrap items-center justify-between gap-4">
-          <ShareLinks />
+          <ShareLinks title={title} />
           <EditPost {hideEditPost} {post} />
         </div>
 

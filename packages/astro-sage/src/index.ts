@@ -1,4 +1,12 @@
-import { existsSync, readdirSync } from "node:fs";
+import { createHash } from "node:crypto";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -183,6 +191,30 @@ const COMMENT_ROUTES: Array<[pattern: string, entry: string]> = [
 ];
 
 /**
+ * Astro only invalidates its content cache when the site's content.config
+ * changes, but AstroSage's schema lives in this package. When the schema file
+ * changes (e.g. a theme upgrade adds a frontmatter default), drop the cached
+ * data store so entries are re-parsed with the new schema.
+ */
+function invalidateStaleContentCache(root: URL, cacheDir: URL) {
+  const schema = readFileSync(join(srcDir, "content.ts"));
+  const digest = createHash("sha256").update(schema).digest("hex").slice(0, 16);
+  const marker = new URL("astro-sage-schema", cacheDir);
+  const previous = existsSync(marker)
+    ? readFileSync(marker, "utf8")
+    : undefined;
+  if (previous === digest) return;
+  for (const store of [
+    new URL("data-store.json", cacheDir),
+    new URL(".astro/data-store.json", root),
+  ]) {
+    rmSync(store, { force: true });
+  }
+  mkdirSync(cacheDir, { recursive: true });
+  writeFileSync(marker, digest);
+}
+
+/**
  * AstroSage theme integration.
  *
  * ```ts
@@ -201,6 +233,8 @@ export default function astroSage(config: SageConfig): AstroIntegration {
         injectRoute,
         config: astroConfig,
       }) => {
+        invalidateStaleContentCache(astroConfig.root, astroConfig.cacheDir);
+
         // Top-level public/ files, so layouts can link only icons that exist.
         const publicFiles = existsSync(astroConfig.publicDir)
           ? readdirSync(astroConfig.publicDir)

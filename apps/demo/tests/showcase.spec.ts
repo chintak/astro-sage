@@ -132,7 +132,7 @@ test("social and share icons render", async ({ page }) => {
   await expect(page.locator('footer a[title*="on Github"] svg')).toBeVisible();
   await page.goto(SHOWCASE);
   await expect(
-    page.locator('a[title*="Share this post"] svg').first()
+    page.locator(".share a.share-btn svg").first()
   ).toBeAttached();
 });
 
@@ -390,5 +390,41 @@ test("series labels link to the series page", async ({ page }) => {
   await expect(page.locator("a.card-series").first()).toHaveAttribute(
     "href",
     /\/series\/building-astrosage\/$/
+  );
+});
+
+test("share sheet links to every platform with the canonical URL and title", async ({
+  page,
+}) => {
+  await page.goto(SHOWCASE);
+  const url = encodeURIComponent(
+    "https://astro-sage.pages.dev/posts/showcase/"
+  );
+  const title = encodeURIComponent("AstroSage: every element, set in type");
+  const expected = [
+    `https://x.com/intent/post?url=${url}&text=${title}`,
+    `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
+    `https://bsky.app/intent/compose?text=${title}%20${url}`,
+    `https://www.reddit.com/submit?url=${url}&title=${title}`,
+    `https://news.ycombinator.com/submitlink?u=${url}&t=${title}`,
+    `mailto:?subject=${title}&body=${url}`,
+  ];
+  const hrefs = await page
+    .locator(".share a.share-btn")
+    .evaluateAll(els => els.map(a => a.getAttribute("href")));
+  expect(hrefs).toEqual(expected);
+  await expect(page.locator(".share [data-copy]")).toBeVisible();
+});
+
+test("citation block offers text and BibTeX", async ({ page }) => {
+  await page.goto(SHOWCASE);
+  const cite = page.locator(".citation");
+  await expect(cite.locator(".citation-text")).toContainText(
+    "Sheth, Chintak. (Oct 2026). AstroSage: every element, set in type. astro-sage.pages.dev."
+  );
+  const bib = await cite.locator(".citation-bib code").textContent();
+  expect(bib).toContain("@article{sheth2026showcase,");
+  expect(bib).toContain(
+    "url     = {https://astro-sage.pages.dev/posts/showcase/}"
   );
 });

@@ -37,6 +37,8 @@ export function defineSageCollections({ author }: { author: string }) {
         toc: z.boolean().default(true),
         /** Load KaTeX styles. Set false on posts without math. */
         math: z.boolean().default(true),
+        /** Show the "Cite this post" block (when citations are enabled). */
+        cite: z.boolean().default(true),
         /** Show comments (when a comments provider is configured). */
         comments: z.boolean().default(true),
       }),

@@ -35,8 +35,5 @@ export default defineSageConfig({
     { name: "github", url: "https://github.com/chintak/astro-sage" },
     { name: "x", url: "https://x.com/chintaksheth" },
   ],
-  shareLinks: [
-    { name: "x", url: "https://x.com/intent/post?url=" },
-    { name: "mail", url: "mailto:?subject=See%20this%20post&body=" },
-  ],
+  // shareLinks: defaults to X, LinkedIn, Bluesky, Reddit, Hacker News and email.
 });
