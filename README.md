@@ -14,7 +14,7 @@ Forked from [AstroPaper](https://github.com/satnaing/astro-paper) by Sat Naing a
 - **Warm palette:** warm paper in light mode, espresso in dark. Every colour is a CSS variable in one file and is WCAG-checked.
 - **Pinned TOC:** a right rail at ≥ 1280px that highlights the section you're reading. It becomes a collapsible "On this page" block on smaller screens.
 - **Math:** `$…$` and `$$…$$` rendered by KaTeX at build time. No math JavaScript, and KaTeX CSS loads only on posts that use it.
-- **Code:** Expressive Code with Gruvbox, "hairline" blocks (no fill, a 1px frame) that sit on the paper, titles, line numbers, high-contrast diff lines, collapsible sections, terminal frames and a copy button. Every token is ≥ 5.5:1 against the page.
+- **Code:** Expressive Code with Gruvbox, "hairline" blocks (no fill, a 1px frame) that sit on the paper, titles, a language label on the frame (e.g. "TypeScript"), line numbers, high-contrast diff lines, collapsible sections, terminal frames and a copy button. Every token is ≥ 5.5:1 against the page.
 - **Diagrams:** Mermaid and Excalidraw (inline JSON, share links or files), rendered at build time to inline SVG that matches the palette. Includes a zoom/pan viewer and a full-width option. See below.
 - **Callouts:** GitHub alerts (`> [!NOTE]`) or directives (`:::warning[Title]`). Both produce the same markup.
 - **Task lists:** round checkboxes; done items get a sage tick and are struck through.

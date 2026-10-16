@@ -18,6 +18,7 @@ import { satteri } from "@astrojs/markdown-satteri";
 import expressiveCode from "astro-expressive-code";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
+import { pluginLanguageLabel } from "./markdown/code-language";
 import tailwindcss from "@tailwindcss/vite";
 import {
   a11yPlugin,
@@ -306,7 +307,11 @@ export default function astroSage(config: SageConfig): AstroIntegration {
                 : theme =>
                     `[data-theme="${theme.type === "dark" ? "dark" : "light"}"]`,
               useDarkModeMediaQuery: false,
-              plugins: [pluginLineNumbers(), pluginCollapsibleSections()],
+              plugins: [
+                pluginLineNumbers(),
+                pluginCollapsibleSections(),
+                pluginLanguageLabel(),
+              ],
               defaultProps: {
                 showLineNumbers: false,
                 overridesByLang: {

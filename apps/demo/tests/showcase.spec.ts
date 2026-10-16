@@ -496,6 +496,25 @@ test("a selection can be shared as an image card", async ({ page }) => {
   await expect(bar.locator(".qs-status")).toHaveText("Image saved");
 });
 
+test("code blocks show their language on the frame", async ({ page }) => {
+  await page.goto(SHOWCASE);
+  const label = (lang: string) =>
+    page.locator(`pre[data-language="${lang}"] .sage-lang`);
+  await expect(label("ts").first()).toHaveText("TypeScript");
+  await expect(label("python")).toHaveText("Python");
+  await expect(label("rust")).toHaveText("Rust");
+  // Terminal frames already read as shell; no label.
+  await expect(page.locator(".frame.is-terminal .sage-lang")).toHaveCount(0);
+  // The label is decorative: it stays out of copied code and the a11y tree.
+  await expect(label("python")).toHaveAttribute("aria-hidden", "true");
+  const code = await page
+    .locator('pre[data-language="python"]')
+    .locator("xpath=..")
+    .locator(".copy button")
+    .getAttribute("data-code");
+  expect(code).not.toContain("Python");
+});
+
 test("task-list checkboxes are round, filled when checked", async ({
   page,
 }) => {
