@@ -1,0 +1,467 @@
+/*
+ * Long-form prose. Hand-set rather than @tailwindcss/typography so the type
+ * scale, rhythm and colours are the theme's own.
+ *
+ * Rhythm: body ≈ 17–20px, line-height 1.65, minor-third (1.2) heading scale.
+ */
+
+@layer components {
+  .app-prose {
+    --flow: 1.15em;
+
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+    color: var(--fg);
+    font-variant-numeric: oldstyle-nums proportional-nums;
+    overflow-wrap: break-word;
+
+    & > * + * {
+      margin-block-start: var(--flow);
+    }
+
+    & p,
+    & li,
+    & dd {
+      text-wrap: pretty;
+    }
+
+    @media (max-width: 30rem) {
+      & p,
+      & li {
+        hyphens: auto;
+        hyphenate-limit-chars: 10 4 4;
+      }
+    }
+
+    /* ---------- Headings ---------- */
+    & :is(h2, h3, h4, h5, h6) {
+      color: var(--fg);
+      font-family: var(--font-heading);
+      font-weight: var(--heading-weight);
+      letter-spacing: var(--heading-tracking);
+      line-height: 1.2;
+      text-wrap: balance;
+      font-variation-settings: "opsz" 48;
+      scroll-margin-block-start: 1.5rem;
+      position: relative;
+    }
+    & h2 {
+      font-size: calc(
+        1em * var(--heading-scale) * var(--heading-scale) * var(--heading-scale)
+      );
+      margin-block-start: 2.2em;
+      margin-block-end: -0.35em;
+    }
+    & h3 {
+      font-size: calc(1em * var(--heading-scale) * var(--heading-scale));
+      margin-block-start: 1.8em;
+      margin-block-end: -0.45em;
+    }
+    & h4 {
+      font-size: calc(1em * var(--heading-scale));
+      font-style: italic;
+      margin-block-start: 1.6em;
+      margin-block-end: -0.55em;
+    }
+    & :is(h5, h6) {
+      font-size: 1em;
+      font-weight: 600;
+      font-variant-caps: all-small-caps;
+      letter-spacing: 0.05em;
+      margin-block-end: -0.7em;
+    }
+
+    /* Hover anchor added by the post page. */
+    & .heading-anchor {
+      position: absolute;
+      inset-inline-start: -1.1em;
+      width: 1em;
+      color: var(--fg-muted);
+      text-decoration: none;
+      font-weight: 400;
+      opacity: 0;
+      transition: opacity 120ms;
+    }
+    & :is(h2, h3, h4):hover .heading-anchor,
+    & .heading-anchor:focus-visible {
+      opacity: 1;
+    }
+
+    /* ---------- Inline ---------- */
+    & a {
+      color: var(--accent);
+      text-decoration-line: underline;
+      text-decoration-thickness: 0.06em;
+      text-underline-offset: 0.18em;
+      text-decoration-color: color-mix(
+        in oklab,
+        var(--accent) 40%,
+        transparent
+      );
+      transition: text-decoration-color 120ms;
+    }
+    & a:hover {
+      text-decoration-color: var(--accent);
+    }
+    /*
+     * Internal links (other posts, pages on this site) keep the plain
+     * underline. External links add a small arrow so readers know they're
+     * leaving; it's hidden from screen readers and stays glued to the last word.
+     */
+    & a.link-external:not(:has(img, svg, picture))::after {
+      content: "" / "";
+      display: inline-block;
+      width: 0.62em;
+      height: 0.62em;
+      margin-inline-start: 0.14em;
+      vertical-align: 0.32em;
+      background: currentColor;
+      /* Tabler arrow-up-right (MIT). */
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 7l-10 10'/%3E%3Cpath d='M8 7h9v9'/%3E%3C/svg%3E")
+        center / contain no-repeat;
+    }
+    /* A wiki-link whose target doesn't exist (or is a draft). */
+    & .wikilink-broken {
+      color: var(--fg-muted);
+      text-decoration: underline dotted;
+      text-decoration-thickness: 0.06em;
+      text-underline-offset: 0.18em;
+      cursor: help;
+    }
+    & strong {
+      font-weight: 650;
+    }
+    & mark {
+      background: var(--mark);
+      color: inherit;
+      padding: 0.05em 0.15em;
+      border-radius: 0.15em;
+    }
+    & abbr[title] {
+      text-decoration: underline dotted;
+      cursor: help;
+    }
+    & kbd {
+      font-size: 0.8em;
+      padding: 0.1em 0.4em;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 0.25em;
+      background: var(--bg-raised);
+    }
+    & sup,
+    & sub {
+      font-size: 0.7em;
+      line-height: 0;
+    }
+    & :not(pre) > code {
+      font-size: 0.84em;
+      font-variant-numeric: normal;
+      padding: 0.12em 0.32em;
+      border-radius: 0.25em;
+      /* No fill; a hairline keeps inline code legible as code inside prose. */
+      background: transparent;
+      border: 1px solid var(--border);
+      overflow-wrap: anywhere;
+    }
+    & a code {
+      color: inherit;
+    }
+
+    /* ---------- Blocks ---------- */
+    & hr {
+      border: 0;
+      margin-block: 2.5em;
+      text-align: center;
+      &::after {
+        content: "⁂";
+        color: var(--fg-muted);
+        letter-spacing: 0.5em;
+      }
+    }
+
+    & blockquote {
+      position: relative;
+      padding-inline-start: 1.25em;
+      border-inline-start: 2px solid var(--sage);
+      font-style: italic;
+      color: color-mix(in oklab, var(--fg) 88%, var(--bg));
+      & > * + * {
+        margin-block-start: 0.75em;
+      }
+      & blockquote {
+        border-inline-start-color: var(--border);
+      }
+      & footer,
+      & cite {
+        display: block;
+        font-style: normal;
+        font-size: 0.875em;
+        color: var(--fg-muted);
+      }
+    }
+
+    & :is(ul, ol) {
+      padding-inline-start: 1.5em;
+      & > li + li {
+        margin-block-start: 0.35em;
+      }
+      & :is(ul, ol) {
+        margin-block-start: 0.35em;
+      }
+    }
+    & ul {
+      list-style: disc;
+      & ul {
+        list-style: circle;
+      }
+    }
+    & ol {
+      list-style: decimal;
+      font-variant-numeric: lining-nums;
+    }
+    & li::marker {
+      color: var(--fg-muted);
+    }
+    & li > p + p {
+      margin-block-start: 0.5em;
+    }
+    /* GFM task lists */
+    & .contains-task-list {
+      list-style: none;
+      padding-inline-start: 0.25em;
+    }
+    /* Round checkboxes: an open ring, or a sage disc with a paper-coloured tick. */
+    & .task-list-item input[type="checkbox"] {
+      appearance: none;
+      display: inline-grid;
+      place-content: center;
+      width: 1.05em;
+      height: 1.05em;
+      margin: 0 0.55em 0 0;
+      border: 1.5px solid var(--fg-muted);
+      border-radius: 50%;
+      background: transparent;
+      vertical-align: -0.15em;
+      opacity: 1;
+      &::before {
+        content: "";
+        width: 0.62em;
+        height: 0.62em;
+        background: var(--bg);
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")
+          center / contain no-repeat;
+        scale: 0;
+        transition: scale 120ms ease;
+      }
+      &:checked {
+        border-color: var(--sage);
+        background: var(--sage);
+        &::before {
+          scale: 1;
+        }
+      }
+    }
+    /* Done items: struck through and lighter, but still >= 4.5:1. */
+    & .task-list-item:has(> input:checked) {
+      color: color-mix(in srgb, var(--fg-muted) 90%, var(--bg));
+      text-decoration: line-through;
+      text-decoration-thickness: 1px;
+      text-decoration-color: color-mix(in srgb, currentColor 70%, transparent);
+    }
+
+    & dl {
+      & dt {
+        font-weight: 600;
+      }
+      & dd {
+        margin-inline-start: 1.5em;
+        & + dt {
+          margin-block-start: 0.75em;
+        }
+      }
+    }
+
+    /* ---------- Figures & images ---------- */
+    & img {
+      max-width: 100%;
+      height: auto;
+      margin-inline: auto;
+      border-radius: 0.375rem;
+    }
+    & figure {
+      margin-block: 2em;
+    }
+    & figcaption {
+      font-family: var(--font-ui);
+      margin-block-start: 0.6em;
+      text-align: center;
+      font-size: 0.85em;
+      font-style: italic;
+      color: var(--fg-muted);
+    }
+    /* Wide / full-width figures: see post.css (they depend on the page grid). */
+
+    /* ---------- Tables ---------- */
+    & .table-wrap,
+    & table {
+      display: block;
+      max-width: 100%;
+      overflow-x: auto;
+    }
+    & table {
+      border-collapse: collapse;
+      font-size: 0.9em;
+      font-variant-numeric: lining-nums tabular-nums;
+      line-height: 1.45;
+      & :is(th, td) {
+        padding: 0.5em 0.85em;
+        border-bottom: 1px solid var(--border);
+        text-align: start;
+        vertical-align: top;
+      }
+      & th {
+        font-weight: 600;
+        border-bottom: 1.5px solid var(--fg-muted);
+        white-space: nowrap;
+      }
+      & [align="right"] {
+        text-align: end;
+      }
+      & [align="center"] {
+        text-align: center;
+      }
+    }
+
+    /* ---------- Math ---------- */
+    /* Display-math spacing lives outside @layer below; see the note there. */
+
+    /* ---------- Code (Expressive Code renders its own frames) ---------- */
+    & .expressive-code {
+      margin-block: 1.6em;
+    }
+
+    /* ---------- Callouts ---------- */
+    & .callout {
+      --c: var(--callout-note);
+      padding: 0.9em 1.1em;
+      border-radius: 0.375rem;
+      border: 1px solid color-mix(in oklab, var(--c) 30%, var(--border));
+      border-inline-start: 3px solid var(--c);
+      --code-label-bg: color-mix(in oklab, var(--c) 7%, var(--bg));
+      background: var(--code-label-bg);
+      font-size: 0.94em;
+      & .callout-title {
+        font-family: var(--font-ui);
+        display: flex;
+        align-items: center;
+        gap: 0.45em;
+        color: var(--c);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: var(--label-tracking);
+        font-size: 0.75em;
+        line-height: 1.3;
+        &::before {
+          content: "";
+          width: 1.05em;
+          height: 1.05em;
+          flex: none;
+          background: currentColor;
+          mask: var(--icon) center / contain no-repeat;
+        }
+      }
+      & .callout-body {
+        margin-block-start: 0.35em;
+        & > * + * {
+          margin-block-start: 0.7em;
+        }
+      }
+      & .expressive-code {
+        margin-block: 0.8em;
+      }
+    }
+    /* Icons: Tabler (MIT), inlined as masks so they take the callout colour. */
+    & .callout[data-callout="note"] {
+      --c: var(--callout-note);
+      --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 8h.01M11 12h1v4h1'/%3E%3C/svg%3E");
+    }
+    & .callout[data-callout="tip"] {
+      --c: var(--callout-tip);
+      --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12h1m8-9v1m8 8h1M5.6 5.6l.7.7m12.1-.7-.7.7M9 16a5 5 0 1 1 6 0 3.5 3.5 0 0 0-1 3 2 2 0 0 1-4 0 3.5 3.5 0 0 0-1-3M9.7 17h4.6'/%3E%3C/svg%3E");
+    }
+    & .callout[data-callout="important"] {
+      --c: var(--callout-important);
+      --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 9h8M8 13h6M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3h-5l-5 3v-3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3z'/%3E%3C/svg%3E");
+    }
+    & .callout[data-callout="warning"] {
+      --c: var(--callout-warning);
+      --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 9v4m0 3h.01M10.24 3.96 2.39 17.08a2 2 0 0 0 1.71 2.97h15.8a2 2 0 0 0 1.71-2.97L13.76 3.96a2 2 0 0 0-3.52 0z'/%3E%3C/svg%3E");
+    }
+    & .callout[data-callout="caution"] {
+      --c: var(--callout-caution);
+      --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8.7 3h6.6L20 7.7v6.6L15.3 19H8.7L4 14.3V7.7z'/%3E%3Cpath d='M12 8v4m0 4h.01'/%3E%3C/svg%3E");
+    }
+
+    /* ---------- Footnotes ---------- */
+    & .footnotes {
+      margin-block-start: 3em;
+      padding-block-start: 1em;
+      border-top: 1px solid var(--border);
+      font-size: 0.875em;
+      color: var(--fg-muted);
+      & ol {
+        padding-inline-start: 1.25em;
+      }
+    }
+    & [data-footnote-ref] {
+      text-decoration-line: underline;
+      text-decoration-style: dotted;
+      font-variant-numeric: lining-nums;
+      padding-inline: 0.1em;
+      &::before {
+        content: "[";
+      }
+      &::after {
+        content: "]";
+      }
+    }
+    & .data-footnote-backref {
+      text-decoration-line: underline;
+      text-decoration-style: dotted;
+    }
+    & .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+}
+
+/*
+ * KaTeX's stylesheet is unlayered, and unlayered rules beat anything inside
+ * @layer regardless of specificity. These overrides must stay unlayered too,
+ * or `.katex-display { margin: 1em 0 }` doubles the space around equations.
+ */
+.app-prose .math-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 0.15em;
+}
+.app-prose .math-display .katex-display {
+  margin: 0;
+}
+.app-prose .katex {
+  font-size: 1.08em;
+}
+
+/*
+ * Hairline code blocks: transparent so they sit on whatever surface they're in
+ * (page, callout). Unlayered to beat Expressive Code's generated styles.
+ */
+.app-prose .expressive-code .frame pre {
+  background: transparent;
+}

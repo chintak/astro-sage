@@ -1,0 +1,106 @@
+@import "tailwindcss";
+@import "./theme.css";
+@import "./prose.css";
+@import "./diagrams.css";
+
+/* Theme files live outside the site root; tell Tailwind to scan them. */
+@source "../";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@layer base {
+  /* Lets breakout figures measure the viewport without its scrollbar (cqw). */
+  body {
+    container-type: inline-size;
+  }
+  html {
+    font-family: var(--font-body);
+    font-optical-sizing: auto;
+    font-kerning: normal;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-size-adjust: 100%;
+    hanging-punctuation: first;
+  }
+  * {
+    @apply border-border outline-accent/75;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  ::selection {
+    background: var(--selection);
+    color: var(--fg);
+  }
+  a,
+  button,
+  summary,
+  #main-content {
+    @apply outline-accent outline-offset-2 focus-visible:outline-2 focus-visible:outline-solid;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-code);
+  }
+  /* Chrome (site header/footer, nav, meta, TOC, captions) uses the UI family. */
+  body > header,
+  body > footer,
+  nav,
+  figcaption,
+  .ui-font,
+  .small-caps {
+    font-family: var(--font-ui);
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  .heading-font {
+    font-family: var(--font-heading);
+  }
+}
+
+@utility max-w-app {
+  max-width: calc(var(--page-max) + 2 * var(--gutter));
+}
+
+@utility app-layout {
+  @apply max-w-app mx-auto w-full;
+  padding-inline: var(--gutter);
+}
+
+/* Reading column (see --measure). */
+@utility max-w-measure {
+  max-width: var(--measure);
+}
+
+@utility active-nav {
+  @apply text-accent underline decoration-1 underline-offset-[6px];
+}
+
+/* UI label: uppercase, tracked, in the UI family (mono by default). */
+@utility small-caps {
+  font-family: var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: var(--label-tracking);
+}
+
+:target {
+  scroll-margin-block-start: 1.5rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+  /* Native cross-document view transitions: zero JavaScript. */
+  @view-transition {
+    navigation: auto;
+  }
+}

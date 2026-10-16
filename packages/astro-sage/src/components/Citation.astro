@@ -1,0 +1,189 @@
+---
+import config from "@sage/config";
+
+type Props = {
+  title: string;
+  /** Canonical post URL. */
+  url: string;
+  pubDatetime: Date;
+  /** Post author's display name (e.g. "Ada Lovelace"). */
+  author: string;
+  /** Post slug, used to build the BibTeX key. */
+  slug: string;
+};
+
+const { title, url, pubDatetime, author, slug } = Astro.props;
+
+/** "Ada Lovelace" → "Lovelace, Ada" unless configured explicitly. */
+const citeName =
+  config.citation.author ??
+  (() => {
+    const parts = author.trim().split(/\s+/);
+    return parts.length > 1
+      ? `${parts.at(-1)}, ${parts.slice(0, -1).join(" ")}`
+      : author;
+  })();
+
+const surname = citeName.split(",")[0].trim();
+const year = pubDatetime.getUTCFullYear();
+const month = pubDatetime.toLocaleString("en-US", {
+  month: "short",
+  timeZone: "UTC",
+});
+const publication =
+  config.citation.publication ?? new URL(config.site.url).hostname;
+
+const keyword =
+  slug
+    .split("/")
+    .at(-1)!
+    .split("-")
+    .find(w => w.length > 3 && !/^\d+$/.test(w)) ?? "post";
+const key = `${surname}${year}${keyword}`
+  .toLowerCase()
+  .replace(/[^a-z0-9]/g, "");
+
+// BibTeX needs a handful of characters escaped.
+const tex = (s: string) => s.replace(/([&%$#_{}])/g, "\\$1");
+
+const text = `${citeName}. (${month} ${year}). ${title}. ${publication}. ${url}`;
+const bibtex = `@article{${key},
+  title   = {${tex(title)}},
+  author  = {${tex(citeName)}},
+  journal = {${tex(publication)}},
+  year    = {${year}},
+  month   = {${month}},
+  url     = {${url}}
+}`;
+---
+
+<details class="citation" data-pagefind-ignore>
+  <summary class="citation-heading small-caps">Cite this post</summary>
+  <div class="citation-body">
+    <p class="citation-lede">
+      If you found this useful, please cite this write-up as:
+    </p>
+    <blockquote class="citation-text">
+      {citeName}. ({month} {year}). <cite>{title}</cite>. {publication}.{" "}
+      <a href={url}>{url}</a>
+    </blockquote>
+    <p class="citation-lede">or</p>
+    <figure class="citation-bib">
+      <figcaption>
+        <span>BibTeX</span>
+        <button type="button" class="citation-copy" data-copy-bib>
+          Copy
+        </button>
+      </figcaption>
+      <pre tabindex="0"><code>{bibtex}</code></pre>
+    </figure>
+    <span class="sr-only">{text}</span>
+  </div>
+</details>
+
+<style>
+  .citation {
+    border-block: 1px solid var(--border);
+    padding-block: 0.6rem;
+  }
+  .citation-body {
+    display: grid;
+    /* minmax(0, …) lets long BibTeX lines scroll inside the block on phones. */
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+    padding-top: 0.75rem;
+  }
+  .citation summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  .citation summary::-webkit-details-marker {
+    display: none;
+  }
+  .citation summary::before {
+    content: "▸";
+    display: inline-block;
+    margin-inline-end: 0.5em;
+    transition: transform 120ms;
+  }
+  .citation[open] summary::before {
+    transform: rotate(90deg);
+  }
+  .citation-heading {
+    font-size: var(--ui-size);
+    font-weight: 600;
+    color: var(--fg);
+  }
+  .citation-lede {
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+  }
+  .citation-text {
+    margin: 0;
+    padding-inline-start: 1rem;
+    border-inline-start: 2px solid var(--sage);
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+  .citation-bib {
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    font-family: var(--font-code);
+  }
+  .citation-bib figcaption {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.35rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    font: 0.75rem var(--font-ui);
+    color: var(--fg-muted);
+  }
+  .citation-copy {
+    padding: 0.1rem 0.55rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--fg-muted);
+  }
+  .citation-copy:hover,
+  .citation-copy:focus-visible {
+    color: var(--accent);
+    border-color: color-mix(in oklab, var(--accent) 50%, var(--border));
+  }
+  .citation-bib pre {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    overflow-x: auto;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: var(--fg);
+  }
+  .citation-text cite {
+    font-style: italic;
+  }
+  .citation-text a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklab, var(--accent) 40%, transparent);
+    text-underline-offset: 0.18em;
+  }
+</style>
+
+<script>
+  for (const btn of document.querySelectorAll<HTMLButtonElement>(
+    "[data-copy-bib]"
+  )) {
+    btn.addEventListener("click", async () => {
+      const code =
+        btn.closest(".citation-bib")!.querySelector("code")!.textContent ?? "";
+      try {
+        await navigator.clipboard.writeText(code);
+        btn.textContent = "Copied";
+      } catch {
+        btn.textContent = "Select & copy";
+      }
+      setTimeout(() => (btn.textContent = "Copy"), 1500);
+    });
+  }
+</script>

@@ -1,0 +1,54 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+type Props = {
+  src: ImageMetadata | string;
+  alt: string;
+  caption?: string;
+  /**
+   * "column" (default) stays in the text column; "wide" spans the column and
+   * TOC rail; "full" bleeds edge to edge.
+   */
+  size?: "column" | "wide" | "full";
+  /** @deprecated Use size="full". */
+  fullBleed?: boolean;
+  width?: number;
+  height?: number;
+};
+
+const { src, alt, caption, fullBleed = false, width, height } = Astro.props;
+const size = Astro.props.size ?? (fullBleed ? "full" : "column");
+
+const responsive = {
+  column: { widths: [640, 960, 1280], sizes: "min(100vw, 40rem)" },
+  wide: { widths: [800, 1200, 1600], sizes: "min(100vw, 64rem)" },
+  full: { widths: [800, 1200, 1600, 2400, 3200], sizes: "100vw" },
+}[size];
+---
+
+<figure
+  class:list={{
+    "figure-wide": size === "wide",
+    "figure-full": size === "full",
+  }}
+>
+  {typeof src === "string" ? (
+    <img
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      loading="lazy"
+      decoding="async"
+    />
+  ) : (
+    <Image
+      src={src}
+      alt={alt}
+      widths={responsive.widths}
+      sizes={responsive.sizes}
+    />
+  )}
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>

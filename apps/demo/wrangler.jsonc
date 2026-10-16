@@ -1,0 +1,10 @@
+{
+  // Optional: how the live demo is hosted (`pnpm deploy:demo`). The site is
+  // plain static files in dist/, so any static host works; this file is not
+  // needed otherwise.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "astro-sage-demo",
+  "compatibility_date": "2026-10-01",
+  "assets": { "directory": "./dist", "not_found_handling": "404-page" },
+  "routes": [{ "pattern": "astro-sage.chintak.sh", "custom_domain": true }]
+}

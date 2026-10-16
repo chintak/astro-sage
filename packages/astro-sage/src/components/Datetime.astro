@@ -1,0 +1,56 @@
+---
+import IconCalendar from "@sage/assets/icons/IconCalendar.svg";
+import config from "@sage/config";
+import { useTranslations } from "@sage/i18n";
+
+type Props = {
+  class?: string;
+  size?: "sm" | "lg";
+  pubDatetime: string | Date;
+  timezone?: string;
+  modDatetime?: string | Date | null;
+};
+
+const {
+  pubDatetime,
+  modDatetime,
+  size = "sm",
+  class: className = "",
+  timezone: postTimezone,
+} = Astro.props;
+
+const t = useTranslations(Astro.currentLocale);
+
+const isModified = modDatetime && modDatetime > pubDatetime;
+
+const datetime = new Date(isModified ? modDatetime! : pubDatetime);
+
+const date = new Intl.DateTimeFormat(config.site.lang, {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  timeZone: postTimezone ?? config.site.timezone,
+}).format(datetime);
+---
+
+<div
+  class:list={["text-muted-foreground flex items-center gap-x-2", className]}
+>
+  <IconCalendar
+    class:list={[
+      "inline-block size-6 min-w-5.5",
+      { "scale-90": size === "sm" },
+    ]}
+  />
+  {isModified && (
+    <span class:list={["text-sm", { "sm:text-base": size === "lg" }]}>
+      {t.post.updatedAt}:
+    </span>
+  )}
+  <time
+    class:list={["text-sm", { "sm:text-base": size === "lg" }]}
+    datetime={datetime.toISOString()}
+  >
+    {date}
+  </time>
+</div>

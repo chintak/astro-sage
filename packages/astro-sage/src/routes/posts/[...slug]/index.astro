@@ -1,0 +1,238 @@
+---
+import { type CollectionEntry, getCollection, render } from "astro:content";
+import { getRelativeLocaleUrl } from "astro:i18n";
+import PostLayout from "@sage/layouts/PostLayout.astro";
+import Header from "@sage/components/Header.astro";
+import Footer from "@sage/components/Footer.astro";
+import Datetime from "@sage/components/Datetime.astro";
+import Tag from "@sage/components/Tag.astro";
+import { getPostSlug, getPostUrl } from "@sage/utils/getPostPaths";
+import { getSortedPosts } from "@sage/utils/getSortedPosts";
+import { slugifyStr } from "@sage/utils/slugify";
+import EditPost from "./_components/EditPost.astro";
+import ShareLinks from "./_components/ShareLinks.astro";
+import AdjacentPostNav from "./_components/AdjacentPostNav.astro";
+import config from "@sage/config";
+import TableOfContents from "@sage/components/TableOfContents.astro";
+import SeriesNav from "@sage/components/SeriesNav.astro";
+import Comments from "@sage/components/Comments.astro";
+import Citation from "@sage/components/Citation.astro";
+import QuoteShare from "@sage/components/QuoteShare.astro";
+import { readingTime } from "@sage/utils/readingTime";
+import { getSeriesPosts } from "@sage/utils/getSeries";
+import { postFilter } from "@sage/utils/postFilter";
+import "@sage/styles/post.css";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("posts");
+  const sortedPosts = getSortedPosts(posts);
+  const published = posts.filter(postFilter);
+
+  return sortedPosts.map((post, index) => ({
+    params: { slug: getPostSlug(post.id, post.filePath) },
+    props: {
+      post,
+      seriesPosts: post.data.series
+        ? getSeriesPosts(published, post.data.series)
+        : [],
+      // sortedPosts is newest-first, so "older" (prev) is a higher index
+      // and "newer" (next) is a lower index.
+      prevPost:
+        index < sortedPosts.length - 1
+          ? {
+              id: sortedPosts[index + 1].id,
+              title: sortedPosts[index + 1].data.title,
+              filePath: sortedPosts[index + 1].filePath,
+            }
+          : null,
+      nextPost:
+        index > 0
+          ? {
+              id: sortedPosts[index - 1].id,
+              title: sortedPosts[index - 1].data.title,
+              filePath: sortedPosts[index - 1].filePath,
+            }
+          : null,
+    },
+  }));
+}
+
+type AdjacentPost = {
+  id: string;
+  title: string;
+  filePath: string | undefined;
+} | null;
+
+type Props = {
+  post: CollectionEntry<"posts">;
+  seriesPosts: CollectionEntry<"posts">[];
+  prevPost: AdjacentPost;
+  nextPost: AdjacentPost;
+};
+
+const { post, seriesPosts, prevPost, nextPost } = Astro.props;
+const locale = Astro.currentLocale ?? config.site.lang;
+
+const {
+  title,
+  description,
+  ogImage: initOgImage,
+  canonicalURL,
+  pubDatetime,
+  modDatetime,
+  timezone,
+  tags,
+  hideEditPost,
+  series,
+  toc,
+  math,
+} = post.data;
+
+const { Content, headings } = await render(post);
+const minutes = readingTime(post.body);
+const tocHeadings = headings.filter(
+  h => h.depth >= 2 && h.depth <= 3 && h.slug !== "footnote-label"
+);
+const showToc = toc && tocHeadings.length > 1;
+
+let ogImageUrl: string | undefined;
+
+if (typeof initOgImage === "string") {
+  ogImageUrl = initOgImage;
+} else if (initOgImage?.src) {
+  ogImageUrl = initOgImage.src;
+}
+
+if (!ogImageUrl && config.features.dynamicOgImage) {
+  const postUrl = getPostUrl(post.id, post.filePath, locale).replace(
+    /\/+$/,
+    ""
+  );
+  ogImageUrl = `${postUrl}/index.png`;
+}
+
+const ogImage = ogImageUrl
+  ? new URL(ogImageUrl, Astro.url.origin).href
+  : undefined;
+---
+
+<PostLayout
+  {math}
+  title={`${title} | ${config.site.title}`}
+  description={description}
+  ogImage={ogImage}
+  canonicalURL={canonicalURL}
+  pubDatetime={pubDatetime}
+  modDatetime={modDatetime}
+>
+  <Header />
+
+  <main id="main-content" class="app-layout mt-10 sm:mt-14" data-pagefind-body>
+    <div class:list={["post-grid", { "has-toc": showToc }]}>
+      <header class="post-header">
+        {series && (
+          <p class="small-caps mb-2 text-sm font-semibold">
+            <a
+              class="series-link"
+              href={getRelativeLocaleUrl(
+                locale,
+                `series/${slugifyStr(series)}/`
+              )}
+            >
+              {series}
+            </a>
+          </p>
+        )}
+        <h1 class="post-title">{title}</h1>
+        {description && <p class="post-dek">{description}</p>}
+        <div class="post-meta">
+          <Datetime {pubDatetime} {modDatetime} {timezone} />
+          <span aria-hidden="true">·</span>
+          <span>{minutes} min read</span>
+        </div>
+        {tags.length > 0 && (
+          <ul class="post-tags" aria-label="Tags" data-pagefind-ignore>
+            {tags.map(tag => (
+              <Tag tag={slugifyStr(tag)} tagName={tag} size="sm" />
+            ))}
+          </ul>
+        )}
+      </header>
+
+      {showToc && (
+        <TableOfContents
+          headings={tocHeadings}
+          variant="inline"
+          class="post-toc-inline"
+        />
+      )}
+
+      <article id="article" class="app-prose post-body">
+        <Content />
+      </article>
+      <QuoteShare
+        url={
+          new URL(
+            getPostUrl(post.id, post.filePath, locale),
+            Astro.site ?? Astro.url
+          ).href
+        }
+        title={title}
+        eyebrow={series ?? config.site.title}
+        footer={`${post.data.author} · ${new URL(config.site.url).hostname}`}
+      />
+
+      {showToc && (
+        <aside class="post-rail" aria-label="Table of contents">
+          <TableOfContents headings={tocHeadings} variant="rail" />
+        </aside>
+      )}
+
+      <footer class="post-footer" data-pagefind-ignore>
+        {config.citation.enabled && post.data.cite && (
+          <Citation
+            title={title}
+            url={
+              new URL(
+                getPostUrl(post.id, post.filePath, locale),
+                Astro.site ?? Astro.url
+              ).href
+            }
+            pubDatetime={pubDatetime}
+            author={post.data.author}
+            slug={getPostSlug(post.id, post.filePath)}
+          />
+        )}
+        {seriesPosts.length > 1 && (
+          <SeriesNav posts={seriesPosts} current={post.id} series={series!} />
+        )}
+
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <ShareLinks title={title} />
+          <EditPost {hideEditPost} {post} />
+        </div>
+
+        {config.comments.provider && post.data.comments && <Comments />}
+
+        <hr class="border-border" />
+
+        <AdjacentPostNav {prevPost} {nextPost} />
+      </footer>
+    </div>
+  </main>
+  <Footer />
+</PostLayout>
+
+<script>
+  // Hover anchors on headings (tiny; avoids an extra build plugin).
+  for (const h of document.querySelectorAll<HTMLElement>(
+    "#article :is(h2, h3, h4)[id]"
+  )) {
+    const a = document.createElement("a");
+    a.href = `#${h.id}`;
+    a.className = "heading-anchor";
+    a.ariaLabel = `Link to section: ${h.textContent}`;
+    a.textContent = "#";
+    h.prepend(a);
+  }
+</script>

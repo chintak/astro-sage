@@ -1,0 +1,160 @@
+---
+import { Font } from "astro:assets";
+import { resolveDefaultOgImagePath } from "@sage/utils/resolveDefaultOgImagePath";
+import { getAssetPath } from "@sage/utils/withBase";
+import config from "@sage/config";
+import { publicFiles } from "virtual:astro-sage/user-config";
+import "@sage/styles/global.css";
+
+type Props = {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  canonicalURL?: string;
+  /** "article" on posts; "website" elsewhere. */
+  ogType?: "website" | "article";
+  /** Alt text for the social card image. */
+  ogImageAlt?: string;
+};
+
+const { site } = config;
+
+// Link only the icons the site actually ships in public/.
+const has = (name: string) => publicFiles.includes(name);
+const icons = {
+  svg: has("favicon.svg"),
+  ico: has("favicon.ico"),
+  apple: has("apple-touch-icon.png"),
+  manifest: has("site.webmanifest"),
+};
+
+const {
+  title = site.title,
+  description = site.description,
+  ogImage = resolveDefaultOgImagePath(config),
+  canonicalURL = new URL(Astro.url.pathname, Astro.site).href,
+  ogType = "website",
+  ogImageAlt,
+} = Astro.props;
+
+const socialImageURL = new URL(ogImage, Astro.site ?? Astro.url);
+// A file, so no trailing slash (getRelativeLocaleUrl would add one).
+const rssHref = `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}rss.xml`;
+// Crawlers check the declared type against the file.
+const ogImageType = /\.jpe?g$/i.test(socialImageURL.pathname)
+  ? "image/jpeg"
+  : /\.webp$/i.test(socialImageURL.pathname)
+    ? "image/webp"
+    : "image/png";
+---
+
+<!doctype html>
+<html
+  dir={site.dir ?? "ltr"}
+  lang={Astro.currentLocale ?? site.lang}
+  class="overflow-y-scroll"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {icons.svg && (
+      <link
+        rel="icon"
+        type="image/svg+xml"
+        href={getAssetPath("favicon.svg")}
+      />
+    )}
+    {icons.ico && (
+      <link rel="icon" href={getAssetPath("favicon.ico")} sizes="any" />
+    )}
+    {icons.apple && (
+      <link
+        rel="apple-touch-icon"
+        href={getAssetPath("apple-touch-icon.png")}
+      />
+    )}
+    {icons.manifest && (
+      <link rel="manifest" href={getAssetPath("site.webmanifest")} />
+    )}
+    <link rel="canonical" href={canonicalURL} />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Font -->
+    <Font cssVariable="--font-serif" preload />
+    <Font cssVariable="--font-mono" preload />
+
+    <!-- Primary meta -->
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <meta name="author" content={site.author} />
+    <link rel="sitemap" href={getAssetPath("sitemap-index.xml")} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={site.title} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta
+      property="og:locale"
+      content={(Astro.currentLocale ?? site.lang).replace("-", "_")}
+    />
+    <meta property="og:image" content={socialImageURL} />
+    <meta property="og:image:secure_url" content={socialImageURL} />
+    <meta property="og:image:type" content={ogImageType} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt ?? title} />
+
+    <!-- X / Twitter (uses name=, not property=) -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImageURL} />
+    <meta name="twitter:image:alt" content={ogImageAlt ?? title} />
+
+    <!-- RSS autodiscovery -->
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={site.title}
+      href={new URL(rssHref, Astro.site)}
+    />
+
+    <!-- Filled at runtime by theme.ts to match the current background colour -->
+    <meta name="theme-color" content="" />
+
+    <!-- Extra head content injected by child layouts (e.g. JSON-LD, article meta) -->
+    <slot name="head" />
+
+    {site.googleVerification && (
+      <meta name="google-site-verification" content={site.googleVerification} />
+    )}
+
+    <!--
+      Inline FOUC-prevention script: sets data-theme on <html> before
+      the browser paints. Runs synchronously, no defer/async.
+    -->
+    <script is:inline>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)"
+        ).matches;
+        const theme = stored ?? (prefersDark ? "dark" : "light");
+        const root = document.firstElementChild;
+        root?.setAttribute("data-theme", theme);
+        root?.classList.toggle("dark", theme === "dark");
+        // Expose value so theme.ts can skip re-detection.
+        window.__theme = { value: theme };
+      })();
+    </script>
+  </head>
+  <body class="bg-background font-app text-foreground flex min-h-svh flex-col">
+    <slot />
+    <script>
+      import "@sage/scripts/theme";
+    </script>
+  </body>
+</html>

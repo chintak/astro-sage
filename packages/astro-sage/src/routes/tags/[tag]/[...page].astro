@@ -1,0 +1,56 @@
+---
+import { getCollection } from "astro:content";
+import type { GetStaticPathsOptions } from "astro";
+import Layout from "@sage/layouts/Layout.astro";
+import Header from "@sage/components/Header.astro";
+import Main from "@sage/components/Main.astro";
+import Card from "@sage/components/Card.astro";
+import Footer from "@sage/components/Footer.astro";
+import Pagination from "@sage/components/Pagination.astro";
+import { getUniqueTags } from "@sage/utils/getUniqueTags";
+import { getSortedPosts } from "@sage/utils/getSortedPosts";
+import { slugifyAll } from "@sage/utils/slugify";
+import { useTranslations } from "@sage/i18n";
+import config from "@sage/config";
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+  const posts = await getCollection("posts", ({ data }) => !data.draft);
+  const tags = getUniqueTags(posts);
+
+  return tags.flatMap(({ tag, tagName }) => {
+    const tagPosts = getSortedPosts(
+      posts.filter(({ data }) => slugifyAll(data.tags).includes(tag))
+    );
+
+    return paginate(tagPosts, {
+      params: { tag },
+      props: { tagName },
+      pageSize: config.posts.perPage,
+    });
+  });
+}
+
+const { page, tagName } = Astro.props;
+
+const locale = Astro.currentLocale ?? config.site.lang;
+const t = useTranslations(locale);
+---
+
+<Layout title={`${t.pages.tagTitle}: ${tagName} | ${config.site.title}`}>
+  <Header />
+
+  <Main
+    pageTitle={`${t.pages.tagTitle}: ${tagName}`}
+    pageDesc={`${page.total} ${page.total === 1 ? "post" : "posts"} tagged "${tagName}".`}
+  >
+    <ul>
+      {page.data.map(data => (
+        <Card {...data} />
+      ))}
+    </ul>
+  </Main>
+
+  <Pagination {page} />
+
+  <Footer noMarginTop={page.lastPage > 1} />
+</Layout>

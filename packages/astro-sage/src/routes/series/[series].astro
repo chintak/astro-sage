@@ -1,0 +1,57 @@
+---
+import { type CollectionEntry, getCollection } from "astro:content";
+import Layout from "@sage/layouts/Layout.astro";
+import Header from "@sage/components/Header.astro";
+import Main from "@sage/components/Main.astro";
+import Footer from "@sage/components/Footer.astro";
+import Card from "@sage/components/Card.astro";
+import { getAllSeries } from "@sage/utils/getSeries";
+import { postFilter } from "@sage/utils/postFilter";
+import config from "@sage/config";
+
+export async function getStaticPaths() {
+  const posts = (await getCollection("posts")).filter(postFilter);
+  return getAllSeries(posts).map(s => ({
+    params: { series: s.slug },
+    props: { name: s.name, posts: s.posts },
+  }));
+}
+
+type Props = { name: string; posts: CollectionEntry<"posts">[] };
+const { name, posts } = Astro.props;
+---
+
+<Layout title={`${name} | ${config.site.title}`}>
+  <Header />
+  <Main
+    pageTitle={name}
+    pageDesc={`A series in ${posts.length} parts, in reading order.`}
+  >
+    <ol class="series-list">
+      {posts.map(p => (
+        <Card variant="h2" {...p} />
+      ))}
+    </ol>
+  </Main>
+  <Footer />
+</Layout>
+
+<style>
+  .series-list {
+    counter-reset: part;
+  }
+  .series-list :global(.post-card) {
+    counter-increment: part;
+    position: relative;
+  }
+  .series-list :global(.post-card)::before {
+    content: "Part " counter(part);
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.85rem;
+    font-family: var(--font-ui);
+    text-transform: uppercase;
+    letter-spacing: var(--label-tracking);
+    color: var(--sage);
+  }
+</style>

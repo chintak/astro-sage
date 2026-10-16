@@ -1,0 +1,67 @@
+---
+import config from "@sage/config";
+
+// Only the embed settings reach the page; the widget loads on scroll.
+const cfg = config.comments.provider ? config.comments : undefined;
+---
+
+{cfg && (
+  <section
+    id="comments"
+    class="comments"
+    data-comments={JSON.stringify(cfg)}
+    aria-labelledby="comments-heading"
+  >
+    <h2 id="comments-heading" class="comments-heading">
+      Comments
+    </h2>
+    <div class="comments-root" aria-live="polite">
+      <p class="comments-muted">Loading comments…</p>
+    </div>
+    <noscript>
+      <p class="comments-muted">Comments need JavaScript.</p>
+    </noscript>
+  </section>
+)}
+
+<script>
+  // Load the widget only when the section approaches the viewport, so readers
+  // who never scroll this far download nothing.
+  const el = document.querySelector<HTMLElement>("#comments");
+  if (el) {
+    const io = new IntersectionObserver(
+      entries => {
+        if (!entries.some(e => e.isIntersecting)) return;
+        io.disconnect();
+        import("@sage/comments/embed").then(m =>
+          m.mount(
+            el.querySelector<HTMLElement>(".comments-root")!,
+            JSON.parse(el.dataset.comments!)
+          )
+        );
+      },
+      { rootMargin: "600px 0px" }
+    );
+    io.observe(el);
+  }
+</script>
+
+<style is:global>
+  .comments {
+    font-family: var(--font-ui);
+    scroll-margin-top: 2rem;
+  }
+  .comments-heading {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  .comments-muted {
+    color: var(--fg-muted);
+    font-style: italic;
+  }
+  /* Widgets size their own iframes; keep them inside the column. */
+  .comments-root iframe {
+    max-width: 100%;
+  }
+</style>
