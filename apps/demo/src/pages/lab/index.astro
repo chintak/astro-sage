@@ -1,0 +1,141 @@
+---
+/**
+ * Design lab: the showcase post rendered under five typography/layout
+ * directions. Dev-only exploration; see docs/design/typography-variants.md.
+ */
+import { getEntry, render } from "astro:content";
+import PostLayout from "astro-sage/layouts/PostLayout.astro";
+import Header from "astro-sage/components/Header.astro";
+import Footer from "astro-sage/components/Footer.astro";
+import Datetime from "astro-sage/components/Datetime.astro";
+import TableOfContents from "astro-sage/components/TableOfContents.astro";
+import "astro-sage/styles/post.css";
+import "./variants.css";
+
+const post = (await getEntry("posts", "showcase"))!;
+const { Content, headings } = await render(post);
+const toc = headings.filter(
+  h => h.depth >= 2 && h.depth <= 3 && h.slug !== "footnote-label"
+);
+
+const VARIANTS = [
+  {
+    id: "1",
+    name: "Refined Serif",
+    note: "Source Serif 4 throughout · 18px · 42rem measure. Today's look, with the measure and frame fixed.",
+  },
+  {
+    id: "2",
+    name: "Research Paper",
+    note: "Serif body + Inter headings & UI · 17.5px · lighter cream. Like Anthropic Research.",
+  },
+  {
+    id: "3",
+    name: "Technical Sans",
+    note: "IBM Plex Sans + Plex Mono · 17.5px / 1.7 · 42rem. Like Distill / Ciechanowski.",
+  },
+  {
+    id: "4",
+    name: "Literary Long-form",
+    note: "Newsreader 19.5px / 1.75 · display headings · Inter UI · deeper sepia. Like Maggie Appleton.",
+  },
+  {
+    id: "5",
+    name: "Engineer's Notebook",
+    note: "Inter body · JetBrains Mono meta/TOC · 16.5px · 43rem. Like Lil'Log / PaperMod.",
+  },
+];
+---
+
+<PostLayout title="Design lab | AstroSage" description="Typography variants">
+  <Fragment slot="head">
+    <script is:inline>
+      (function () {
+        var q = new URLSearchParams(location.search).get("v");
+        var v = q || localStorage.getItem("sage-lab-variant") || "1";
+        document.documentElement.dataset.variant = v;
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:opsz,wght@14..32,400..750&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,400&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css"
+    />
+  </Fragment>
+
+  <div class="lab-bar" role="toolbar" aria-label="Design variants">
+    <span class="lab-label">Design lab</span>
+    <div class="lab-buttons">
+      {VARIANTS.map(v => (
+        <button type="button" data-v={v.id} title={v.note}>
+          <span class="num">{v.id}</span> {v.name}
+        </button>
+      ))}
+    </div>
+    <p class="lab-note" aria-live="polite"></p>
+  </div>
+
+  <Header />
+
+  <main id="main-content" class="app-layout mt-10 sm:mt-14">
+    <div class="post-grid has-toc">
+      <header class="post-header">
+        <p class="small-caps text-sage mb-2 text-sm font-semibold">
+          {post.data.series}
+        </p>
+        <h1 class="post-title">{post.data.title}</h1>
+        <p class="post-dek">{post.data.description}</p>
+        <div class="post-meta">
+          <Datetime pubDatetime={post.data.pubDatetime} />
+          <span aria-hidden="true">·</span>
+          <span>5 min read</span>
+        </div>
+      </header>
+      <TableOfContents
+        headings={toc}
+        variant="inline"
+        class="post-toc-inline"
+      />
+      <article id="article" class="app-prose post-body">
+        <Content />
+      </article>
+      <aside class="post-rail" aria-label="Table of contents">
+        <TableOfContents headings={toc} variant="rail" />
+      </aside>
+    </div>
+  </main>
+  <Footer />
+</PostLayout>
+
+<script define:vars={{ VARIANTS }}>
+  const bar = document.querySelector(".lab-bar");
+  const note = bar.querySelector(".lab-note");
+  function select(id) {
+    const v = VARIANTS.find(x => x.id === id) ?? VARIANTS[0];
+    document.documentElement.dataset.variant = v.id;
+    localStorage.setItem("sage-lab-variant", v.id);
+    const url = new URL(location.href);
+    url.searchParams.set("v", v.id);
+    history.replaceState(null, "", url);
+    note.textContent = v.note;
+    bar
+      .querySelectorAll("button")
+      .forEach(b =>
+        b.setAttribute("aria-pressed", String(b.dataset.v === v.id))
+      );
+  }
+  bar.addEventListener("click", e => {
+    const b = e.target.closest("button[data-v]");
+    if (b) select(b.dataset.v);
+  });
+  document.addEventListener("keydown", e => {
+    if (/^[1-5]$/.test(e.key) && !e.target.closest("input, textarea"))
+      select(e.key);
+  });
+  select(document.documentElement.dataset.variant);
+</script>

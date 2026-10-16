@@ -14,9 +14,34 @@
   --color-muted: var(--bg-raised);
   --color-muted-foreground: var(--fg-muted);
   --color-border: var(--border);
-  --font-app: var(--font-serif);
+  --font-app: var(--font-body);
   --font-serif: var(--font-serif);
   --font-mono: var(--font-mono);
+}
+
+/*
+ * Typography and layout tokens. Families are split by role so a site (or a
+ * design variant) can pair faces, e.g. serif body with sans headings and UI.
+ */
+:root {
+  --font-body: var(--font-serif), Georgia, serif;
+  --font-heading: var(--font-body);
+  --font-ui: var(--font-body);
+  --font-code: var(--font-mono), ui-monospace, monospace;
+
+  --text-body: clamp(1.0625rem, 1rem + 0.2vw, 1.125rem); /* 17–18px */
+  --leading-body: 1.65;
+  --heading-weight: 600;
+  --heading-tracking: -0.01em;
+  --heading-scale: 1.2; /* minor third */
+  --ui-size: 0.9rem;
+
+  /* Reading column in rem, so it doesn't shift when the body size changes. */
+  --measure: 42rem;
+  --rail: 15rem;
+  --rail-gap: clamp(2.5rem, 4vw, 3.5rem);
+  --gutter: clamp(1rem, 4vw, 2rem);
+  --page-max: calc(var(--measure) + var(--rail-gap) + var(--rail));
 }
 
 :root,

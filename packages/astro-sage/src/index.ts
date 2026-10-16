@@ -201,8 +201,8 @@ export default function astroSage(config: SageConfig): AstroIntegration {
                 },
               },
               styleOverrides: {
-                codeFontFamily: "var(--font-mono)",
-                uiFontFamily: "var(--font-serif)",
+                codeFontFamily: "var(--font-code)",
+                uiFontFamily: "var(--font-ui)",
                 codeFontSize: "0.875rem",
                 codeLineHeight: "1.65",
                 borderRadius: "0.375rem",
