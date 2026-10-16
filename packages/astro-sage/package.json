@@ -1,6 +1,6 @@
 {
   "name": "astro-sage",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A readability-first Astro blog theme: serif typography, warm sepia palette, pinned TOC, KaTeX, Expressive Code.",
   "type": "module",
   "license": "MIT",

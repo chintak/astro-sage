@@ -1,5 +1,11 @@
 # astro-sage
 
+## 0.1.5
+
+### Patch Changes
+
+- 59b1d39: README: the intro no longer mentions the removed GitHub/X sign-in comments on Cloudflare. Comments are optional utterances or giscus widgets, and the site is fully static for any host.
+
 ## 0.1.4
 
 ### Patch Changes
