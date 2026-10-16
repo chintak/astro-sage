@@ -26,10 +26,11 @@
  * See docs/design/typography-variants.md (variant 6).
  */
 :root {
-  --font-body: var(--font-serif), Georgia, serif;
+  /* --font-serif / --font-mono already carry the full fallback stacks. */
+  --font-body: var(--font-serif), serif;
   --font-heading: var(--font-body);
-  --font-ui: var(--font-mono), ui-monospace, monospace;
-  --font-code: var(--font-mono), ui-monospace, monospace;
+  --font-ui: var(--font-mono), monospace;
+  --font-code: var(--font-mono), monospace;
 
   /* Newsreader has a small x-height; 18.5px reads like ~17px elsewhere. */
   --text-body: 1.15625rem; /* 18.5px */

@@ -59,7 +59,11 @@ export default defineSageConfig({
     description: "Things I learned.",
     author: "Ada Lovelace",
   },
-  typography: { serif: "newsreader" }, // default; or "source-serif-4" | "literata"
+  typography: {
+    serif: "newsreader", // default; or "source-serif-4" | "literata"
+    // Optional: system stacks if the webfonts can't load (defaults shown in docs/decisions/003)
+    // fallbacks: { serif: ["Iowan Old Style", "Charter", "Georgia", "serif"], mono: ["ui-monospace", "Consolas", "monospace"] },
+  },
   home: { intro: "A short paragraph shown on the home page." },
 });
 ```

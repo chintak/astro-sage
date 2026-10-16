@@ -32,6 +32,37 @@ export { defineSageConfig } from "./types/config";
 const srcDir = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 
+/**
+ * System fallbacks, used if the self-hosted faces fail to load (blocked
+ * requests, strict CSP, offline). Ordered by reading quality, then reach:
+ * Apple's Iowan/Charter, Windows' Palatino Linotype, Android/Linux Noto and
+ * DejaVu, then Georgia/Cambria. The generic family must stay last: Astro
+ * derives a metric-matched fallback face from it to avoid layout shift.
+ */
+export const DEFAULT_SERIF_FALLBACKS = [
+  "Iowan Old Style",
+  "Charter",
+  "Bitstream Charter",
+  "Palatino Linotype",
+  "Palatino",
+  "Noto Serif",
+  "Georgia",
+  "Cambria",
+  "DejaVu Serif",
+  "serif",
+];
+export const DEFAULT_MONO_FALLBACKS = [
+  "ui-monospace",
+  "SF Mono",
+  "Cascadia Mono",
+  "Consolas",
+  "Menlo",
+  "Noto Sans Mono",
+  "DejaVu Sans Mono",
+  "Liberation Mono",
+  "monospace",
+];
+
 /** Serif faces bundled with the theme. All are variable with optical sizing. */
 export const SERIF_FACES = {
   "source-serif-4": "Source Serif 4",
@@ -47,13 +78,24 @@ function fontsourceFile(pkg: string, file: string): URL {
   return pathToFileURL(join(root, "files", file));
 }
 
-function serifFont(face: SerifFace, opticalSizing: boolean) {
+function serifFont(
+  face: SerifFace,
+  opticalSizing: boolean,
+  fallbacks: string[]
+) {
   const axes = opticalSizing ? "opsz" : "wght";
   return {
     name: SERIF_FACES[face],
     cssVariable: "--font-serif",
+    // "optional": use the webfont only if it arrives almost immediately (it's
+    // preloaded); otherwise keep the readable system fallback for this page
+    // view with no swap, so there's no layout shift either way.
+    display: "optional" as const,
+    // Astro's synthetic fallback is always Times New Roman; we prefer the
+    // readable stack in DEFAULT_SERIF_FALLBACKS.
+    optimizedFallbacks: false,
     provider: fontProviders.local(),
-    fallbacks: ["Georgia", "serif"],
+    fallbacks,
     options: {
       variants: [
         {
@@ -71,11 +113,13 @@ function serifFont(face: SerifFace, opticalSizing: boolean) {
   };
 }
 
-const monoFont = {
+const monoFont = (fallbacks: string[]) => ({
   name: "JetBrains Mono",
   cssVariable: "--font-mono",
+  display: "optional" as const,
+  optimizedFallbacks: false,
   provider: fontProviders.local(),
-  fallbacks: ["ui-monospace", "monospace"],
+  fallbacks,
   options: {
     variants: [
       {
@@ -100,7 +144,7 @@ const monoFont = {
       },
     ],
   },
-};
+});
 
 const ROUTES: Array<[pattern: string, entry: string]> = [
   ["/", "routes/index.astro"],
@@ -198,8 +242,14 @@ export default function astroSage(config: SageConfig): AstroIntegration {
             }),
           },
           fonts: [
-            serifFont(face, config.typography?.opticalSizing ?? false),
-            monoFont,
+            serifFont(
+              face,
+              config.typography?.opticalSizing ?? false,
+              config.typography?.fallbacks?.serif ?? DEFAULT_SERIF_FALLBACKS
+            ),
+            monoFont(
+              config.typography?.fallbacks?.mono ?? DEFAULT_MONO_FALLBACKS
+            ),
           ],
           env: {
             schema: {

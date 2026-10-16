@@ -55,6 +55,23 @@
   color: var(--fg-muted);
   font-size: var(--ui-size);
 }
+.series-link {
+  color: var(--sage);
+  text-decoration: none;
+  transition: color 120ms;
+}
+.series-link:hover,
+.series-link:focus-visible {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.5rem;
+  margin-top: 0.9rem;
+}
 .post-footer {
   display: flex;
   flex-direction: column;

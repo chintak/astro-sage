@@ -339,9 +339,56 @@ test("every tag shows its post count, matching its tag page", async ({
       t.count
     );
   }
-  // Tags in a post footer carry counts too.
+  // A post's tags sit in its header (not the footer) and carry counts too.
   await page.goto(SHOWCASE);
   await expect(
-    page.locator(".post-footer a.tag .tag-count").first()
+    page.locator(".post-header .post-tags a.tag .tag-count").first()
   ).toBeVisible();
+  await expect(page.locator(".post-footer a.tag")).toHaveCount(0);
+});
+
+test("readable system fallbacks when web fonts fail", async ({ page }) => {
+  await page.route(/\/_astro\/fonts\/.*\.woff2$/, r => r.abort());
+  await page.goto(SHOWCASE);
+  const result = await page.evaluate(async () => {
+    await document.fonts.ready;
+    const body = getComputedStyle(
+      document.querySelector("#article p")!
+    ).fontFamily;
+    const ui = getComputedStyle(
+      document.querySelector(".post-meta")!
+    ).fontFamily;
+    return {
+      body,
+      ui,
+      failed: [...document.fonts]
+        .filter(f => /Newsreader|JetBrains/.test(f.family))
+        .every(f => f.status !== "loaded"),
+    };
+  });
+  expect(result.failed).toBe(true);
+  // The stacks name readable faces before the generic family (no synthetic Times).
+  expect(result.body).toMatch(
+    /Iowan Old Style.*Charter.*Palatino Linotype.*serif$/
+  );
+  expect(result.body).not.toContain("Times New Roman");
+  expect(result.ui).toMatch(
+    /ui-monospace.*Cascadia Mono.*Consolas.*monospace$/
+  );
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - innerWidth
+  );
+  expect(overflow).toBeLessThanOrEqual(0);
+});
+
+test("series labels link to the series page", async ({ page }) => {
+  await page.goto(SHOWCASE);
+  await page.locator(".post-header a.series-link").click();
+  await expect(page).toHaveURL(/\/series\/building-astrosage\/$/);
+  await expect(page.locator("h1")).toHaveText("Building AstroSage");
+  await page.goto("/");
+  await expect(page.locator("a.card-series").first()).toHaveAttribute(
+    "href",
+    /\/series\/building-astrosage\/$/
+  );
 });

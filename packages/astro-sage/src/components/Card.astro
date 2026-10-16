@@ -1,6 +1,9 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import { getPostUrl } from "@sage/utils/getPostPaths";
+import { getRelativeLocaleUrl } from "astro:i18n";
+import { slugifyStr } from "@sage/utils/slugify";
+import config from "@sage/config";
 import Datetime from "./Datetime.astro";
 
 type Props = {
@@ -10,6 +13,7 @@ type Props = {
 const { variant: Heading = "h2", id, data, filePath } = Astro.props;
 
 const { title, description, series, ...props } = data;
+const locale = Astro.currentLocale ?? config.site.lang;
 ---
 
 <li class="post-card">
@@ -20,7 +24,14 @@ const { title, description, series, ...props } = data;
   <div class="card-meta">
     <Datetime {...props} />
     {series && <span aria-hidden="true">·</span>}
-    {series && <span class="text-sage">{series}</span>}
+    {series && (
+      <a
+        class="card-series"
+        href={getRelativeLocaleUrl(locale, `series/${slugifyStr(series)}/`)}
+      >
+        {series}
+      </a>
+    )}
   </div>
 </li>
 
@@ -45,6 +56,15 @@ const { title, description, series, ...props } = data;
     color: var(--fg-muted);
     line-height: 1.55;
     text-wrap: pretty;
+  }
+  .card-series {
+    color: var(--sage);
+  }
+  .card-series:hover,
+  .card-series:focus-visible {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
   }
   .card-meta {
     font-family: var(--font-ui);

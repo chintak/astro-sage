@@ -104,6 +104,12 @@ interface TypographyConfig {
    * performance on slow connections. Defaults to false.
    */
   opticalSizing?: boolean;
+  /**
+   * System font stacks used if the self-hosted faces can't load. End each
+   * with a generic family (serif / monospace). Defaults: see
+   * DEFAULT_SERIF_FALLBACKS / DEFAULT_MONO_FALLBACKS.
+   */
+  fallbacks?: { serif?: string[]; mono?: string[] };
 }
 
 interface HomeConfig {

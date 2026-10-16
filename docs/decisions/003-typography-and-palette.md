@@ -8,6 +8,7 @@ Chosen after comparing six directions in a design lab; see [`docs/design/typogra
 - **Body and headings:** Newsreader (variable, self-hosted through the Astro Fonts API with metric-matched fallbacks, so CLS = 0). Headings are semibold. `typography.serif` still offers Source Serif 4 and Literata.
 - **UI** (site header/footer, nav, dates, TOC, labels, captions, callout titles): JetBrains Mono, with uppercase tracked labels. It gives the page a technical voice without touching the reading text.
 - **Code:** JetBrains Mono.
+- **Fallbacks** (used if the webfonts can't load, e.g. blocked, strict CSP or offline): serif `Iowan Old Style, Charter, Bitstream Charter, Palatino Linotype, Palatino, Noto Serif, Georgia, Cambria, DejaVu Serif, serif`; mono `ui-monospace, SF Mono, Cascadia Mono, Consolas, Menlo, Noto Sans Mono, DejaVu Sans Mono, Liberation Mono, monospace`. They're ordered by reading quality, then by how many platforms ship them, and are configurable via `typography.fallbacks`. The faces load with `font-display: optional` and Astro's synthetic fallback is off: Astro always adjusts Times New Roman, which would otherwise be what readers see on failure. The preloaded webfont nearly always arrives in time, and when it doesn't, the readable fallback stays for that page view with no swap, so CLS stays 0 either way. A Playwright test blocks the webfonts and checks the stacks.
 - **Optical sizing** is opt-in (`typography.opticalSizing: true`). The opsz files cost roughly 2× the weight-only files.
 
 ## Size and measure
