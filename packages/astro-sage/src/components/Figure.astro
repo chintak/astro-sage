@@ -17,7 +17,10 @@ type Props = {
   height?: number;
 };
 
-const { src, alt, caption, fullBleed = false, width, height } = Astro.props;
+const { src, alt, caption, width, height } = Astro.props;
+// Read the deprecated prop through a plain type so the theme itself doesn't
+// trip the deprecation warning it shows site authors.
+const { fullBleed = false }: { fullBleed?: boolean } = Astro.props;
 const size = Astro.props.size ?? (fullBleed ? "full" : "column");
 
 const responsive = {
