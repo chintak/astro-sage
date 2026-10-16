@@ -13,7 +13,6 @@ export default defineSageConfig({
     timezone: "UTC",
     dir: "ltr",
   },
-  typography: { serif: "source-serif-4" },
   home: {
     title: "AstroSage",
     intro:

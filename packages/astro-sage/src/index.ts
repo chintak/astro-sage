@@ -132,7 +132,7 @@ const COMMENT_ROUTES: Array<[pattern: string, entry: string]> = [
  * ```
  */
 export default function astroSage(config: SageConfig): AstroIntegration {
-  const face: SerifFace = config.typography?.serif ?? "source-serif-4";
+  const face: SerifFace = config.typography?.serif ?? "newsreader";
   const virtualId = "virtual:astro-sage/user-config";
 
   return {
@@ -201,16 +201,20 @@ export default function astroSage(config: SageConfig): AstroIntegration {
                 },
               },
               styleOverrides: {
-                codeFontFamily: "var(--font-mono)",
-                uiFontFamily: "var(--font-serif)",
+                codeFontFamily: "var(--font-code)",
+                uiFontFamily: "var(--font-ui)",
                 codeFontSize: "0.875rem",
                 codeLineHeight: "1.65",
                 borderRadius: "0.375rem",
                 borderColor: "var(--border)",
+                // Follow the palette rather than the syntax theme's own surface.
+                codeBackground: "var(--bg-raised)",
                 frames: {
                   shadowColor: "transparent",
                   frameBoxShadowCssValue: "none",
                   editorActiveTabIndicatorBottomColor: "var(--accent)",
+                  editorBackground: "var(--bg-raised)",
+                  terminalBackground: "var(--bg-raised)",
                   terminalTitlebarBackground: "var(--bg-raised)",
                   terminalTitlebarBorderBottomColor: "var(--border)",
                   editorTabBarBackground: "var(--bg-raised)",

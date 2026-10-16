@@ -20,7 +20,7 @@ const config: ResolvedSageConfig = {
     googleVerification:
       userConfig.site.googleVerification || PUBLIC_GOOGLE_SITE_VERIFICATION,
   },
-  typography: { serif: userConfig.typography?.serif ?? "source-serif-4" },
+  typography: { serif: userConfig.typography?.serif ?? "newsreader" },
   home: userConfig.home ?? {},
   comments: {
     provider: userConfig.comments?.provider ?? false,

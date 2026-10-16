@@ -5,23 +5,35 @@ import satori from "satori";
 import sharp from "sharp";
 
 const require = createRequire(import.meta.url);
-const fontDir = join(
-  dirname(require.resolve("@fontsource/source-serif-4/package.json")),
-  "files"
-);
+const fontFile = (pkg: string, file: string) =>
+  join(dirname(require.resolve(`${pkg}/package.json`)), "files", file);
 
 let fonts: Promise<Parameters<typeof satori>[1]["fonts"]> | undefined;
 function loadFonts() {
-  fonts ??= Promise.all(
-    ([400, 600] as const).map(async weight => ({
-      name: "Source Serif 4",
+  fonts ??= Promise.all([
+    ...([400, 600] as const).map(async weight => ({
+      name: "Newsreader",
       data: await readFile(
-        join(fontDir, `source-serif-4-latin-${weight}-normal.woff`)
+        fontFile(
+          "@fontsource/newsreader",
+          `newsreader-latin-${weight}-normal.woff`
+        )
       ),
       weight,
       style: "normal" as const,
-    }))
-  );
+    })),
+    readFile(
+      fontFile(
+        "@fontsource/jetbrains-mono",
+        "jetbrains-mono-latin-400-normal.woff"
+      )
+    ).then(data => ({
+      name: "JetBrains Mono",
+      data,
+      weight: 400 as const,
+      style: "normal" as const,
+    })),
+  ]);
   return fonts;
 }
 
@@ -51,9 +63,9 @@ export async function renderOgImage({
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "72px 80px",
-          background: "#f8f1e3",
-          color: "#3a3126",
-          fontFamily: "Source Serif 4",
+          background: "#f8f2e6",
+          color: "#2d2620",
+          fontFamily: "Newsreader",
           borderBottom: "16px solid #56704a",
         },
         children: [
@@ -66,7 +78,8 @@ export async function renderOgImage({
                   type: "div",
                   props: {
                     style: {
-                      fontSize: 28,
+                      fontFamily: "JetBrains Mono",
+                      fontSize: 24,
                       color: "#9c4a24",
                       letterSpacing: "0.06em",
                       textTransform: "uppercase",
@@ -81,6 +94,7 @@ export async function renderOgImage({
                       fontSize: title.length > 60 ? 60 : 72,
                       fontWeight: 600,
                       lineHeight: 1.1,
+                      textWrap: "balance",
                     },
                     children: title,
                   },
@@ -88,7 +102,12 @@ export async function renderOgImage({
                 subtitle && {
                   type: "div",
                   props: {
-                    style: { fontSize: 30, color: "#6b5f4f", lineHeight: 1.4 },
+                    style: {
+                      fontSize: 30,
+                      color: "#675c4f",
+                      lineHeight: 1.4,
+                      textWrap: "balance",
+                    },
                     children: subtitle,
                   },
                 },
@@ -98,7 +117,11 @@ export async function renderOgImage({
           {
             type: "div",
             props: {
-              style: { fontSize: 28, color: "#6b5f4f" },
+              style: {
+                fontFamily: "JetBrains Mono",
+                fontSize: 24,
+                color: "#675c4f",
+              },
               children: footer,
             },
           },

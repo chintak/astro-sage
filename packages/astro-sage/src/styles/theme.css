@@ -1,6 +1,6 @@
 /*
  * AstroSage design tokens. Every colour in the theme comes from here.
- * Light is warm paper; dark is warm ink. Body text targets ≥ 7:1 contrast,
+ * Light is warm paper (#f8f2e6); dark is espresso (#1f1a15). Body text targets ≥ 7:1 contrast,
  * muted text and links ≥ 4.5:1 (see docs/decisions/003-palette.md).
  */
 
@@ -14,24 +14,53 @@
   --color-muted: var(--bg-raised);
   --color-muted-foreground: var(--fg-muted);
   --color-border: var(--border);
-  --font-app: var(--font-serif);
+  --font-app: var(--font-body);
   --font-serif: var(--font-serif);
   --font-mono: var(--font-mono);
+}
+
+/*
+ * Typography and layout tokens. Families are split by role: a serif for
+ * reading (body + headings) and JetBrains Mono for the UI (nav, dates, TOC,
+ * labels, captions). Override any of these in your own CSS.
+ * See docs/design/typography-variants.md (variant 6).
+ */
+:root {
+  --font-body: var(--font-serif), Georgia, serif;
+  --font-heading: var(--font-body);
+  --font-ui: var(--font-mono), ui-monospace, monospace;
+  --font-code: var(--font-mono), ui-monospace, monospace;
+
+  /* Newsreader has a small x-height; 18.5px reads like ~17px elsewhere. */
+  --text-body: 1.15625rem; /* 18.5px */
+  --leading-body: 1.7;
+  --heading-weight: 600;
+  --heading-tracking: -0.015em;
+  --heading-scale: 1.2; /* minor third */
+  --ui-size: 0.78rem;
+  --label-tracking: 0.06em;
+
+  /* Reading column in rem, so it doesn't shift when the body size changes. ~73 chars. */
+  --measure: 40rem;
+  --rail: 15rem;
+  --rail-gap: clamp(2.5rem, 4vw, 3.5rem);
+  --gutter: clamp(1rem, 4vw, 2rem);
+  --page-max: calc(var(--measure) + var(--rail-gap) + var(--rail));
 }
 
 :root,
 [data-theme="light"] {
   color-scheme: light;
-  --bg: #f8f1e3;
-  --bg-raised: #f1e7d3;
-  --fg: #3a3126;
-  --fg-muted: #6b5f4f;
+  --bg: #f8f2e6;
+  --bg-raised: #f0e7d6;
+  --fg: #2d2620;
+  --fg-muted: #675c4f;
   --accent: #9c4a24;
   --accent-fg: #fffaf0;
   --sage: #4e6743;
-  --border: #e2d4b9;
-  --selection: #f0d6a2;
-  --mark: #f6dc9a;
+  --border: #e3d8c3;
+  --selection: #f0d7a8;
+  --mark: #f4dea2;
 
   --callout-note: #46657f;
   --callout-tip: #4e6743;
@@ -42,16 +71,16 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg: #1d1913;
-  --bg-raised: #27211a;
-  --fg: #e8dcc6;
-  --fg-muted: #ab9d86;
-  --accent: #e4915f;
-  --accent-fg: #1d1913;
-  --sage: #a3b993;
-  --border: #3b3228;
-  --selection: #5a4630;
-  --mark: #5c4a22;
+  --bg: #1f1a15;
+  --bg-raised: #2a231c;
+  --fg: #ecdfcb;
+  --fg-muted: #b0a08a;
+  --accent: #e8956a;
+  --accent-fg: #1f1a15;
+  --sage: #adc29b;
+  --border: #3d3329;
+  --selection: #5c4630;
+  --mark: #5e4a22;
 
   --callout-note: #8fb0cc;
   --callout-tip: #a3b993;

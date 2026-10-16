@@ -9,7 +9,7 @@
 
 @layer base {
   html {
-    font-family: var(--font-serif), Georgia, serif;
+    font-family: var(--font-body);
     font-optical-sizing: auto;
     font-kerning: normal;
     text-rendering: optimizeLegibility;
@@ -41,30 +41,49 @@
   kbd,
   samp,
   pre {
-    font-family: var(--font-mono), ui-monospace, monospace;
+    font-family: var(--font-code);
+  }
+  /* Chrome (site header/footer, nav, meta, TOC, captions) uses the UI family. */
+  body > header,
+  body > footer,
+  nav,
+  figcaption,
+  .ui-font,
+  .small-caps {
+    font-family: var(--font-ui);
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  .heading-font {
+    font-family: var(--font-heading);
   }
 }
 
 @utility max-w-app {
-  max-width: 72rem;
+  max-width: calc(var(--page-max) + 2 * var(--gutter));
 }
 
 @utility app-layout {
-  @apply max-w-app mx-auto w-full px-5 sm:px-8;
+  @apply max-w-app mx-auto w-full;
+  padding-inline: var(--gutter);
 }
 
-/* Reading column; ~66 characters at body size. */
+/* Reading column (see --measure). */
 @utility max-w-measure {
-  max-width: 68ch;
+  max-width: var(--measure);
 }
 
 @utility active-nav {
   @apply text-accent underline decoration-1 underline-offset-[6px];
 }
 
+/* UI label: uppercase, tracked, in the UI family (mono by default). */
 @utility small-caps {
-  font-variant-caps: all-small-caps;
-  letter-spacing: 0.04em;
+  font-family: var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: var(--label-tracking);
 }
 
 :target {

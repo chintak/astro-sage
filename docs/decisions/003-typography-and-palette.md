@@ -1,23 +1,28 @@
 # 003: Typography and palette
 
-**Status:** Accepted, 2026-10-15
+**Status:** Accepted, revised 2026-10-15 (supersedes the Source Serif 4 version)
 
-## Fonts
-Body: **Source Serif 4** (variable, self-hosted via the Astro Fonts API with metric-matched fallbacks, so CLS = 0). **Literata** and **Newsreader** ship as alternatives through `typography.serif`. Code: **JetBrains Mono**.
+Chosen after comparing six directions in a design lab; see [`docs/design/typography-variants.md`](../design/typography-variants.md).
 
-Optical sizing (`opsz`) is **opt-in** (`typography.opticalSizing: true`). It noticeably improves large headings, but the opsz files are 110–132 KB per style against ~51 KB for weight-only. On Lighthouse's simulated slow 4G that cost about 5 performance points (95 → 90) on the showcase, because the body paragraph is the LCP element and waits for the font swap.
+## Fonts (roles are CSS tokens: `--font-body`, `--font-heading`, `--font-ui`, `--font-code`)
+- **Body and headings:** Newsreader (variable, self-hosted through the Astro Fonts API with metric-matched fallbacks, so CLS = 0). Headings are semibold. `typography.serif` still offers Source Serif 4 and Literata.
+- **UI** (site header/footer, nav, dates, TOC, labels, captions, callout titles): JetBrains Mono, with uppercase tracked labels. It gives the page a technical voice without touching the reading text.
+- **Code:** JetBrains Mono.
+- **Optical sizing** is opt-in (`typography.opticalSizing: true`). The opsz files cost roughly 2× the weight-only files.
 
-Source Serif 4 is the default because it has the largest x-height of the three at small sizes and the most neutral italic for long passages. Literata reads more bookish and Newsreader more editorial.
+## Size and measure
+- Body text is **18.5px**, line-height 1.7. Newsreader has a small x-height, so 18.5px reads like about 17px in Source Serif or Inter.
+- The column is **40rem (640px, about 71 characters)**, a `rem` token (`--measure`), so it doesn't move when the body size changes. v1 used `68ch` on the 16px container, which collapsed to about 52 characters at 20px.
+- The page width follows the content (`measure + rail-gap + rail`), with gutters of `clamp(1rem, 4vw, 2rem)`. The TOC rail shows from 70rem (1120px) up.
 
-## Scale and rhythm
-Body `clamp(1.0625rem, 0.95rem + 0.45vw, 1.25rem)`, line-height 1.65, measure 68ch, minor-third heading scale, `text-wrap: pretty`/`balance`, old-style figures in prose, tabular lining figures in tables. Hyphenation only below 30rem, limited to words of 10+ characters.
+## Palette (WCAG verified)
+| Token | Light ("a tad warmer") | Dark ("espresso") |
+|---|---|---|
+| bg / bg-raised | `#f8f2e6` / `#f0e7d6` | `#1f1a15` / `#2a231c` |
+| fg | `#2d2620` (13.4:1) | `#ecdfcb` (13.1:1) |
+| fg-muted | `#675c4f` (≥ 5.3:1) | `#b0a08a` (≥ 6.1:1) |
+| accent | `#9c4a24` | `#e8956a` |
+| sage | `#4e6743` | `#adc29b` |
 
-## Palette (WCAG, verified)
-| Token | Light | Dark | Contrast on bg / raised |
-|---|---|---|---|
-| fg | `#3a3126` | `#e8dcc6` | 11.3 / 10.4 · 12.9 / 11.7 |
-| fg-muted | `#6b5f4f` | `#ab9d86` | 5.5 / 5.1 · 6.6 / 6.0 |
-| accent | `#9c4a24` | `#e4915f` | 5.5 / 5.0 · 7.1 / 6.5 |
-| sage | `#4e6743` | `#a3b993` | 5.6 / 5.1 · 8.3 / 7.5 |
-
-Every callout colour is ≥ 4.5:1 on both surfaces. Body text meets AAA (≥ 7:1). axe-core passes with no violations in both themes.
+- Every token and callout colour is ≥ 4.5:1 on both surfaces, and body text meets AAA (≥ 7:1). axe-core reports no violations in either theme.
+- Code blocks use `--bg-raised` for their background, so they follow the palette.

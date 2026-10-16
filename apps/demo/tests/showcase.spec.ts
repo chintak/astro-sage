@@ -132,3 +132,16 @@ test("social and share icons render", async ({ page }) => {
     page.locator('a[title*="Share this post"] svg').first()
   ).toBeAttached();
 });
+
+for (const path of [SHOWCASE]) {
+  test(`KaTeX is styled, not raw (${path})`, async ({ page }) => {
+    await page.goto(path);
+    // Without KaTeX CSS the MathML copy renders inline next to the HTML copy.
+    const mathml = page.locator(".katex-mathml").first();
+    await expect(mathml).toHaveCSS("position", "absolute");
+    // Theme spacing must win over KaTeX's unlayered `.katex-display` margin.
+    await expect(
+      page.locator(".math-display .katex-display").first()
+    ).toHaveCSS("margin-top", "0px");
+  });
+}

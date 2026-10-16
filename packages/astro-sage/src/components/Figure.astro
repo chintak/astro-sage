@@ -30,7 +30,7 @@ const { src, alt, caption, fullBleed = false, width, height } = Astro.props;
       src={src}
       alt={alt}
       widths={fullBleed ? [800, 1200, 1600] : [640, 960, 1280]}
-      sizes={fullBleed ? "min(100vw, 64rem)" : "min(100vw, 68ch)"}
+      sizes={fullBleed ? "min(100vw, 64rem)" : "min(100vw, 40rem)"}
     />
   )}
   {caption && <figcaption>{caption}</figcaption>}

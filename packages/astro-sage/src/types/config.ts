@@ -93,7 +93,10 @@ interface ShareLink {
 }
 
 interface TypographyConfig {
-  /** Body serif. All bundled faces are variable with optical sizing. */
+  /**
+   * Reading serif for body and headings. Defaults to "newsreader".
+   * All bundled faces are variable (optical sizing optional).
+   */
   serif?: "source-serif-4" | "literata" | "newsreader";
   /**
    * Ship the optical-size axis (finer headings, sturdier small text).
