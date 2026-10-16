@@ -18,6 +18,8 @@ Forked from [AstroPaper](https://github.com/satnaing/astro-paper) by Sat Naing a
 - **Diagrams:** Mermaid and Excalidraw (inline JSON, share links or files), rendered at build time to inline SVG that matches the palette. Includes a zoom/pan viewer and a full-width option. See below.
 - **Callouts:** GitHub alerts (`> [!NOTE]`) or directives (`:::warning[Title]`). Both produce the same markup.
 - **Task lists:** round checkboxes; done items get a sage tick and are struck through.
+- **Wiki-links:** `[[slug]]`, `[[slug|text]]`, `[[slug#Heading]]` and `[[#Heading]]` link posts by slug, path or title (case-insensitive), titled for you. A target that's missing, a draft or still scheduled renders as muted text and warns at build time. Inside a table, escape the pipe: `[[slug\|text]]`.
+- **Link styles:** links to other sites get a small ↗ (and `rel="noopener"`); links within the site keep a plain underline.
 - **Series:** `series: "Name"` in frontmatter gives an index page, a per-series page and "Part N of M" navigation.
 - **Comments (optional):** GitHub and X sign-in, comments, replies, edit, delete and moderation on Cloudflare Workers + D1 (free tier). Off by default.
 - **Sharing:** X, LinkedIn, Bluesky, Reddit, Hacker News and email, plus copy-link and the native share sheet on supporting devices. Configure with `shareLinks` (`{url}` / `{title}` placeholders).

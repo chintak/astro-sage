@@ -2,8 +2,9 @@ import { defineCollection } from "astro:content";
 import { z } from "astro/zod";
 import { glob } from "astro/loaders";
 
-/** Where posts live, relative to the site root. */
-export const BLOG_PATH = "src/content/posts";
+import { BLOG_PATH } from "./paths";
+
+export { BLOG_PATH };
 
 /**
  * Content collections AstroSage's routes read from. Re-export from your

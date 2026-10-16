@@ -51,7 +51,8 @@
     "satori": "^0.26.0",
     "satteri": "^0.9.3",
     "sharp": "^0.35.2",
-    "tailwindcss": "^4.3.2"
+    "tailwindcss": "^4.3.2",
+    "yaml": "^2.8.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261015.1",

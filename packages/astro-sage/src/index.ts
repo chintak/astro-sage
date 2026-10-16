@@ -28,6 +28,13 @@ import {
 } from "./markdown";
 import { diagramsPlugin } from "./diagrams/plugin";
 import {
+  linkKindsPlugin,
+  wikiLinkFingerprint,
+  wikiLinksPlugin,
+  type WikiLinkOptions,
+} from "./markdown/links";
+import { BLOG_PATH } from "./paths";
+import {
   SYNTAX_CANDIDATES,
   customizeCodeTheme,
   sageCodeThemes,
@@ -197,9 +204,18 @@ const COMMENT_ROUTES: Array<[pattern: string, entry: string]> = [
  * changes (e.g. a theme upgrade adds a frontmatter default), drop the cached
  * data store so entries are re-parsed with the new schema.
  */
-function invalidateStaleContentCache(root: URL, cacheDir: URL) {
+function invalidateStaleContentCache(
+  root: URL,
+  cacheDir: URL,
+  /** Anything else rendered output depends on (e.g. wiki-link targets). */
+  extra = ""
+) {
   const schema = readFileSync(join(srcDir, "content.ts"));
-  const digest = createHash("sha256").update(schema).digest("hex").slice(0, 16);
+  const digest = createHash("sha256")
+    .update(schema)
+    .update(extra)
+    .digest("hex")
+    .slice(0, 16);
   const marker = new URL("astro-sage-schema", cacheDir);
   const previous = existsSync(marker)
     ? readFileSync(marker, "utf8")
@@ -232,9 +248,24 @@ export default function astroSage(config: SageConfig): AstroIntegration {
       "astro:config:setup": ({
         updateConfig,
         injectRoute,
+        command,
         config: astroConfig,
       }) => {
-        invalidateStaleContentCache(astroConfig.root, astroConfig.cacheDir);
+        const wikiLinks: WikiLinkOptions = {
+          root: astroConfig.root,
+          postsDir: BLOG_PATH,
+          base: astroConfig.base,
+          trailingSlash: astroConfig.trailingSlash !== "never",
+          // Same rule as postFilter: dev shows scheduled posts, builds don't.
+          includeScheduled: command === "dev",
+          scheduledPostMargin:
+            config.posts?.scheduledPostMargin ?? 15 * 60 * 1000,
+        };
+        invalidateStaleContentCache(
+          astroConfig.root,
+          astroConfig.cacheDir,
+          wikiLinkFingerprint(wikiLinks)
+        );
 
         // Top-level public/ files, so layouts can link only icons that exist.
         const publicFiles = existsSync(astroConfig.publicDir)
@@ -272,8 +303,13 @@ export default function astroSage(config: SageConfig): AstroIntegration {
                 }),
                 katexPlugin,
                 calloutsPlugin,
+                wikiLinksPlugin(wikiLinks),
               ] as never[],
-              hastPlugins: [a11yPlugin, breakoutImagesPlugin] as never[],
+              hastPlugins: [
+                a11yPlugin,
+                breakoutImagesPlugin,
+                linkKindsPlugin({ site: astroConfig.site ?? config.site.url }),
+              ] as never[],
             }),
           },
           fonts: [

@@ -25,3 +25,5 @@ export default defineSageConfig({
 ## Why serif?
 
 For long-form reading, a well-made serif with a large x-height and moderate contrast reads as comfortably as a sans on modern screens, and it gives the page a bookish warmth.
+
+Every element mentioned here is set in [[showcase|the showcase post]], including its [[showcase#Mathematics|maths]].

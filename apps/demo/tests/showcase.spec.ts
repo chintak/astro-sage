@@ -532,6 +532,54 @@ test("code blocks show their language on the frame", async ({ page }) => {
   expect(covered).toEqual([]);
 });
 
+test("wiki-links resolve to posts, headings and this page", async ({
+  page,
+}) => {
+  await page.goto(SHOWCASE);
+  const prose = page.locator("#article");
+  // [[colophon]] → the post, titled from its frontmatter.
+  const post = prose.locator('a[href="/posts/colophon/"]').first();
+  await expect(post).toHaveText("Colophon");
+  await expect(post).toHaveClass(/link-internal/);
+  // [[colophon#Tools|the toolchain]] → a heading in another post.
+  await expect(prose.locator('a[href="/posts/colophon/#tools"]')).toHaveText(
+    "the toolchain"
+  );
+  // [[#Callouts]] → a heading on this page.
+  await expect(
+    prose.locator('p a[href="#callouts"]', { hasText: "Callouts" })
+  ).toHaveCount(1);
+  await expect(prose.locator(".wikilink-broken")).toHaveCount(0);
+  // Wiki-links work in plain Markdown too, and the target exists.
+  await page.goto("/posts/colophon/");
+  const back = page.locator('#article a[href="/posts/showcase/"]');
+  await expect(back).toHaveText("AstroSage: every element, set in type");
+  await page.locator("#article a[href='/posts/showcase/']").click();
+  await expect(page).toHaveURL(/\/posts\/showcase\/$/);
+  await page.goto("/posts/colophon/#tools");
+  await expect(page.locator("#tools")).toBeVisible();
+});
+
+test("internal and external links look different", async ({ page }) => {
+  await page.goto(SHOWCASE);
+  const ext = page.locator('#article a[href="https://docs.astro.build"]');
+  const int = page.locator('#article a[href="/posts/colophon/"]').first();
+  await expect(ext).toHaveClass(/link-external/);
+  await expect(ext).toHaveAttribute("rel", /noopener/);
+  await expect(int).toHaveClass(/link-internal/);
+  const arrow = (l: typeof ext) =>
+    l.evaluate(el => {
+      const cs = getComputedStyle(el, "::after");
+      return cs.content !== "none" && cs.content !== "normal" ? cs.width : null;
+    });
+  expect(await arrow(ext)).not.toBeNull();
+  expect(await arrow(int)).toBeNull();
+  // In-page anchors (footnotes, TOC) are neither.
+  await expect(
+    page.locator("#article a[data-footnote-ref]").first()
+  ).not.toHaveClass(/link-(internal|external)/);
+});
+
 test("task-list checkboxes are round, filled when checked", async ({
   page,
 }) => {
