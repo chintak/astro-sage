@@ -1,19 +1,29 @@
 name: Release
 
-# On every push to main, changesets/action either opens/updates the
-# "Version Packages" PR (when changesets are pending) or, once that PR is
-# merged, publishes astro-sage to npm and pushes the astro-sage@x.y.z tag.
-# Publishing uses npm trusted publishing (OIDC): no NPM_TOKEN secret.
+# On every push to main, changesets/action opens or updates the
+# "Release astro-sage" PR while changesets are pending. Once that PR is merged
+# (no changesets left), the publish step below releases the version in
+# packages/astro-sage/package.json if npm doesn't have it yet: npm publish
+# through trusted publishing (OIDC, no NPM_TOKEN) with provenance, then the
+# astro-sage@x.y.z tag and a GitHub release with the changelog section.
+#
+# Run it by hand (Actions → Release → Run workflow) with a commit to publish
+# that exact commit, e.g. to retry a release that didn't reach npm.
 
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit to publish (its package.json version must not be on npm yet)
+        required: true
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
   contents: write # version commits, tags, GitHub releases
-  pull-requests: write # the Version Packages PR
+  pull-requests: write # the Release PR
   id-token: write # npm trusted publishing + provenance
 
 jobs:
@@ -23,23 +33,58 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
           cache: "pnpm"
           registry-url: "https://registry.npmjs.org"
-      # Trusted publishing needs npm >= 11.5.1 (pnpm publishes through npm).
+      # Trusted publishing needs npm >= 11.5.1.
       - run: npm install -g npm@^11.5.1
       - run: pnpm install --frozen-lockfile
-      - uses: changesets/action@v1
+
+      - name: Open or update the Release PR
+        id: changesets
+        if: github.event_name == 'push'
+        uses: changesets/action@v1
         with:
           version: pnpm version-packages
-          publish: pnpm release
           title: Release astro-sage
           commit: Release astro-sage
-          commitMode: github-api # signed commits, as main's ruleset requires
-          createGithubReleases: true
+          commitMode: github-api # signed commits
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # npm publish directly (not `changeset publish`, which reported a
+      # publish that never reached npm): its output stays visible, and the job
+      # fails unless the version really lands on the registry.
+      - name: Publish to npm, tag, GitHub release
+        if: github.event_name == 'workflow_dispatch' || steps.changesets.outputs.hasChangesets == 'false'
+        working-directory: packages/astro-sage
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: "true"
+        run: |
+          set -euo pipefail
+          version=$(node -p 'require("./package.json").version')
+          tag="astro-sage@$version"
+          if npm view "astro-sage@$version" version >/dev/null 2>&1; then
+            echo "astro-sage@$version is already on npm; nothing to publish."
+            exit 0
+          fi
+          npm publish --access public
+          for i in 1 2 3 4 5 6; do
+            npm view "astro-sage@$version" version >/dev/null 2>&1 && break
+            [ "$i" = 6 ] && { echo "::error::npm publish exited 0 but astro-sage@$version is not on the registry"; exit 1; }
+            sleep 10
+          done
+          echo "Published astro-sage@$version"
+          if ! git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null; then
+            git tag "$tag" HEAD
+            git push origin "refs/tags/$tag"
+          fi
+          awk -v v="$version" '$0 == "## " v {on=1; next} on && /^## / {exit} on' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
+          gh release view "$tag" >/dev/null 2>&1 ||
+            gh release create "$tag" --title "astro-sage $version" --notes-file "$RUNNER_TEMP/notes.md" --verify-tag
