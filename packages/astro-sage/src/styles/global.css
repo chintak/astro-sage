@@ -79,9 +79,11 @@
   @apply text-accent underline decoration-1 underline-offset-[6px];
 }
 
+/* UI label: uppercase, tracked, in the UI family (mono by default). */
 @utility small-caps {
-  font-variant-caps: all-small-caps;
-  letter-spacing: 0.04em;
+  font-family: var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: var(--label-tracking);
 }
 
 :target {

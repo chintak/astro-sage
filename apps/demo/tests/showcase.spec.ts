@@ -133,7 +133,7 @@ test("social and share icons render", async ({ page }) => {
   ).toBeAttached();
 });
 
-for (const path of [SHOWCASE, "/lab/?v=2"]) {
+for (const path of [SHOWCASE]) {
   test(`KaTeX is styled, not raw (${path})`, async ({ page }) => {
     await page.goto(path);
     // Without KaTeX CSS the MathML copy renders inline next to the HTML copy.

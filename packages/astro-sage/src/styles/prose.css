@@ -302,10 +302,10 @@
         align-items: center;
         gap: 0.45em;
         color: var(--c);
-        font-weight: 650;
-        font-variant-caps: all-small-caps;
-        letter-spacing: 0.05em;
-        font-size: 1.05em;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: var(--label-tracking);
+        font-size: 0.75em;
         line-height: 1.3;
         &::before {
           content: "";

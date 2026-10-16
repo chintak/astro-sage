@@ -20,24 +20,28 @@
 }
 
 /*
- * Typography and layout tokens. Families are split by role so a site (or a
- * design variant) can pair faces, e.g. serif body with sans headings and UI.
+ * Typography and layout tokens. Families are split by role: a serif for
+ * reading (body + headings) and JetBrains Mono for the UI (nav, dates, TOC,
+ * labels, captions). Override any of these in your own CSS.
+ * See docs/design/typography-variants.md (variant 6).
  */
 :root {
   --font-body: var(--font-serif), Georgia, serif;
   --font-heading: var(--font-body);
-  --font-ui: var(--font-body);
+  --font-ui: var(--font-mono), ui-monospace, monospace;
   --font-code: var(--font-mono), ui-monospace, monospace;
 
-  --text-body: clamp(1.0625rem, 1rem + 0.2vw, 1.125rem); /* 17–18px */
-  --leading-body: 1.65;
+  /* Newsreader has a small x-height; 18.5px reads like ~17px elsewhere. */
+  --text-body: 1.15625rem; /* 18.5px */
+  --leading-body: 1.7;
   --heading-weight: 600;
-  --heading-tracking: -0.01em;
+  --heading-tracking: -0.015em;
   --heading-scale: 1.2; /* minor third */
-  --ui-size: 0.9rem;
+  --ui-size: 0.78rem;
+  --label-tracking: 0.06em;
 
-  /* Reading column in rem, so it doesn't shift when the body size changes. */
-  --measure: 42rem;
+  /* Reading column in rem, so it doesn't shift when the body size changes. ~68 chars. */
+  --measure: 37rem;
   --rail: 15rem;
   --rail-gap: clamp(2.5rem, 4vw, 3.5rem);
   --gutter: clamp(1rem, 4vw, 2rem);
@@ -47,16 +51,16 @@
 :root,
 [data-theme="light"] {
   color-scheme: light;
-  --bg: #f8f1e3;
-  --bg-raised: #f1e7d3;
-  --fg: #3a3126;
-  --fg-muted: #6b5f4f;
+  --bg: #f7f3eb;
+  --bg-raised: #eee8dc;
+  --fg: #2b2722;
+  --fg-muted: #655e54;
   --accent: #9c4a24;
   --accent-fg: #fffaf0;
   --sage: #4e6743;
-  --border: #e2d4b9;
-  --selection: #f0d6a2;
-  --mark: #f6dc9a;
+  --border: #e0d8c8;
+  --selection: #efd9b0;
+  --mark: #f3dfa8;
 
   --callout-note: #46657f;
   --callout-tip: #4e6743;
@@ -67,14 +71,14 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg: #1d1913;
-  --bg-raised: #27211a;
-  --fg: #e8dcc6;
-  --fg-muted: #ab9d86;
+  --bg: #1c1a17;
+  --bg-raised: #26231f;
+  --fg: #e9e3d8;
+  --fg-muted: #a69e91;
   --accent: #e4915f;
   --accent-fg: #1d1913;
   --sage: #a3b993;
-  --border: #3b3228;
+  --border: #39342d;
   --selection: #5a4630;
   --mark: #5c4a22;
 
