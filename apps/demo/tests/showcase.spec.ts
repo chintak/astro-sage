@@ -145,3 +145,27 @@ for (const path of [SHOWCASE]) {
     ).toHaveCSS("margin-top", "0px");
   });
 }
+
+test("reading column stays within 66–71 characters on tablet and desktop", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, "phones are narrower than 66 characters by design");
+  await page.goto(SHOWCASE);
+  await page.evaluate(() => document.fonts.ready);
+  for (const width of [768, 1024, 1280, 1400, 1440, 1920, 2560]) {
+    await page.setViewportSize({ width, height: 900 });
+    const chars = await page.evaluate(() => {
+      const p = [
+        ...document.querySelectorAll<HTMLElement>("#article > p"),
+      ].find(el => el.innerText.length > 200)!;
+      const cs = getComputedStyle(p);
+      const ctx = document.createElement("canvas").getContext("2d")!;
+      ctx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+      const cw = ctx.measureText("abcdefghijklmnopqrstuvwxyz").width / 26;
+      return p.getBoundingClientRect().width / cw;
+    });
+    expect(Math.round(chars), `${width}px`).toBeGreaterThanOrEqual(66);
+    expect(Math.round(chars), `${width}px`).toBeLessThanOrEqual(71);
+  }
+});

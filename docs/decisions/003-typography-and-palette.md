@@ -12,7 +12,7 @@ Chosen after comparing six directions in a design lab; see [`docs/design/typogra
 
 ## Size and measure
 - Body text is **18.5px**, line-height 1.7. Newsreader has a small x-height, so 18.5px reads like about 17px in Source Serif or Inter.
-- The column is **40rem (640px, about 71 characters)**, a `rem` token (`--measure`), so it doesn't move when the body size changes. v1 used `68ch` on the 16px container, which collapsed to about 52 characters at 20px.
+- The column is defined in **characters of the body face**, not px, rem or %: `--measure: clamp(66ch*, 44vw, 71ch*)`, where `--char = --text-body × 0.487` (Newsreader's average character width). It stays at **66 characters** up to ~1350px, grows with the viewport, and caps at **71 characters** (640px) from ~1450px up. Because it's tied to `--text-body`, changing the body size keeps the same character counts. A Playwright test enforces 66–71 from 768px to 2560px. Pure `%` was rejected: 44vw is 50 characters at 1024px and 126 at 2560px. v1 used `68ch` on the 16px container, which collapsed to about 52 characters at 20px.
 - The page width follows the content (`measure + rail-gap + rail`), with gutters of `clamp(1rem, 4vw, 2rem)`. The TOC rail shows from 70rem (1120px) up.
 
 ## Palette (WCAG verified)

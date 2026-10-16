@@ -40,8 +40,15 @@
   --ui-size: 0.78rem;
   --label-tracking: 0.06em;
 
-  /* Reading column in rem, so it doesn't shift when the body size changes. ~73 chars. */
-  --measure: 40rem;
+  /*
+   * Reading column, defined in characters of the body face: 66–71 chars per
+   * line, growing with the viewport in between. --char is Newsreader's
+   * average character width (≈ 0.487em); adjust it if you change the body face.
+   */
+  --char: calc(var(--text-body) * 0.487);
+  --measure-min: calc(var(--char) * 66);
+  --measure-max: calc(var(--char) * 71);
+  --measure: clamp(var(--measure-min), 44vw, var(--measure-max));
   --rail: 15rem;
   --rail-gap: clamp(2.5rem, 4vw, 3.5rem);
   --gutter: clamp(1rem, 4vw, 2rem);

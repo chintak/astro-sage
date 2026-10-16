@@ -48,4 +48,4 @@ Compare them live at `/lab/` in the demo (the switcher sits at the top; light an
 Newsreader's x-height is small, so at 17.5px it reads like ~16px in Source Serif, and ~68 characters needs a 35rem (560px) column. At 1440px that leaves ~292px side margins, about the same as v1. Options: 18.5px at 37rem (~68ch, ~276px margins) or keep 17.5px at 38rem (~74ch, ~268px margins).
 
 ## Outcome (2026-10-15)
-Shipped variant 6 with these adjustments: body **18.5px**, column **40rem (~71 characters)**, and a slightly warmer light palette (`#f8f2e6`) paired with an **espresso** dark palette (`#1f1a15`). The other dark candidates were warm charcoal, ink & ember, dusk sepia and moss night. Details: [decision 003](../decisions/003-typography-and-palette.md).
+Shipped variant 6 with these adjustments: body **18.5px**, column clamped to **66–71 characters** (`clamp(66 chars, 44vw, 71 chars)`, in units of the body face), and a slightly warmer light palette (`#f8f2e6`) paired with an **espresso** dark palette (`#1f1a15`). The other dark candidates were warm charcoal, ink & ember, dusk sepia and moss night. Details: [decision 003](../decisions/003-typography-and-palette.md).

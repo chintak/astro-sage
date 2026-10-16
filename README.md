@@ -10,7 +10,7 @@ Forked from [AstroPaper](https://github.com/satnaing/astro-paper) by Sat Naing a
 
 ## Features
 
-- **Typography:** Newsreader for reading (or Source Serif 4 / Literata) with JetBrains Mono for the UI, self-hosted with metric-matched fallbacks (CLS 0). 18.5px body, about 71 characters per line, `text-wrap: pretty`, old-style figures, optional optical sizing.
+- **Typography:** Newsreader for reading (or Source Serif 4 / Literata) with JetBrains Mono for the UI, self-hosted with metric-matched fallbacks (CLS 0). 18.5px body, a column clamped to 66–71 characters per line, `text-wrap: pretty`, old-style figures, optional optical sizing.
 - **Warm palette:** warm paper in light mode, espresso in dark. Every colour is a CSS variable in one file and is WCAG-checked.
 - **Pinned TOC:** a right rail at ≥ 1280px that highlights the section you're reading. It becomes a collapsible "On this page" block on smaller screens.
 - **Math:** `$…$` and `$$…$$` rendered by KaTeX at build time. No math JavaScript, and KaTeX CSS loads only on posts that use it.
