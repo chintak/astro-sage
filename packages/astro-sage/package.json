@@ -1,6 +1,6 @@
 {
   "name": "astro-sage",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "A readability-first Astro blog theme: serif typography, warm sepia palette, pinned TOC, KaTeX, Expressive Code.",
   "type": "module",

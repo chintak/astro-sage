@@ -53,7 +53,7 @@ AstroSage isn't on npm. Add it as a git submodule pinned to a release:
 
 ```bash
 git submodule add https://github.com/chintak/astro-sage vendor/astro-sage
-git -C vendor/astro-sage checkout astro-sage@0.1.0
+git -C vendor/astro-sage checkout astro-sage@0.1.1
 ```
 
 List `vendor/astro-sage/packages/*` in `pnpm-workspace.yaml`, add `"astro-sage": "workspace:*"` to your dependencies, then register the theme. It adds every page itself, so you can delete your `src/pages/`:
