@@ -75,6 +75,8 @@ export function pluginLanguageLabel() {
     baseStyles: `
       .sage-lang {
         position: absolute;
+        /* Above the titled frame's header, which draws the top border. */
+        z-index: 2;
         inset-block-start: 0;
         inset-inline-end: 0.9rem;
         translate: 0 -50%;

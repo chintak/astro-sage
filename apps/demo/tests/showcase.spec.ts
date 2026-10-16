@@ -513,6 +513,23 @@ test("code blocks show their language on the frame", async ({ page }) => {
     .locator(".copy button")
     .getAttribute("data-code");
   expect(code).not.toContain("Python");
+  // Nothing (e.g. a titled frame's header border) paints over any label.
+  const covered = await page.evaluate(() =>
+    [...document.querySelectorAll<HTMLElement>(".sage-lang")]
+      .map(l => {
+        l.scrollIntoView({ block: "center", behavior: "instant" });
+        l.style.pointerEvents = "auto";
+        const r = l.getBoundingClientRect();
+        const hit = document.elementFromPoint(
+          r.left + r.width / 2,
+          r.top + r.height / 2
+        );
+        l.style.pointerEvents = "";
+        return hit === l ? null : l.textContent;
+      })
+      .filter(Boolean)
+  );
+  expect(covered).toEqual([]);
 });
 
 test("task-list checkboxes are round, filled when checked", async ({
