@@ -662,6 +662,39 @@ test("og:image:type matches the image file", async ({ page }) => {
   }
 });
 
+test("content pages get prose spacing", async ({ page }) => {
+  await page.goto("/about/");
+  // Every heading clears the element after it (no overlap from a missing flow margin).
+  const overlaps = await page.evaluate(() =>
+    [...document.querySelectorAll(".app-prose :is(h2, h3)")]
+      .map(h => {
+        const next = h.nextElementSibling;
+        if (!next) return null;
+        const gap =
+          next.getBoundingClientRect().top - h.getBoundingClientRect().bottom;
+        return gap < 4 ? `${h.textContent} (${gap.toFixed(1)}px)` : null;
+      })
+      .filter(Boolean)
+  );
+  expect(overlaps).toEqual([]);
+  // Wiki-links work on pages too.
+  await expect(
+    page.locator('.app-prose a[href="/posts/showcase/"]').first()
+  ).toHaveText("the showcase post");
+});
+
+test("Series nav link shows when a published post is in a series", async ({
+  page,
+}) => {
+  // The demo's showcase belongs to "Building AstroSage". Without any series,
+  // the link is omitted (checked by building without series).
+  await page.goto("/");
+  // By href: on phones the nav sits in a collapsed menu.
+  await expect(
+    page.locator('header a[href="/series/"]').first()
+  ).toBeAttached();
+});
+
 test("task-list checkboxes are round, filled when checked", async ({
   page,
 }) => {
