@@ -80,6 +80,11 @@
   padding-top: 2rem;
   border-top: 1px solid var(--border);
 }
+/* The citation draws its own rule above; don't stack a second one on it. */
+.post-footer:has(> .citation:first-child) {
+  padding-top: 0;
+  border-top: 0;
+}
 
 /*
  * Breakout figures (images, diagrams, anything with these classes):
