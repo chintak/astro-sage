@@ -319,3 +319,29 @@ for (const width of [375, 1024, 1440, 1920]) {
     }
   });
 }
+
+test("every tag shows its post count, matching its tag page", async ({
+  page,
+}) => {
+  await page.goto("/tags/");
+  const tags = await page.locator("a.tag").evaluateAll(els =>
+    els.map(a => ({
+      href: (a as HTMLAnchorElement).getAttribute("href")!,
+      count: Number(a.querySelector(".tag-count [aria-hidden]")!.textContent),
+      sr: a.querySelector(".tag-count .sr-only")!.textContent,
+    }))
+  );
+  expect(tags.length).toBeGreaterThan(0);
+  for (const t of tags) {
+    expect(t.sr).toBe(`(${t.count} ${t.count === 1 ? "post" : "posts"})`);
+    await page.goto(t.href);
+    await expect(page.locator("#main-content li.post-card")).toHaveCount(
+      t.count
+    );
+  }
+  // Tags in a post footer carry counts too.
+  await page.goto(SHOWCASE);
+  await expect(
+    page.locator(".post-footer a.tag .tag-count").first()
+  ).toBeVisible();
+});

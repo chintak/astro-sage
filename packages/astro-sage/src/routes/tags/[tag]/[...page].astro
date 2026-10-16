@@ -41,7 +41,7 @@ const t = useTranslations(locale);
 
   <Main
     pageTitle={`${t.pages.tagTitle}: ${tagName}`}
-    pageDesc={`${t.pages.tagDesc} "${tagName}".`}
+    pageDesc={`${page.total} ${page.total === 1 ? "post" : "posts"} tagged "${tagName}".`}
   >
     <ul>
       {page.data.map(data => (
