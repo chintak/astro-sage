@@ -128,11 +128,6 @@
   width: calc(100cqw - 2 * var(--gutter));
   margin-inline-start: calc(var(--gutter) - var(--bleed-left));
 }
-/* Keep captions on the reading column even when the figure bleeds. */
-.post-body :is(.figure-full, .full-bleed) > figcaption {
-  width: var(--col-w);
-  margin-inline-start: calc(var(--bleed-left) - var(--gutter));
-}
 .post-body :is(.figure-full, .full-bleed) img {
   width: 100%;
 }

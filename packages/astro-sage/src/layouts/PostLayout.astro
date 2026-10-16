@@ -43,11 +43,9 @@ const structuredData = {
 };
 ---
 
-<Layout {title} {description} {ogImage} {canonicalURL}>
+<Layout {title} {description} {ogImage} {canonicalURL} ogType="article">
   <Fragment slot="head">
     {math && <link rel="stylesheet" href={katexCss} />}
-    <!-- Override og:type for article pages -->
-    <meta property="og:type" content="article" />
 
     {pubDatetime && (
       <meta

@@ -115,7 +115,7 @@ Images, diagrams and figures come in three sizes, written the same way everywher
 | wide | column + TOC rail (up to 64rem without the rail) | `![alt](./x.jpg "wide")` | ` ```mermaid wide ` | `<Figure … size="wide" />` |
 | full | the whole viewport, minus the page gutter on each side | `![alt](./x.jpg "full")` | ` ```mermaid full ` | `<Figure … size="full" />` |
 
-Captions on `full` figures stay on the reading column. The pinned TOC fades out while a `wide` or `full` figure passes beneath it. Markdown images use their alt text as the caption.
+Captions are centred under the figure. The pinned TOC fades out while a `wide` or `full` figure passes beneath it. Markdown images use their alt text as the caption.
 
 ## Comments (Cloudflare Workers + D1)
 

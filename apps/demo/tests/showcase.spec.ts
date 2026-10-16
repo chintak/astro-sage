@@ -284,9 +284,6 @@ for (const width of [375, 1024, 1440, 1920]) {
       const gutter = parseFloat(
         getComputedStyle(document.querySelector(".app-layout")!).paddingLeft
       );
-      const col = document
-        .querySelector("#article > p")!
-        .getBoundingClientRect();
       return {
         vw,
         gutter,
@@ -295,14 +292,20 @@ for (const width of [375, 1024, 1440, 1920]) {
           ...document.querySelectorAll<HTMLElement>("#article .figure-full"),
         ].map(el => {
           const b = el.getBoundingClientRect();
-          const cap = el
-            .querySelector(":scope > figcaption")
-            ?.getBoundingClientRect();
+          // Measure the caption's text, not its box, to check it's centred.
+          const capEl = el.querySelector(":scope > figcaption");
+          let capCentre: number | undefined;
+          if (capEl) {
+            const range = document.createRange();
+            range.selectNodeContents(capEl);
+            const r = range.getBoundingClientRect();
+            capCentre = r.left + r.width / 2;
+          }
           return {
             left: b.left,
             right: vw - b.right,
-            capLeft: cap?.left,
-            colLeft: col.left,
+            capCentre,
+            figCentre: b.left + b.width / 2,
           };
         }),
       };
@@ -312,8 +315,9 @@ for (const width of [375, 1024, 1440, 1920]) {
     for (const f of result.figures) {
       expect(Math.abs(f.left - result.gutter)).toBeLessThanOrEqual(1);
       expect(Math.abs(f.right - result.gutter)).toBeLessThanOrEqual(1);
-      if (f.capLeft !== undefined)
-        expect(Math.abs(f.capLeft - f.colLeft)).toBeLessThanOrEqual(1);
+      // Captions centre under the figure, like wide figures.
+      if (f.capCentre !== undefined)
+        expect(Math.abs(f.capCentre - f.figCentre)).toBeLessThanOrEqual(2);
     }
   });
 }
@@ -425,4 +429,60 @@ test("citation block offers text and BibTeX", async ({ page }) => {
   expect(bib).toContain(
     "url     = {https://astro-sage.pages.dev/posts/showcase/}"
   );
+});
+
+test("selecting text offers to share it as a quote", async ({ page }) => {
+  await page.goto(SHOWCASE);
+  await page.evaluate(() => {
+    const p = document.querySelector("#article > p")!;
+    const text = p.firstChild!;
+    const range = document.createRange();
+    range.setStart(text, 0);
+    range.setEnd(text, "Good typography is invisible.".length);
+    const sel = document.getSelection()!;
+    sel.removeAllRanges();
+    sel.addRange(range);
+  });
+  const bar = page.locator(".quote-share");
+  await expect(bar).toBeVisible();
+  const x = await bar.locator('a[data-t="x"]').getAttribute("href");
+  const link =
+    "https://astro-sage.pages.dev/posts/showcase/#:~:text=Good%20typography%20is%20invisible.";
+  expect(x).toContain(
+    encodeURIComponent(
+      "“Good typography is invisible.” — AstroSage: every element, set in type"
+    )
+  );
+  expect(x).toContain(encodeURIComponent(link));
+  await page.keyboard.press("Escape");
+  await expect(bar).toBeHidden();
+});
+
+test("social meta tags for share previews", async ({ page }) => {
+  await page.goto(SHOWCASE);
+  const meta = (sel: string) => page.locator(`meta[${sel}]`);
+  await expect(meta('property="og:type"')).toHaveCount(1);
+  await expect(meta('property="og:type"')).toHaveAttribute(
+    "content",
+    "article"
+  );
+  await expect(meta('property="og:image"')).toHaveAttribute(
+    "content",
+    "https://astro-sage.pages.dev/posts/showcase/index.png"
+  );
+  await expect(meta('property="og:image:width"')).toHaveAttribute(
+    "content",
+    "1200"
+  );
+  await expect(meta('name="twitter:card"')).toHaveAttribute(
+    "content",
+    "summary_large_image"
+  );
+  await expect(meta('name="twitter:image"')).toHaveAttribute(
+    "content",
+    "https://astro-sage.pages.dev/posts/showcase/index.png"
+  );
+  const res = await page.request.get("/posts/showcase/index.png");
+  expect(res.status()).toBe(200);
+  expect(res.headers()["content-type"]).toContain("image/png");
 });

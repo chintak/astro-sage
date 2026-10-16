@@ -17,6 +17,7 @@ import TableOfContents from "@sage/components/TableOfContents.astro";
 import SeriesNav from "@sage/components/SeriesNav.astro";
 import Comments from "@sage/components/Comments.astro";
 import Citation from "@sage/components/Citation.astro";
+import QuoteShare from "@sage/components/QuoteShare.astro";
 import { readingTime } from "@sage/utils/readingTime";
 import { getSeriesPosts } from "@sage/utils/getSeries";
 import { postFilter } from "@sage/utils/postFilter";
@@ -169,6 +170,15 @@ const ogImage = ogImageUrl
       <article id="article" class="app-prose post-body">
         <Content />
       </article>
+      <QuoteShare
+        url={
+          new URL(
+            getPostUrl(post.id, post.filePath, locale),
+            Astro.site ?? Astro.url
+          ).href
+        }
+        title={title}
+      />
 
       {showToc && (
         <aside class="post-rail" aria-label="Table of contents">

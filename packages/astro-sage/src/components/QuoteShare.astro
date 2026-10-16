@@ -1,0 +1,66 @@
+---
+type Props = { url: string; title: string };
+const { url, title } = Astro.props;
+---
+
+<div hidden data-quote-share data-url={url} data-title={title}></div>
+
+<script>
+  // Load the quote-share toolbar only once the reader selects some text.
+  const cfg = document.querySelector<HTMLElement>("[data-quote-share]");
+  const root = document.getElementById("article");
+  if (cfg && root) {
+    const onSelect = () => {
+      const s = document.getSelection();
+      if (!s || s.isCollapsed || !root.contains(s.anchorNode)) return;
+      document.removeEventListener("selectionchange", onSelect);
+      import("@sage/share/quote").then(m => {
+        m.init({ root, url: cfg.dataset.url!, title: cfg.dataset.title! });
+        document.dispatchEvent(new Event("selectionchange"));
+      });
+    };
+    document.addEventListener("selectionchange", onSelect);
+  }
+</script>
+
+<style is:global>
+  .quote-share {
+    position: absolute;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    padding: 0.25rem 0.35rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg);
+    box-shadow: 0 10px 28px -14px rgb(0 0 0 / 0.45);
+    font: 0.72rem var(--font-ui);
+    color: var(--fg-muted);
+  }
+  .quote-share[hidden] {
+    display: none;
+  }
+  .quote-share .qs-label {
+    padding-inline: 0.45rem 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: var(--label-tracking);
+  }
+  .quote-share :is(a, button) {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    color: var(--fg-muted);
+  }
+  .quote-share :is(a, button):hover,
+  .quote-share :is(a, button):focus-visible {
+    color: var(--accent);
+    background: var(--bg-raised);
+  }
+  .quote-share .qs-status:not(:empty) {
+    padding-inline: 0.35rem 0.5rem;
+    color: var(--sage);
+  }
+</style>
