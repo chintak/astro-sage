@@ -440,6 +440,17 @@ test("citation block is folded and offers text and BibTeX", async ({
   );
 });
 
+test("the citation's rule is the only divider above it", async ({ page }) => {
+  await page.goto(SHOWCASE);
+  const footer = page.locator("footer.post-footer");
+  await expect(footer.locator("> details.citation:first-child")).toHaveCount(1);
+  await expect(footer).toHaveCSS("border-top-width", "0px");
+  await expect(page.locator("details.citation")).toHaveCSS(
+    "border-top-width",
+    "1px"
+  );
+});
+
 test("selecting text offers to share it as a quote", async ({ page }) => {
   await page.goto(SHOWCASE);
   await page.evaluate(() => {
