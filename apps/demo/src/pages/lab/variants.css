@@ -177,3 +177,37 @@ html[data-variant="5"] .toc-label {
 html[data-variant="5"] .post-dek {
   font-style: normal;
 }
+
+/* ---------- 6. Mix: Newsreader + JetBrains Mono UI, neutral warm paper ---------- */
+html[data-variant="6"] {
+  --font-body: "Newsreader", Georgia, serif;
+  --font-heading: "Newsreader", Georgia, serif;
+  --font-ui: var(--font-mono), ui-monospace, monospace;
+  --text-body: 1.09375rem;
+  --leading-body: 1.7;
+  --heading-weight: 600;
+  --heading-tracking: -0.015em;
+  --heading-scale: 1.2;
+  --ui-size: 0.78rem;
+  --measure: 35rem;
+}
+html[data-variant="6"] .small-caps,
+html[data-variant="6"] .toc-label {
+  font-variant-caps: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+html[data-variant="6"][data-theme="light"] {
+  --bg: #f7f3eb;
+  --bg-raised: #eee8dc;
+  --fg: #2b2722;
+  --fg-muted: #655e54;
+  --border: #e0d8c8;
+}
+html[data-variant="6"][data-theme="dark"] {
+  --bg: #1c1a17;
+  --bg-raised: #26231f;
+  --fg: #e9e3d8;
+  --fg-muted: #a69e91;
+  --border: #39342d;
+}

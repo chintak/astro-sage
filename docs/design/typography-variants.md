@@ -33,6 +33,8 @@ The column is `68ch`, but `ch` resolves against the 16px grid container while th
 | 4 | **Literary Long-form** | Newsreader | Newsreader display, 400, large | Inter, small caps | 19.5px / 1.75 | 40rem (~66ch) | Deeper sepia `#f3ebdb` | Maggie Appleton |
 | 5 | **Engineer's Notebook** | Inter | Inter, 700 | JetBrains Mono (meta, TOC, eyebrows) | 16.5px / 1.65 | 43rem (~80ch) | Current sepia, sage accent | Lil'Log / PaperMod |
 
+| 6 | **Mix** (chosen elements) | Newsreader | Newsreader, 600 | JetBrains Mono, uppercase labels | 17.5px / 1.7 | 35rem (~68ch) | Neutral warm paper `#f7f3eb` | Body from #4, UI from #5, size from #2, palette from #3 |
+
 ### Rationale
 1. **Refined Serif:** keeps the bookish identity and fixes the measure and frame. Lowest-risk change.
 2. **Research Paper:** serif for reading, sans for structure. Headings and UI scan faster, and the page feels contemporary rather than antique. This is the most common pairing among the references.
@@ -41,3 +43,6 @@ The column is `68ch`, but `ch` resolves against the 16px grid container while th
 5. **Engineer's Notebook:** a dense, efficient sans with mono details for an "engineering log" voice. Closest to PaperMod and Lil'Log, and fits the most text per screen.
 
 Compare them live at `/lab/` in the demo (the switcher sits at the top; light and dark both work).
+
+### Note on variant 6
+Newsreader's x-height is small, so at 17.5px it reads like ~16px in Source Serif, and ~68 characters needs a 35rem (560px) column. At 1440px that leaves ~292px side margins, about the same as v1. Options: 18.5px at 37rem (~68ch, ~276px margins) or keep 17.5px at 38rem (~74ch, ~268px margins).

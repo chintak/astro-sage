@@ -44,6 +44,11 @@ const VARIANTS = [
     name: "Engineer's Notebook",
     note: "Inter body · JetBrains Mono meta/TOC · 16.5px · 43rem. Like Lil'Log / PaperMod.",
   },
+  {
+    id: "6",
+    name: "Mix",
+    note: "Newsreader body & headings · JetBrains Mono UI · 17.5px · ~68 chars · neutral warm paper.",
+  },
 ];
 ---
 
@@ -134,7 +139,7 @@ const VARIANTS = [
     if (b) select(b.dataset.v);
   });
   document.addEventListener("keydown", e => {
-    if (/^[1-5]$/.test(e.key) && !e.target.closest("input, textarea"))
+    if (/^[1-6]$/.test(e.key) && !e.target.closest("input, textarea"))
       select(e.key);
   });
   select(document.documentElement.dataset.variant);
