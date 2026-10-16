@@ -2,7 +2,7 @@ import { defineSageConfig } from "astro-sage";
 
 export default defineSageConfig({
   site: {
-    url: "https://astro-sage.pages.dev/",
+    url: "https://astro-sage.chintak.sh/",
     title: "AstroSage",
     description:
       "A readability-first Astro blog theme: serif type, warm paper, and a pinned table of contents.",
@@ -18,7 +18,13 @@ export default defineSageConfig({
     intro:
       "A quiet, warm theme for long-form technical writing. Serif type set for reading, math and code that look like they belong, and a table of contents that keeps its place.",
   },
-  comments: { provider: "cloudflare-d1", admins: ["github:chintak"] },
+  // GitHub-backed comments; works on any static host. Needs the utterances
+  // app installed on the repo: https://github.com/apps/utterances
+  comments: {
+    provider: "utterances",
+    repo: "chintak/astro-sage",
+    label: "comments",
+  },
   posts: { perPage: 8, perIndex: 6, scheduledPostMargin: 15 * 60 * 1000 },
   features: {
     lightAndDarkMode: true,

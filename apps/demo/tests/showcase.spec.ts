@@ -401,7 +401,7 @@ test("share sheet links to every platform with the canonical URL and title", asy
 }) => {
   await page.goto(SHOWCASE);
   const url = encodeURIComponent(
-    "https://astro-sage.pages.dev/posts/showcase/"
+    "https://astro-sage.chintak.sh/posts/showcase/"
   );
   const title = encodeURIComponent("AstroSage: every element, set in type");
   const expected = [
@@ -431,12 +431,12 @@ test("citation block is folded and offers text and BibTeX", async ({
   await expect(page.locator(".toc a", { hasText: /cite/i })).toHaveCount(0);
   await cite.locator("summary").click();
   await expect(cite.locator(".citation-text")).toContainText(
-    "Sheth, Chintak. (Oct 2026). AstroSage: every element, set in type. astro-sage.pages.dev."
+    "Sheth, Chintak. (Oct 2026). AstroSage: every element, set in type. astro-sage.chintak.sh."
   );
   const bib = await cite.locator(".citation-bib code").textContent();
   expect(bib).toContain("@article{sheth2026showcase,");
   expect(bib).toContain(
-    "url     = {https://astro-sage.pages.dev/posts/showcase/}"
+    "url     = {https://astro-sage.chintak.sh/posts/showcase/}"
   );
 });
 
@@ -456,7 +456,7 @@ test("selecting text offers to share it as a quote", async ({ page }) => {
   await expect(bar).toBeVisible();
   const x = await bar.locator('a[data-t="x"]').getAttribute("href");
   const link =
-    "https://astro-sage.pages.dev/posts/showcase/#:~:text=Good%20typography%20is%20invisible.";
+    "https://astro-sage.chintak.sh/posts/showcase/#:~:text=Good%20typography%20is%20invisible.";
   expect(x).toContain(
     encodeURIComponent(
       "“Good typography is invisible.” — AstroSage: every element, set in type"
@@ -580,6 +580,88 @@ test("internal and external links look different", async ({ page }) => {
   ).not.toHaveClass(/link-(internal|external)/);
 });
 
+test("RSS feed carries full, self-contained posts", async ({
+  page,
+  request,
+}) => {
+  await page.goto(SHOWCASE);
+  await expect(
+    page.locator('head link[rel="alternate"][type="application/rss+xml"]')
+  ).toHaveAttribute("href", "https://astro-sage.chintak.sh/rss.xml");
+
+  const res = await request.get("/rss.xml");
+  expect(res.ok()).toBe(true);
+  const xml = await res.text();
+  expect(xml).toContain(
+    '<atom:link href="https://astro-sage.chintak.sh/rss.xml" rel="self"'
+  );
+  expect(xml).toContain("<language>en</language>");
+  // Parse it as a feed reader would.
+  const feed = await page.evaluate(src => {
+    const doc = new DOMParser().parseFromString(src, "application/xml");
+    if (doc.querySelector("parsererror")) return null;
+    return [...doc.querySelectorAll("item")].map(item => ({
+      link: item.querySelector("link")?.textContent,
+      pubDate: item.querySelector("pubDate")?.textContent,
+      creator: item.getElementsByTagName("dc:creator")[0]?.textContent,
+      categories: [...item.querySelectorAll("category")].map(
+        c => c.textContent
+      ),
+      html: item.getElementsByTagName("content:encoded")[0]?.textContent ?? "",
+    }));
+  }, xml);
+  expect(feed).not.toBeNull();
+  // Published posts only; drafts and not-yet-due scheduled posts stay out.
+  expect(feed!.length).toBeGreaterThanOrEqual(2);
+  const showcase = feed!.find(i => i.link?.endsWith("/posts/showcase/"))!;
+  expect(showcase.creator).toBe("Chintak Sheth");
+  expect(showcase.categories).toContain("typography");
+  expect(showcase.pubDate).toBe("Thu, 15 Oct 2026 09:00:00 GMT");
+  const html = showcase.html;
+  expect(html.length).toBeGreaterThan(10_000);
+  expect(html).toContain("<math"); // KaTeX as MathML
+  expect(html).toContain("<svg"); // diagrams inline
+  for (const bad of ["<script", "<button", "katex-html", "diagram-dark"])
+    expect(html).not.toContain(bad);
+  const urls = [...html.matchAll(/(?:href|src)="([^"]+)"/g)].map(m => m[1]);
+  expect(urls.length).toBeGreaterThan(0);
+  expect(urls.filter(u => !/^(https?:|mailto:|data:)/.test(u))).toEqual([]);
+});
+
+test("comments load the utterances widget lazily, themed", async ({ page }) => {
+  const loads: string[] = [];
+  await page.route("https://utteranc.es/**", route => {
+    loads.push(route.request().url());
+    return route.fulfill({ contentType: "text/javascript", body: "" });
+  });
+  await page.goto(SHOWCASE);
+  const script = page.locator('#comments script[src*="utteranc.es"]');
+  await expect(script).toHaveCount(0);
+  expect(loads).toEqual([]);
+  await page.locator("#comments").scrollIntoViewIfNeeded();
+  await expect(script).toHaveCount(1);
+  await expect(script).toHaveAttribute("repo", "chintak/astro-sage");
+  await expect(script).toHaveAttribute("issue-term", "pathname");
+  await expect(script).toHaveAttribute("label", "comments");
+  await expect(script).toHaveAttribute(
+    "theme",
+    /^(github-light|gruvbox-dark)$/
+  );
+  expect(loads).toEqual(["https://utteranc.es/client.js"]);
+});
+
+test("og:image:type matches the image file", async ({ page }) => {
+  for (const [path, type] of [
+    ["/", "image/jpeg"], // public/default-og.jpg
+    [SHOWCASE, "image/png"], // generated per post
+  ] as const) {
+    await page.goto(path);
+    await expect(
+      page.locator('meta[property="og:image:type"]')
+    ).toHaveAttribute("content", type);
+  }
+});
+
 test("task-list checkboxes are round, filled when checked", async ({
   page,
 }) => {
@@ -624,7 +706,7 @@ test("social meta tags for share previews", async ({ page }) => {
   );
   await expect(meta('property="og:image"')).toHaveAttribute(
     "content",
-    "https://astro-sage.pages.dev/posts/showcase/index.png"
+    "https://astro-sage.chintak.sh/posts/showcase/index.png"
   );
   await expect(meta('property="og:image:width"')).toHaveAttribute(
     "content",
@@ -636,7 +718,7 @@ test("social meta tags for share previews", async ({ page }) => {
   );
   await expect(meta('name="twitter:image"')).toHaveAttribute(
     "content",
-    "https://astro-sage.pages.dev/posts/showcase/index.png"
+    "https://astro-sage.chintak.sh/posts/showcase/index.png"
   );
   const res = await page.request.get("/posts/showcase/index.png");
   expect(res.status()).toBe(200);

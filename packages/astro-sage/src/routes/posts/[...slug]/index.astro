@@ -212,11 +212,7 @@ const ogImage = ogImageUrl
           <EditPost {hideEditPost} {post} />
         </div>
 
-        {config.comments.provider && post.data.comments && (
-          <Comments
-            slug={getPostSlug(post.id, post.filePath).replace(/^\//, "")}
-          />
-        )}
+        {config.comments.provider && post.data.comments && <Comments />}
 
         <hr class="border-border" />
 

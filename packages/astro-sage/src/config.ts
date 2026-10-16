@@ -47,10 +47,7 @@ const config: ResolvedSageConfig = {
   },
   typography: { serif: userConfig.typography?.serif ?? "newsreader" },
   home: userConfig.home ?? {},
-  comments: {
-    provider: userConfig.comments?.provider ?? false,
-    admins: userConfig.comments?.admins ?? [],
-  },
+  comments: userConfig.comments ?? { provider: false },
   posts: {
     perPage: userConfig.posts?.perPage ?? 4,
     perIndex: userConfig.posts?.perIndex ?? 4,

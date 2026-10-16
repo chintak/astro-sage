@@ -1,6 +1,6 @@
 # 004: Comments with GitHub / X sign-in
 
-**Status:** Accepted, 2026-10-15
+**Status:** Superseded, 2026-10-16. AstroSage now builds a fully static site and makes no assumptions about hosting, so the self-hosted backend described below was removed in favour of client-side GitHub widgets (utterances, giscus). See README → Comments. Kept for the record.
 
 ## Constraints
 Cloudflare Workers free tier (10 ms CPU per request, D1 limits). GitHub and X sign-in only. Pages must stay static and fast for readers who never comment.

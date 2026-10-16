@@ -2,11 +2,13 @@
 
 A readability-first blog theme for [Astro](https://astro.build): serif type set for long reading, a warm paper palette, a table of contents that stays pinned beside the text, build-time KaTeX, Expressive Code, and optional GitHub/X sign-in comments on Cloudflare's free tier.
 
-Forked from [AstroPaper](https://github.com/satnaing/astro-paper) by Sat Naing and rebuilt as an installable Astro integration.
+**Live demo:** [astro-sage.chintak.sh](https://astro-sage.chintak.sh) · **Every element on one page:** [the showcase post](https://astro-sage.chintak.sh/posts/showcase/) · **All features:** [FEATURES.md](FEATURES.md)
+
+Built for Astro 7 with Tailwind CSS 4, MDX, Expressive Code, KaTeX and Pagefind. Forked from [AstroPaper](https://github.com/satnaing/astro-paper) by Sat Naing and rebuilt as an Astro integration.
 
 | Light | Dark |
 |---|---|
-| ![Light](docs/screenshots/light.jpg) | ![Dark](docs/screenshots/dark.jpg) |
+| ![Light](docs/screenshots/post-light.png) | ![Dark](docs/screenshots/post-dark.png) |
 
 ## Features
 
@@ -21,18 +23,39 @@ Forked from [AstroPaper](https://github.com/satnaing/astro-paper) by Sat Naing a
 - **Wiki-links:** `[[slug]]`, `[[slug|text]]`, `[[slug#Heading]]` and `[[#Heading]]` link posts by slug, path or title (case-insensitive), titled for you. A target that's missing, a draft or still scheduled renders as muted text and warns at build time. Inside a table, escape the pipe: `[[slug\|text]]`.
 - **Link styles:** links to other sites get a small ↗ (and `rel="noopener"`); links within the site keep a plain underline.
 - **Series:** `series: "Name"` in frontmatter gives an index page, a per-series page and "Part N of M" navigation.
-- **Comments (optional):** GitHub and X sign-in, comments, replies, edit, delete and moderation on Cloudflare Workers + D1 (free tier). Off by default.
+- **Comments (optional):** [utterances](https://utteranc.es) (GitHub Issues) or [giscus](https://giscus.app) (GitHub Discussions), loaded only when readers scroll to them and kept in sync with the light/dark toggle. No server or database. Off by default.
 - **Sharing:** X, LinkedIn, Bluesky, Reddit, Hacker News and email, plus copy-link and the native share sheet on supporting devices. Configure with `shareLinks` (`{url}` / `{title}` placeholders).
 - **Quote sharing:** select any passage to share it with a link that scrolls to that passage (a text fragment), or as an image: a 1200×630 quote card drawn in the browser, handed to the native share sheet on phones or downloaded as `quote.png` on desktop. Nothing is pre-rendered and no server is involved; the code loads only after the first selection.
 - **Citations:** a folded "Cite this post" block (not a heading, so it stays out of the TOC) with a text citation and copyable BibTeX on every post (`citation: { author: "Sheth, Chintak" }`; `cite: false` in frontmatter to hide).
 - Pagefind search, RSS, sitemap, generated OG images, reading time, archives, tags with post counts, native view transitions.
 - About 2.8 KB of gzipped JS on an article page. Lighthouse desktop 100/100/100/100.
 
-## Quick start
+## Get started
+
+Requires Node 22.12+ and [pnpm](https://pnpm.io) (the template is a pnpm workspace).
 
 ```bash
-pnpm add astro-sage
+pnpm create astro@latest my-blog --template chintak/astro-sage
+cd my-blog
+pnpm dev
 ```
+
+This gives you the theme (`packages/astro-sage`) and a ready-to-edit site (`apps/demo`), the same code that runs the live demo. Make it yours:
+
+1. Edit `apps/demo/sage.config.ts`: site URL, title, author, socials.
+2. Replace the posts in `apps/demo/src/content/posts/` and the page in `apps/demo/src/content/pages/about.md`.
+3. `pnpm build` writes the site to `apps/demo/dist/`. It's a plain static site: deploy it to any static host (Netlify, Vercel, GitHub Pages, Cloudflare, S3, your own server). The live demo happens to use Cloudflare (`pnpm deploy:demo`, configured in `apps/demo/wrangler.jsonc`); you can delete that file.
+
+### Add it to an existing Astro site
+
+AstroSage isn't on npm; pin a release tag from git. In a pnpm workspace:
+
+```bash
+git submodule add https://github.com/chintak/astro-sage vendor/astro-sage
+git -C vendor/astro-sage checkout astro-sage@0.1.0
+```
+
+Add `vendor/astro-sage/packages/*` to `pnpm-workspace.yaml`, then `"astro-sage": "workspace:*"` to your site's dependencies, and wire it up:
 
 ```ts
 // astro.config.ts
@@ -65,14 +88,12 @@ export default defineSageConfig({
     description: "Things I learned.",
     author: "Ada Lovelace",
   },
-  typography: {
-    serif: "newsreader", // default; or "source-serif-4" | "literata"
-    // Optional: system stacks if the webfonts can't load (defaults shown in docs/decisions/003)
-    // fallbacks: { serif: ["Iowan Old Style", "Charter", "Georgia", "serif"], mono: ["ui-monospace", "Consolas", "monospace"] },
-  },
+  typography: { serif: "newsreader" }, // or "source-serif-4" | "literata"
   home: { intro: "A short paragraph shown on the home page." },
 });
 ```
+
+Every option is listed in [FEATURES.md](FEATURES.md#configuration-sageconfigts).
 
 Write posts in `src/content/posts/` (`.md` or `.mdx`; a folder with `index.mdx` works too) and pages in `src/content/pages/` (`about.md`). The theme injects every route, so your site needs no page files.
 
@@ -121,31 +142,26 @@ Images, diagrams and figures come in three sizes, written the same way everywher
 
 Captions are centred under the figure. The pinned TOC fades out while a `wide` or `full` figure passes beneath it. Markdown images use their alt text as the caption.
 
-## Comments (Cloudflare Workers + D1)
+## Comments
 
-1. Add the adapter, and keep prerendering in Node so build-time tools work:
-   ```ts
-   import cloudflare from "@astrojs/cloudflare";
-   export default defineConfig({
-     adapter: cloudflare({ prerenderEnvironment: "node", imageService: "compile" }),
-     integrations: [astroSage(sageConfig)],
-   });
-   ```
-2. Turn comments on in `sage.config.ts`:
-   ```ts
-   comments: { provider: "cloudflare-d1", admins: ["github:your-login"] },
-   ```
-3. Create the database and apply the migration (see [`apps/demo/wrangler.jsonc`](apps/demo/wrangler.jsonc) for the binding):
-   ```bash
-   wrangler d1 create my-blog
-   wrangler d1 migrations apply my-blog --remote
-   ```
-4. Create OAuth apps:
-   - **GitHub:** Settings → Developer settings → OAuth Apps. Callback URL `https://<your-site>/api/auth/callback/github`.
-   - **X:** developer.x.com → Project → App → User authentication (OAuth 2.0, type "Web App"). Callback URL `https://<your-site>/api/auth/callback/twitter`.
-5. Add secrets (`.dev.vars` locally, `wrangler secret put` in production): `BETTER_AUTH_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `X_CLIENT_ID`, `X_CLIENT_SECRET`.
+AstroSage builds a fully static site, so comments come from a GitHub-backed widget that runs in the reader's browser. Pick one in `sage.config.ts`:
 
-Pages stay static. Only `/api/auth/*` and `/api/comments*` run on the Worker. See [docs/decisions/004-comments.md](docs/decisions/004-comments.md) for the design.
+```ts
+// utterances: one GitHub issue per post. Install https://github.com/apps/utterances on the repo.
+comments: { provider: "utterances", repo: "you/your-repo", label: "comments" },
+
+// giscus: one GitHub Discussion per post, with reactions. Enable Discussions,
+// install https://github.com/apps/giscus, and copy the ids from https://giscus.app.
+comments: {
+  provider: "giscus",
+  repo: "you/your-repo",
+  repoId: "R_…",
+  category: "Comments",
+  categoryId: "DIC_…",
+},
+```
+
+Both load only when the comments section nears the viewport, follow the theme toggle, and accept `theme: { light, dark }` (a theme name, or for giscus a CSS URL). Readers sign in with GitHub. Set `comments: false` in a post's frontmatter to hide them there.
 
 ## Developing the theme
 
@@ -169,12 +185,18 @@ The showcase post (`apps/demo/src/content/posts/showcase/index.mdx`) exercises e
 | rehype-callouts syntax | GitHub alerts or `:::type[Title]` |
 | Shiki transformers (`// [!code ++]`) | Expressive Code meta: `ins={4}`, `del={3}`, `{1-2}`, `"word"`, `collapse={1-4}` |
 
+## Versioning
+
+AstroSage follows [SemVer](https://semver.org). Releases are git tags (`astro-sage@0.1.0`) with notes in [`packages/astro-sage/CHANGELOG.md`](packages/astro-sage/CHANGELOG.md) and on [GitHub Releases](https://github.com/chintak/astro-sage/releases). Changes are recorded with [Changesets](.changeset/README.md).
+
 ## Repository layout
 
 ```
 packages/astro-sage/   the theme (integration, routes, components, styles, markdown plugins, comments)
 apps/demo/             demo site and showcase post; Playwright tests
 docs/decisions/        architecture decision records
+FEATURES.md            every feature, option and frontmatter field, with examples
+AGENTS.md              conventions for contributors and coding agents
 ```
 
 ## License

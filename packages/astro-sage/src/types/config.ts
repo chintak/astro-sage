@@ -119,16 +119,49 @@ interface HomeConfig {
   intro?: string;
 }
 
-interface CommentsConfig {
-  /**
-   * Comment backend. `false` (default) renders no comments UI and ships no JS.
-   * `"cloudflare-d1"` uses Better Auth (GitHub + X sign-in) and D1; requires
-   * the `@astrojs/cloudflare` adapter. See README → Comments.
-   */
-  provider: "cloudflare-d1" | false;
-  /** GitHub usernames allowed to moderate (soft-delete any comment). */
-  admins?: string[];
+/** Light and dark theme names (or theme CSS URLs) for an embedded widget. */
+interface EmbedTheme {
+  light?: string;
+  dark?: string;
 }
+
+/**
+ * Comments. `false` (default) renders no comments UI and ships no JS.
+ *
+ * - `"utterances"`: GitHub Issues via utteranc.es. Static, host-agnostic; install
+ *   the utterances GitHub app on `repo`. GitHub sign-in only.
+ * - `"giscus"`: GitHub Discussions via giscus.app. Static, host-agnostic; get
+ *   the ids from https://giscus.app. Reactions, replies, custom theme CSS.
+ */
+type CommentsConfig =
+  | { provider: false }
+  | {
+      provider: "utterances";
+      /** "owner/name" of a public repo with the utterances app installed. */
+      repo: string;
+      /** How posts map to issues. Defaults to "pathname". */
+      issueTerm?: "pathname" | "url" | "title" | "og:title";
+      /** Label added to new issues, e.g. "comments". */
+      label?: string;
+      /** utterances themes. Defaults: github-light / gruvbox-dark. */
+      theme?: EmbedTheme;
+    }
+  | {
+      provider: "giscus";
+      /** "owner/name" of a public repo with Discussions and the giscus app. */
+      repo: string;
+      repoId: string;
+      category: string;
+      categoryId: string;
+      /** How posts map to discussions. Defaults to "pathname". */
+      mapping?: "pathname" | "url" | "title" | "og:title";
+      /** Show reactions on the post. Defaults to true. */
+      reactions?: boolean;
+      /** Comment box above or below the thread. Defaults to "bottom". */
+      inputPosition?: "top" | "bottom";
+      /** giscus theme names or CSS URLs. Defaults: gruvbox_light / gruvbox_dark. */
+      theme?: EmbedTheme;
+    };
 
 interface CitationConfig {
   /** Show the "Cite this post" block (text + BibTeX). Defaults to true. */
@@ -138,6 +171,8 @@ interface CitationConfig {
   /** Publication / journal field. Defaults to the site hostname. */
   publication?: string;
 }
+
+export type { CommentsConfig, EmbedTheme };
 
 export interface SageConfig {
   site: SiteConfig;
@@ -173,7 +208,7 @@ export interface ResolvedSageConfig {
   citation: { enabled: boolean } & Omit<CitationConfig, "enabled">;
   typography: Required<Pick<TypographyConfig, "serif">> & TypographyConfig;
   home: HomeConfig;
-  comments: Required<CommentsConfig>;
+  comments: CommentsConfig;
   posts: Required<PostsConfig>;
   features: Required<FeaturesConfig>;
   socials: SocialLink[];

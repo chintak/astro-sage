@@ -192,12 +192,6 @@ const BUILD_ONLY_DEPS = [
   "sharp",
 ];
 
-const COMMENT_ROUTES: Array<[pattern: string, entry: string]> = [
-  ["/api/auth/[...all]", "routes/api/auth/[...all].ts"],
-  ["/api/comments", "routes/api/comments/index.ts"],
-  ["/api/comments/[id]", "routes/api/comments/[id].ts"],
-];
-
 /**
  * Astro only invalidates its content cache when the site's content.config
  * changes, but AstroSage's schema lives in this package. When the schema file
@@ -419,7 +413,7 @@ export default function astroSage(config: SageConfig): AstroIntegration {
             ],
             resolve: { alias: { "@sage": srcDir } },
             // Build-time tooling (Tailwind's native binary, fonts, Satori) must
-            // never be pre-bundled into the Workers runtime.
+            // never be pre-bundled by Vite.
             optimizeDeps: { exclude: BUILD_ONLY_DEPS },
             ssr: { optimizeDeps: { exclude: BUILD_ONLY_DEPS } },
           },
@@ -427,22 +421,6 @@ export default function astroSage(config: SageConfig): AstroIntegration {
 
         for (const [pattern, entry] of ROUTES) {
           injectRoute({ pattern, entrypoint: join(srcDir, entry) });
-        }
-
-        if (config.comments?.provider === "cloudflare-d1") {
-          for (const [pattern, entry] of COMMENT_ROUTES) {
-            injectRoute({ pattern, entrypoint: join(srcDir, entry) });
-          }
-        }
-      },
-      "astro:config:done": ({ config: astroConfig }) => {
-        if (
-          config.comments?.provider === "cloudflare-d1" &&
-          astroConfig.adapter?.name !== "@astrojs/cloudflare"
-        ) {
-          throw new Error(
-            'astro-sage: comments.provider "cloudflare-d1" needs the Cloudflare adapter. Add `adapter: cloudflare()` from "@astrojs/cloudflare" to astro.config, or set comments.provider to false.'
-          );
         }
       },
     },

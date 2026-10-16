@@ -216,23 +216,24 @@ flowchart LR
   sat --> code[Expressive Code]
   sat --> dia[Mermaid & Excalidraw]
   math & code & dia --> html[Static HTML]
-  html --> cdn[(Cloudflare edge)]
+  html --> host[(Any static host)]
 ```
 
 A Mermaid sequence diagram:
 
-```mermaid title="Signing in to comment"
+```mermaid title="Leaving a comment"
 sequenceDiagram
   autonumber
   actor Reader
-  participant Site as chintak.sh
+  participant Page as Static page
+  participant W as utterances widget
   participant GH as GitHub
-  Reader->>Site: Click "Sign in with GitHub"
-  Site->>GH: OAuth authorize (PKCE)
-  GH-->>Reader: Consent screen
-  Reader->>GH: Approve
-  GH-->>Site: Callback with code
-  Site-->>Reader: Session cookie · comment box
+  Reader->>Page: Scroll to the comments
+  Page->>W: Load the widget (lazily)
+  W->>GH: Find the issue for this post
+  GH-->>W: Existing comments
+  Reader->>GH: Sign in and comment
+  GH-->>W: New comment appears
 ```
 
 An Excalidraw sketch, drawn on excalidraw.com and saved next to the post:
@@ -253,24 +254,22 @@ Diagrams use the same two sizes. Add `wide` to the fence (or `"wide"` as an Exca
 
 ```mermaid wide title="A request through the stack (wide)"
 flowchart LR
+  subgraph Build["Build (astro build)"]
+    md[Markdown + MDX] --> html[Static HTML, CSS, OG images]
+  end
+  subgraph Host["Any static host"]
+    files[dist/]
+  end
   subgraph Browser
-    r[Reader] --> p[Prerendered page]
-    p --> c[Comments island]
+    r[Reader] --> p[Page]
+    p --> c[Comments widget]
   end
-  subgraph Edge["Cloudflare edge"]
-    a[Static assets]
-    w[Worker: /api/*]
+  subgraph GitHub
+    gi[(Issues or Discussions)]
   end
-  subgraph Data
-    d1[(D1)]
-    gh[GitHub OAuth]
-    x[X OAuth]
-  end
-  p -- HTML/CSS --> a
-  c -- fetch --> w
-  w --> d1
-  w -. sign in .-> gh
-  w -. sign in .-> x
+  html --> files
+  p -- HTML/CSS --> files
+  c -- utterances / giscus --> gi
 ```
 
 Use `full` to go edge to edge:
