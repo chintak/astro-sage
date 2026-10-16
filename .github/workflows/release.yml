@@ -57,9 +57,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # npm publish directly (not `changeset publish`, which reported a
-      # publish that never reached npm): its output stays visible, and the job
-      # fails unless the version really lands on the registry.
+      # npm publish directly (not `changeset publish`): its output stays
+      # visible and its exit code is trusted. Every step is skipped when its
+      # result already exists, so a re-run (or a dispatch with `ref`) finishes
+      # a half-done release: publish, tag, GitHub release.
       - name: Publish to npm, tag, GitHub release
         if: github.event_name == 'workflow_dispatch' || steps.changesets.outputs.hasChangesets == 'false'
         working-directory: packages/astro-sage
@@ -70,17 +71,14 @@ jobs:
           set -euo pipefail
           version=$(node -p 'require("./package.json").version')
           tag="astro-sage@$version"
-          if npm view "astro-sage@$version" version >/dev/null 2>&1; then
-            echo "astro-sage@$version is already on npm; nothing to publish."
-            exit 0
+          on_npm() { npm view "astro-sage@$version" version >/dev/null 2>&1; }
+          if on_npm; then
+            echo "astro-sage@$version is already on npm."
+            published=false
+          else
+            npm publish --access public
+            published=true
           fi
-          npm publish --access public
-          for i in 1 2 3 4 5 6; do
-            npm view "astro-sage@$version" version >/dev/null 2>&1 && break
-            [ "$i" = 6 ] && { echo "::error::npm publish exited 0 but astro-sage@$version is not on the registry"; exit 1; }
-            sleep 10
-          done
-          echo "Published astro-sage@$version"
           if ! git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null; then
             git tag "$tag" HEAD
             git push origin "refs/tags/$tag"
@@ -88,3 +86,12 @@ jobs:
           awk -v v="$version" '$0 == "## " v {on=1; next} on && /^## / {exit} on' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
           gh release view "$tag" >/dev/null 2>&1 ||
             gh release create "$tag" --title "astro-sage $version" --notes-file "$RUNNER_TEMP/notes.md" --verify-tag
+          # npm processes a new version for a minute or two before serving it.
+          if [ "$published" = true ]; then
+            for i in $(seq 1 40); do
+              on_npm && { echo "astro-sage@$version is live on npm."; exit 0; }
+              sleep 15
+            done
+            echo "::error::astro-sage@$version was published but isn't on the registry after 10 minutes"
+            exit 1
+          fi
