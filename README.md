@@ -10,8 +10,8 @@ Forked from [AstroPaper](https://github.com/satnaing/astro-paper) by Sat Naing a
 
 ## Features
 
-- **Typography:** Source Serif 4 (or Literata / Newsreader), self-hosted with metric-matched fallbacks (CLS 0). Measure about 66 characters, `text-wrap: pretty`, old-style figures, optional optical sizing.
-- **Warm palette:** sepia paper in light mode, warm ink in dark. Every colour is a CSS variable in one file and is WCAG-checked.
+- **Typography:** Newsreader for reading (or Source Serif 4 / Literata) with JetBrains Mono for the UI, self-hosted with metric-matched fallbacks (CLS 0). 18.5px body, about 71 characters per line, `text-wrap: pretty`, old-style figures, optional optical sizing.
+- **Warm palette:** warm paper in light mode, espresso in dark. Every colour is a CSS variable in one file and is WCAG-checked.
 - **Pinned TOC:** a right rail at ≥ 1280px that highlights the section you're reading. It becomes a collapsible "On this page" block on smaller screens.
 - **Math:** `$…$` and `$$…$$` rendered by KaTeX at build time. No math JavaScript, and KaTeX CSS loads only on posts that use it.
 - **Code:** Expressive Code with titles, line numbers, marked/inserted/deleted lines, collapsible sections, terminal frames, copy button, and warm light/dark themes.
@@ -58,7 +58,7 @@ export default defineSageConfig({
     description: "Things I learned.",
     author: "Ada Lovelace",
   },
-  typography: { serif: "source-serif-4" }, // or "literata" | "newsreader"
+  typography: { serif: "newsreader" }, // default; or "source-serif-4" | "literata"
   home: { intro: "A short paragraph shown on the home page." },
 });
 ```

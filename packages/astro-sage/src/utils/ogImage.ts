@@ -63,8 +63,8 @@ export async function renderOgImage({
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "72px 80px",
-          background: "#f7f3eb",
-          color: "#2b2722",
+          background: "#f8f2e6",
+          color: "#2d2620",
           fontFamily: "Newsreader",
           borderBottom: "16px solid #56704a",
         },
@@ -104,7 +104,7 @@ export async function renderOgImage({
                   props: {
                     style: {
                       fontSize: 30,
-                      color: "#655e54",
+                      color: "#675c4f",
                       lineHeight: 1.4,
                       textWrap: "balance",
                     },
@@ -120,7 +120,7 @@ export async function renderOgImage({
               style: {
                 fontFamily: "JetBrains Mono",
                 fontSize: 24,
-                color: "#655e54",
+                color: "#675c4f",
               },
               children: footer,
             },

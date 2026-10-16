@@ -10,7 +10,7 @@ export const sageCodeThemes = [
   "gruvbox-dark-medium",
 ] as const;
 
-const SURFACE = { light: "#eee8dc", dark: "#26231f" } as const;
+const SURFACE = { light: "#f0e7d6", dark: "#2a231c" } as const;
 
 export function customizeCodeTheme(theme: ExpressiveCodeTheme) {
   const surface = theme.type === "dark" ? SURFACE.dark : SURFACE.light;
