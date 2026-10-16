@@ -129,7 +129,7 @@ Diagrams need Chromium at build time (`pnpm add -D playwright && npx playwright 
 | Typography | 18.5px serif body, column clamped to 66–71 characters, `text-wrap: pretty` | `src/styles/theme.css`, `prose.css` |
 | Palette | Warm paper (light) and espresso (dark) tokens; WCAG-checked | `src/styles/theme.css` |
 | Pinned TOC | Right rail ≥ 1280px with scroll-spy; collapsible block below; fades under wide figures | `components/TableOfContents.astro` |
-| Series | Index, per-series pages, part navigation; series label links to its page | `series-part-two.md` |
+| Series | Index, per-series pages, part navigation; series label links to its page; the Series nav link appears only when a published post has a `series` | `series-part-two.md` |
 | Tags | Mono chips with counts, at the top of posts | any post |
 | Search | Pagefind at `/search` | — |
 | Share sheet | Platforms from `shareLinks`, copy link, native share | bottom of any post |

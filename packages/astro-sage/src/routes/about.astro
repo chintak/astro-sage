@@ -25,8 +25,11 @@ const { Content } = await render(about);
 >
   <Header />
 
-  <Main pageTitle={about.data.title} class="app-prose">
-    <Content />
+  <Main pageTitle={about.data.title}>
+    <!-- The prose flow rules style direct children, so wrap the content itself. -->
+    <div class="app-prose mt-6">
+      <Content />
+    </div>
   </Main>
 
   <Footer />

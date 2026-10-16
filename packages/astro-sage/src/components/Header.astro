@@ -1,5 +1,7 @@
 ---
 import { getRelativeLocaleUrl } from "astro:i18n";
+import { getCollection } from "astro:content";
+import { postFilter } from "@sage/utils/postFilter";
 import IconSunHigh from "@sage/assets/icons/IconSunHigh.svg";
 import IconSearch from "@sage/assets/icons/IconSearch.svg";
 import IconMoon from "@sage/assets/icons/IconMoon.svg";
@@ -18,9 +20,14 @@ const isActive = (path: string) =>
   currentPath.split("/").filter(Boolean)[0] ===
   path.split("/").filter(Boolean)[0];
 
+// Only link Series when at least one published post belongs to one.
+const hasSeries = (await getCollection("posts")).some(
+  post => postFilter(post) && post.data.series
+);
+
 const links = [
   { path: "/posts", label: t.nav.posts },
-  { path: "/series", label: t.nav.series },
+  ...(hasSeries ? [{ path: "/series", label: t.nav.series }] : []),
   { path: "/tags", label: t.nav.tags },
   ...(features.showArchives
     ? [{ path: "/archives", label: t.nav.archives }]
