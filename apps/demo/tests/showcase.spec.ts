@@ -131,9 +131,7 @@ test("social and share icons render", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator('footer a[title*="on Github"] svg')).toBeVisible();
   await page.goto(SHOWCASE);
-  await expect(
-    page.locator(".share a.share-btn svg").first()
-  ).toBeAttached();
+  await expect(page.locator(".share a.share-btn svg").first()).toBeAttached();
 });
 
 for (const path of [SHOWCASE]) {
