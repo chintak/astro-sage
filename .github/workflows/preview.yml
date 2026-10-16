@@ -1,0 +1,103 @@
+name: Preview
+
+# Every push to a PR builds the demo and uploads it as a new version of the
+# astro-sage-demo Worker, without deploying it, so production
+# (astro-sage.chintak.sh) is untouched. Each version gets its own preview URL,
+# and the PR's alias URL (pr-<number>-…) moves to the latest commit. One
+# comment on the PR is created on the first push and edited in place after.
+#
+# Needs repository secrets CLOUDFLARE_API_TOKEN (Workers Scripts: Edit) and
+# CLOUDFLARE_ACCOUNT_ID. PRs from forks don't get secrets, so they're skipped.
+
+on:
+  pull_request:
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write # the preview comment
+
+jobs:
+  preview:
+    name: Build and upload preview
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      PR: ${{ github.event.pull_request.number }}
+      SHA: ${{ github.event.pull_request.head.sha }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Check Cloudflare secrets
+        id: secrets
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ] && [ -n "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID not set; skipping the preview."
+          fi
+      - uses: actions/checkout@v4
+        if: steps.secrets.outputs.ok
+        with:
+          ref: ${{ env.SHA }}
+      - uses: pnpm/action-setup@v4
+        if: steps.secrets.outputs.ok
+      - uses: actions/setup-node@v4
+        if: steps.secrets.outputs.ok
+        with:
+          node-version: "24"
+          cache: "pnpm"
+      - if: steps.secrets.outputs.ok
+        run: pnpm install --frozen-lockfile
+      - if: steps.secrets.outputs.ok
+        run: pnpm build
+      - name: Upload preview version
+        id: upload
+        if: steps.secrets.outputs.ok
+        working-directory: apps/demo
+        run: |
+          set -euo pipefail
+          # Keep previews out of search results.
+          printf '/*\n  X-Robots-Tag: noindex\n' > dist/_headers
+          short=${SHA:0:7}
+          pnpm exec wrangler versions upload \
+            --preview-alias "pr-$PR" \
+            --tag "pr-$PR-$short" \
+            --message "PR #$PR @ $short" 2>&1 | tee "$RUNNER_TEMP/upload.log"
+          version_url=$(grep -o 'Version Preview URL: https://[^ ]*' "$RUNNER_TEMP/upload.log" | cut -d' ' -f4)
+          alias_url=$(grep -o 'Version Preview Alias URL: https://[^ ]*' "$RUNNER_TEMP/upload.log" | cut -d' ' -f5)
+          [ -n "$version_url" ] && [ -n "$alias_url" ] || { echo "::error::No preview URL in wrangler output"; exit 1; }
+          echo "version_url=$version_url" >> "$GITHUB_OUTPUT"
+          echo "alias_url=$alias_url" >> "$GITHUB_OUTPUT"
+      - name: Comment on the PR
+        if: steps.secrets.outputs.ok
+        env:
+          VERSION_URL: ${{ steps.upload.outputs.version_url }}
+          ALIAS_URL: ${{ steps.upload.outputs.alias_url }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          marker='<!-- astro-sage-preview -->'
+          {
+            echo "$marker"
+            echo "**Demo preview** for [\`${SHA:0:7}\`](https://github.com/$REPO/commit/$SHA)"
+            echo
+            echo "- This PR, always the latest commit: $ALIAS_URL"
+            echo "- This commit: $VERSION_URL"
+            echo "- Showcase: $ALIAS_URL/posts/showcase/"
+            echo
+            echo "<sub>Updated $(date -u '+%Y-%m-%d %H:%M UTC') by [this run]($RUN_URL). Not indexed by search engines.</sub>"
+          } > "$RUNNER_TEMP/comment.md"
+          id=$(gh api "repos/$REPO/issues/$PR/comments" --paginate \
+            --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | startswith(\"$marker\"))) | .id" | head -n 1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$id" -F "body=@$RUNNER_TEMP/comment.md" >/dev/null
+          else
+            gh api -X POST "repos/$REPO/issues/$PR/comments" -F "body=@$RUNNER_TEMP/comment.md" >/dev/null
+          fi

@@ -1,6 +1,6 @@
 # AstroSage
 
-A readability-first blog theme for [Astro](https://astro.build): serif type set for long reading, a warm paper palette, a table of contents that stays pinned beside the text, build-time KaTeX, Expressive Code, and optional GitHub/X sign-in comments on Cloudflare's free tier.
+A readability-first blog theme for [Astro](https://astro.build): serif type set for long reading, a warm paper palette, a table of contents that stays pinned beside the text, build-time KaTeX, Expressive Code, and optional GitHub-backed comments (utterances or giscus). It builds a fully static site for any host.
 
 **Live demo:** [astro-sage.chintak.sh](https://astro-sage.chintak.sh) · **Every element on one page:** [the showcase post](https://astro-sage.chintak.sh/posts/showcase/) · **All features:** [FEATURES.md](FEATURES.md)
 
@@ -173,6 +173,8 @@ pnpm lint && pnpm format:check
 ```
 
 The showcase post (`apps/demo/src/content/posts/showcase/index.mdx`) exercises every feature and is what the tests run against.
+
+Every pull request gets a live preview of the demo. `.github/workflows/preview.yml` uploads each push as a version of the demo Worker without deploying it, and keeps one PR comment up to date with the preview URL and the commit it serves.
 
 ## Upgrading from AstroPaper
 

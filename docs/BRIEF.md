@@ -1,5 +1,7 @@
 # AstroSage — Engineering Brief
 
+> **Historical:** this is the original brief. Its comments plan (Better Auth, D1, Cloudflare Workers, §4.2) was dropped: AstroSage is now fully static and host-agnostic, with optional utterances/giscus comments. See [ADR 004](decisions/004-comments.md) and the README.
+
 > A readability-first Astro blog theme. Forked from [AstroPaper](https://github.com/satnaing/astro-paper) v6.1 (MIT), rebuilt for long-form technical writing: serif typography, warm sepia palette, pinned section-aware TOC, KaTeX, Expressive Code, and optional GitHub/X sign-in comments.
 
 Owner: Chintak Sheth · First consumer: chintak.sh · Hosting target: Cloudflare Workers **free tier**
