@@ -1,5 +1,13 @@
 # astro-sage
 
+## 0.1.1
+
+### Patch Changes
+
+- 4642130: - The header's Series link only appears when at least one published post belongs to a series.
+  - Fixed missing prose spacing on the About page: the content is now the direct child of `.app-prose`, so paragraphs and lists get their margins and headings no longer overlap the text below them.
+- 0108966: Home page: the RSS link is now an icon that matches the social links (same size, colour and hover), with an accessible "RSS feed" label instead of visible text.
+
 ## 0.1.0
 
 First release: a readability-first Astro 7 blog theme, forked from AstroPaper and rebuilt as an installable integration. See [FEATURES.md](../../FEATURES.md) for everything it supports, including:

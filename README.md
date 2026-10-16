@@ -52,7 +52,7 @@ AstroSage isn't on npm; pin a release tag from git. In a pnpm workspace:
 
 ```bash
 git submodule add https://github.com/chintak/astro-sage vendor/astro-sage
-git -C vendor/astro-sage checkout astro-sage@0.1.0
+git -C vendor/astro-sage checkout astro-sage@0.1.1
 ```
 
 Add `vendor/astro-sage/packages/*` to `pnpm-workspace.yaml`, then `"astro-sage": "workspace:*"` to your site's dependencies, and wire it up:
@@ -187,7 +187,7 @@ The showcase post (`apps/demo/src/content/posts/showcase/index.mdx`) exercises e
 
 ## Versioning
 
-AstroSage follows [SemVer](https://semver.org). Releases are git tags (`astro-sage@0.1.0`) with notes in [`packages/astro-sage/CHANGELOG.md`](packages/astro-sage/CHANGELOG.md) and on [GitHub Releases](https://github.com/chintak/astro-sage/releases). Changes are recorded with [Changesets](.changeset/README.md).
+AstroSage follows [SemVer](https://semver.org). Releases are git tags (`astro-sage@0.1.1`) with notes in [`packages/astro-sage/CHANGELOG.md`](packages/astro-sage/CHANGELOG.md) and on [GitHub Releases](https://github.com/chintak/astro-sage/releases). Changes are recorded with [Changesets](.changeset/README.md).
 
 ## Repository layout
 
