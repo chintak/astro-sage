@@ -14,7 +14,8 @@ Forked from [AstroPaper](https://github.com/satnaing/astro-paper) by Sat Naing a
 - **Warm palette:** warm paper in light mode, espresso in dark. Every colour is a CSS variable in one file and is WCAG-checked.
 - **Pinned TOC:** a right rail at ≥ 1280px that highlights the section you're reading. It becomes a collapsible "On this page" block on smaller screens.
 - **Math:** `$…$` and `$$…$$` rendered by KaTeX at build time. No math JavaScript, and KaTeX CSS loads only on posts that use it.
-- **Code:** Expressive Code with titles, line numbers, marked/inserted/deleted lines, collapsible sections, terminal frames, copy button, and warm light/dark themes.
+- **Code:** Expressive Code with Gruvbox, frameless "hairline" blocks that sit on the paper, titles, line numbers, high-contrast diff lines, collapsible sections, terminal frames and a copy button. Every token is ≥ 5.5:1 against the page.
+- **Diagrams:** Mermaid and Excalidraw (inline JSON, share links or files), rendered at build time to inline SVG that matches the palette. Includes a zoom/pan viewer and a full-width option. See below.
 - **Callouts:** GitHub alerts (`> [!NOTE]`) or directives (`:::warning[Title]`). Both produce the same markup.
 - **Series:** `series: "Name"` in frontmatter gives an index page, a per-series page and "Part N of M" navigation.
 - **Comments (optional):** GitHub and X sign-in, comments, replies, edit, delete and moderation on Cloudflare Workers + D1 (free tier). Off by default.
@@ -78,6 +79,24 @@ toc: true                  # default true
 math: true                 # default true; set false to skip KaTeX CSS
 comments: true             # default true (when comments are configured)
 ```
+
+## Diagrams
+
+````md
+```mermaid title="How a post is built"
+flowchart LR
+  md[Markdown] --> html[HTML]
+```
+
+```excalidraw title="Pasted from Excalidraw"
+{ "type": "excalidraw/clipboard", "elements": [ ... ] }
+```
+
+![A shared drawing](https://excalidraw.com/#json=<id>,<key>)
+![A drawing in the repo](./system.excalidraw "wide")
+````
+
+Diagrams are rendered once, at build time, in headless Chromium (`pnpm add -D playwright && npx playwright install chromium`, or an installed Chrome). The SVG is cached in `.sage-cache/diagrams/`. **Commit that folder**, and deploy builds won't need a browser or network. Add `wide` (a code-fence flag or the image title) for full-width diagrams. Readers can expand any diagram into a zoom/pan viewer. Design notes: [docs/decisions/005-code-and-diagrams.md](docs/decisions/005-code-and-diagrams.md).
 
 ## Comments (Cloudflare Workers + D1)
 

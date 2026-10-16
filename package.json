@@ -14,7 +14,7 @@
     "lint": "oxlint",
     "format": "prettier --write \"packages/**/*.{ts,astro,css}\" \"apps/demo/**/*.ts\"",
     "format:check": "prettier --check \"packages/**/*.{ts,astro,css}\" \"apps/demo/**/*.ts\"",
-    "test": "pnpm --filter @astro-sage/demo test"
+    "test": "pnpm --filter astro-sage test && pnpm --filter @astro-sage/demo test"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",

@@ -134,7 +134,8 @@
       font-variant-numeric: normal;
       padding: 0.12em 0.32em;
       border-radius: 0.25em;
-      background: var(--bg-raised);
+      /* No fill; a hairline keeps inline code legible as code inside prose. */
+      background: transparent;
       border: 1px solid var(--border);
       overflow-wrap: anywhere;
     }
@@ -241,8 +242,9 @@
       font-style: italic;
       color: var(--fg-muted);
     }
+    /* Wide figures: break out of the text column (see post.css for the TOC-rail layout). */
     & .full-bleed {
-      width: min(100vw - 2rem, 64rem);
+      width: min(100vw - 2 * var(--gutter), 64rem);
       margin-inline-start: 50%;
       translate: -50% 0;
       max-width: none;
@@ -401,4 +403,12 @@
 }
 .app-prose .katex {
   font-size: 1.08em;
+}
+
+/*
+ * Hairline code blocks: transparent so they sit on whatever surface they're in
+ * (page, callout). Unlayered to beat Expressive Code's generated styles.
+ */
+.app-prose .expressive-code .frame pre {
+  background: transparent;
 }

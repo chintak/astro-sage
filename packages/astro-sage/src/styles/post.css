@@ -22,6 +22,12 @@
   .post-toc-inline {
     display: none;
   }
+  /* With the rail, wide figures span column + gap + rail, aligned to the text. */
+  .post-grid.has-toc .post-body .full-bleed {
+    width: calc(var(--measure) + var(--rail-gap) + var(--rail));
+    margin-inline-start: 0;
+    translate: none;
+  }
 }
 @media (max-width: 69.999rem) {
   .post-rail {

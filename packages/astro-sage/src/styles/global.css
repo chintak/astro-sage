@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "./theme.css";
 @import "./prose.css";
+@import "./diagrams.css";
 
 /* Theme files live outside the site root; tell Tailwind to scan them. */
 @source "../";

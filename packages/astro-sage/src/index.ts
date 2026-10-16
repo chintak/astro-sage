@@ -12,7 +12,13 @@ import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
 import tailwindcss from "@tailwindcss/vite";
 import { a11yPlugin, calloutsPlugin, katexPlugin } from "./markdown";
-import { customizeCodeTheme, sageCodeThemes } from "./markdown/code-themes";
+import { diagramsPlugin } from "./diagrams/plugin";
+import {
+  SYNTAX_CANDIDATES,
+  customizeCodeTheme,
+  sageCodeThemes,
+  syntaxLabSelector,
+} from "./markdown/code-themes";
 import type { SageConfig } from "./types/config";
 
 export type { SageConfig } from "./types/config";
@@ -110,6 +116,9 @@ const ROUTES: Array<[pattern: string, entry: string]> = [
 ];
 
 const BUILD_ONLY_DEPS = [
+  "playwright",
+  "mermaid-isomorphic",
+  "@excalidraw/utils",
   "astro-sage",
   "@tailwindcss/vite",
   "@tailwindcss/oxide",
@@ -169,7 +178,17 @@ export default function astroSage(config: SageConfig): AstroIntegration {
                 smartPunctuation: true,
               },
               // Our plugins are typed against `satteri`; the processor re-exports its own copy.
-              mdastPlugins: [katexPlugin, calloutsPlugin] as never[],
+              mdastPlugins: [
+                // Mermaid / Excalidraw → inline SVG at build time, cached in
+                // <site>/.sage-cache/diagrams (commit it; CI then needs no browser).
+                diagramsPlugin({
+                  cacheDir: fileURLToPath(
+                    new URL(".sage-cache/diagrams/", astroConfig.root)
+                  ),
+                }),
+                katexPlugin,
+                calloutsPlugin,
+              ] as never[],
               hastPlugins: [a11yPlugin] as never[],
             }),
           },
@@ -188,10 +207,15 @@ export default function astroSage(config: SageConfig): AstroIntegration {
           },
           integrations: [
             expressiveCode({
-              themes: [...sageCodeThemes],
+              // SAGE_SYNTAX_LAB=1 bundles every candidate pair for side-by-side comparison.
+              themes: process.env.SAGE_SYNTAX_LAB
+                ? SYNTAX_CANDIDATES.flatMap(([, light, dark]) => [light, dark])
+                : [...sageCodeThemes],
               customizeTheme: customizeCodeTheme,
-              themeCssSelector: theme =>
-                `[data-theme="${theme.type === "dark" ? "dark" : "light"}"]`,
+              themeCssSelector: process.env.SAGE_SYNTAX_LAB
+                ? syntaxLabSelector
+                : theme =>
+                    `[data-theme="${theme.type === "dark" ? "dark" : "light"}"]`,
               useDarkModeMediaQuery: false,
               plugins: [pluginLineNumbers(), pluginCollapsibleSections()],
               defaultProps: {
@@ -206,18 +230,22 @@ export default function astroSage(config: SageConfig): AstroIntegration {
                 codeFontSize: "0.875rem",
                 codeLineHeight: "1.65",
                 borderRadius: "0.375rem",
-                borderColor: "var(--border)",
-                // Follow the palette rather than the syntax theme's own surface.
-                codeBackground: "var(--bg-raised)",
+                // No frame at all: code sits directly on the paper.
+                borderColor: "transparent",
+                // "Hairline": no fill, a 1px frame; code sits on the page paper.
+                // codeBackground stays the theme bg (= page colour) so contrast
+                // correction is computed against the real paper; prose.css then
+                // makes the block itself transparent.
                 frames: {
                   shadowColor: "transparent",
                   frameBoxShadowCssValue: "none",
                   editorActiveTabIndicatorBottomColor: "var(--accent)",
-                  editorBackground: "var(--bg-raised)",
-                  terminalBackground: "var(--bg-raised)",
-                  terminalTitlebarBackground: "var(--bg-raised)",
+                  editorBackground: "transparent",
+                  editorActiveTabBackground: "transparent",
+                  terminalBackground: "transparent",
+                  terminalTitlebarBackground: "transparent",
                   terminalTitlebarBorderBottomColor: "var(--border)",
-                  editorTabBarBackground: "var(--bg-raised)",
+                  editorTabBarBackground: "transparent",
                   editorTabBarBorderBottomColor: "var(--border)",
                 },
                 textMarkers: {
@@ -225,14 +253,17 @@ export default function astroSage(config: SageConfig): AstroIntegration {
                     "color-mix(in oklab, var(--mark) 30%, transparent)",
                   markBorderColor:
                     "color-mix(in oklab, var(--callout-warning) 60%, transparent)",
+                  // Diff lines: strong colour in the bar and +/- indicator; tints kept light
+                  // enough that tokens on them stay >= 4.5:1.
                   insBackground:
-                    "color-mix(in oklab, var(--callout-tip) 11%, transparent)",
-                  insBorderColor: "var(--callout-tip)",
-                  insDiffIndicatorColor: "var(--callout-tip)",
+                    "color-mix(in oklab, var(--diff-ins) var(--diff-ins-tint), transparent)",
+                  insBorderColor: "var(--diff-ins)",
+                  insDiffIndicatorColor: "var(--diff-ins)",
                   delBackground:
-                    "color-mix(in oklab, var(--callout-caution) 10%, transparent)",
-                  delBorderColor: "var(--callout-caution)",
-                  delDiffIndicatorColor: "var(--callout-caution)",
+                    "color-mix(in oklab, var(--diff-del) var(--diff-del-tint), transparent)",
+                  delBorderColor: "var(--diff-del)",
+                  delDiffIndicatorColor: "var(--diff-del)",
+                  lineMarkerAccentWidth: "0.25rem",
                 },
               },
             }),

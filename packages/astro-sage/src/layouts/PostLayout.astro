@@ -72,3 +72,10 @@ const structuredData = {
 
   <slot />
 </Layout>
+
+<script>
+  // The diagram viewer is fetched only when the page actually has a diagram.
+  if (document.querySelector(".diagram:not(.diagram-error)")) {
+    import("@sage/diagrams/viewer").then(m => m.init());
+  }
+</script>

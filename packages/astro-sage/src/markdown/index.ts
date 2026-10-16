@@ -121,7 +121,7 @@ export const calloutsPlugin: MdastPluginDefinition = {
 };
 
 /** Raw HTML that survives both Markdown and MDX pipelines. */
-function rawHtml(html: string, mdx: boolean, inline: boolean): Node {
+export function rawHtml(html: string, mdx: boolean, inline: boolean): Node {
   if (!mdx) return { type: "html", value: html };
   return {
     type: inline ? "mdxJsxTextElement" : "mdxJsxFlowElement",

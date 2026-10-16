@@ -100,6 +100,14 @@ const items = headings.filter(h => h.depth >= 2 && h.depth <= 3);
     padding-inline-start: 1.75rem;
     font-size: 0.8125rem;
   }
+  /* Fades out while a full-width figure passes underneath it. */
+  .toc-rail {
+    transition: opacity 160ms ease;
+  }
+  .toc-rail[data-obscured] {
+    opacity: 0;
+    pointer-events: none;
+  }
   .toc-rail a[aria-current="location"] {
     color: var(--accent);
     border-inline-start-color: var(--accent);
@@ -170,4 +178,34 @@ const items = headings.filter(h => h.depth >= 2 && h.depth <= 3);
     update();
   }
   initTocSpy();
+
+  // Hide the pinned rail while a full-width element overlaps its band.
+  function initRailYield() {
+    const rail = document.querySelector<HTMLElement>(".toc-rail");
+    const wide = document.querySelectorAll<HTMLElement>("#article .full-bleed");
+    if (!rail || wide.length === 0) return;
+    const visible = new Set<Element>();
+    let observer: IntersectionObserver | undefined;
+    const setup = () => {
+      observer?.disconnect();
+      visible.clear();
+      const r = rail.getBoundingClientRect();
+      const top = Math.max(0, Math.round(r.top));
+      const bottom = Math.max(0, Math.round(window.innerHeight - r.bottom));
+      observer = new IntersectionObserver(
+        entries => {
+          for (const e of entries) {
+            if (e.isIntersecting) visible.add(e.target);
+            else visible.delete(e.target);
+          }
+          rail.toggleAttribute("data-obscured", visible.size > 0);
+        },
+        { rootMargin: `-${top}px 0px -${bottom}px 0px` }
+      );
+      wide.forEach(el => observer!.observe(el));
+    };
+    setup();
+    window.addEventListener("resize", setup);
+  }
+  initRailYield();
 </script>

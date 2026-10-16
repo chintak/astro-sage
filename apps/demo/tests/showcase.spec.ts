@@ -30,7 +30,9 @@ test("showcase renders every content feature", async ({ page }) => {
 
   // Footnotes and figures.
   await expect(article.locator("section.footnotes li")).toHaveCount(2);
-  await expect(page.locator("#article > figure > figcaption")).toHaveCount(2);
+  await expect(
+    page.locator("#article > figure:not(.diagram) > figcaption")
+  ).toHaveCount(2);
 });
 
 test("no horizontal page overflow", async ({ page }) => {
@@ -169,3 +171,105 @@ test("reading column stays within 66–71 characters on tablet and desktop", asy
     expect(Math.round(chars), `${width}px`).toBeLessThanOrEqual(71);
   }
 });
+
+test("diagrams render as inline SVG with both palettes", async ({ page }) => {
+  await page.goto(SHOWCASE);
+  const diagrams = page.locator("#article .diagram");
+  await expect(diagrams).toHaveCount(6);
+  await expect(page.locator("#article .diagram-error")).toHaveCount(0);
+  await expect(page.locator("#article .diagram-light svg")).toHaveCount(6);
+  // Mermaid labels are real text (selectable/searchable) in the UI mono face.
+  const font = await page
+    .locator('#article [data-diagram="mermaid"] .diagram-light svg text')
+    .first()
+    .evaluate(el => getComputedStyle(el).fontFamily);
+  expect(font).toContain("JetBrains Mono");
+});
+
+test("diagram viewer zooms and closes", async ({ page, isMobile }) => {
+  await page.goto(SHOWCASE);
+  const fig = page.locator("#article .diagram").first();
+  await fig.scrollIntoViewIfNeeded();
+  if (!isMobile) await fig.hover();
+  await fig.locator(".diagram-expand").click();
+  const viewer = page.locator("dialog.diagram-viewer");
+  await expect(viewer).toBeVisible();
+  const before = await viewer.locator("output").textContent();
+  await viewer.getByRole("button", { name: "Zoom in" }).click();
+  await expect(viewer.locator("output")).not.toHaveText(before ?? "");
+  await page.keyboard.press("Escape");
+  await expect(viewer).toBeHidden();
+});
+
+test("wide diagrams break out and the TOC rail steps aside", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, "rail is desktop-only");
+  await page.goto(SHOWCASE);
+  const wide = page.locator("#article .diagram.full-bleed").first();
+  const col = await page
+    .locator("#article > p")
+    .first()
+    .evaluate(el => el.getBoundingClientRect().width);
+  const w = await wide.evaluate(el => el.getBoundingClientRect().width);
+  expect(w).toBeGreaterThan(col + 100);
+  await wide.evaluate(el =>
+    window.scrollTo({
+      top: el.getBoundingClientRect().top + scrollY - 200,
+      behavior: "instant",
+    })
+  );
+  await expect(page.locator(".toc-rail")).toHaveAttribute("data-obscured", "");
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - innerWidth
+  );
+  expect(overflow).toBeLessThanOrEqual(0);
+});
+
+for (const theme of ["light", "dark"] as const) {
+  test(`diff lines keep tokens >= 4.5:1 (${theme})`, async ({ page }) => {
+    await page.addInitScript(t => localStorage.setItem("theme", t), theme);
+    await page.goto(SHOWCASE);
+    const min = await page.evaluate(() => {
+      const cv = document.createElement("canvas");
+      cv.width = cv.height = 1;
+      const ctx = cv.getContext("2d", { willReadFrequently: true })!;
+      const rgb = (c: string) => {
+        ctx.clearRect(0, 0, 1, 1);
+        ctx.fillStyle = c;
+        ctx.fillRect(0, 0, 1, 1);
+        return [...ctx.getImageData(0, 0, 1, 1).data];
+      };
+      const over = (fg: string, bg: string) => {
+        const [r, g, b, a] = rgb(fg);
+        const [R, G, B] = rgb(bg);
+        const t = a / 255;
+        return `rgb(${r * t + R * (1 - t)},${g * t + G * (1 - t)},${b * t + B * (1 - t)})`;
+      };
+      const lum = (c: string) => {
+        const [r, g, b] = rgb(c)
+          .slice(0, 3)
+          .map(v => v / 255)
+          .map(v => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      };
+      const cr = (a: string, b: string) => {
+        const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
+        return (x + 0.05) / (y + 0.05);
+      };
+      const page = getComputedStyle(document.body).backgroundColor;
+      let m = 99;
+      for (const line of document.querySelectorAll<HTMLElement>(
+        "#article .ec-line.ins, #article .ec-line.del"
+      )) {
+        const bg = over(getComputedStyle(line).backgroundColor, page);
+        for (const sp of line.querySelectorAll<HTMLElement>(".code span"))
+          if (sp.textContent?.trim())
+            m = Math.min(m, cr(getComputedStyle(sp).color, bg));
+      }
+      return m;
+    });
+    expect(min).toBeGreaterThanOrEqual(4.5);
+  });
+}

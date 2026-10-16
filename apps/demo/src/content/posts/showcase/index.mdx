@@ -201,6 +201,80 @@ A very long line scrolls horizontally instead of wrapping:
 const url = new URL("https://example.com/api/v1/posts?include=author,tags,series&sort=-pubDatetime&page[size]=20&page[number]=1&filter[draft]=false");
 ```
 
+## Diagrams
+
+Diagrams are rendered **at build time to inline SVG**, so their text is selectable and searchable, and they follow the light and dark palettes. Hover a diagram and press the expand button (or double-click it) to open the viewer: scroll or pinch to zoom, drag to pan, or switch to text selection.
+
+A Mermaid flowchart:
+
+```mermaid title="How a post is built"
+flowchart LR
+  md[Markdown / MDX] --> sat[Sätteri parser]
+  sat --> math[KaTeX]
+  sat --> code[Expressive Code]
+  sat --> dia[Mermaid & Excalidraw]
+  math & code & dia --> html[Static HTML]
+  html --> cdn[(Cloudflare edge)]
+```
+
+A Mermaid sequence diagram:
+
+```mermaid title="Signing in to comment"
+sequenceDiagram
+  autonumber
+  actor Reader
+  participant Site as chintak.sh
+  participant GH as GitHub
+  Reader->>Site: Click "Sign in with GitHub"
+  Site->>GH: OAuth authorize (PKCE)
+  GH-->>Reader: Consent screen
+  Reader->>GH: Approve
+  GH-->>Site: Callback with code
+  Site-->>Reader: Session cookie · comment box
+```
+
+An Excalidraw sketch, drawn on excalidraw.com and saved next to the post:
+
+![The rendering pipeline, sketched in Excalidraw](./build-pipeline.excalidraw)
+
+You can also paste a drawing straight into the post: in Excalidraw, select everything and choose **Copy to clipboard as JSON**, then paste it into an `excalidraw` block. Nothing needs downloading:
+
+```excalidraw title="Pasted from Excalidraw's clipboard"
+{"type":"excalidraw/clipboard","elements":[{"id":"i1","type":"ellipse","x":0,"y":0,"width":160,"height":80,"angle":0,"strokeColor":"#1e1e1e","backgroundColor":"#b2f2bb","fillStyle":"hachure","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":242869422,"version":1,"versionNonce":300525509,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"index":"a1"},{"id":"i2","type":"text","x":10,"y":27,"width":140,"height":25,"angle":0,"strokeColor":"#1e1e1e","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":249993977,"version":1,"versionNonce":242575631,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"index":"a2","text":"Idea","originalText":"Idea","fontSize":20,"fontFamily":5,"textAlign":"center","verticalAlign":"middle","containerId":null,"autoResize":true,"lineHeight":1.25},{"id":"i3","type":"arrow","x":170,"y":40,"width":120,"height":0,"angle":0,"strokeColor":"#1e1e1e","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":2},"seed":272645208,"version":1,"versionNonce":315349831,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"index":"a3","points":[[0,0],[120,0]],"lastCommittedPoint":null,"startBinding":null,"endBinding":null,"startArrowhead":null,"endArrowhead":"arrow","elbowed":false},{"id":"i4","type":"rectangle","x":300,"y":0,"width":180,"height":80,"angle":0,"strokeColor":"#1e1e1e","backgroundColor":"#a5d8ff","fillStyle":"hachure","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":3},"seed":101952880,"version":1,"versionNonce":99138768,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"index":"a4"},{"id":"i5","type":"text","x":310,"y":27,"width":160,"height":25,"angle":0,"strokeColor":"#1e1e1e","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":274828857,"version":1,"versionNonce":255423441,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"index":"a5","text":"Blog post","originalText":"Blog post","fontSize":20,"fontFamily":5,"textAlign":"center","verticalAlign":"middle","containerId":null,"autoResize":true,"lineHeight":1.25}],"files":{}}
+```
+
+Or link a shared drawing with `![caption](https://excalidraw.com/#json=…)`. It's fetched and decrypted once at build time, then cached.
+
+### Full-width diagrams
+
+Large diagrams can break out of the text column with `wide`. On desktop they span the column and the table-of-contents rail, which steps aside while they pass:
+
+```mermaid wide title="A request through the stack, full width"
+flowchart LR
+  subgraph Browser
+    r[Reader] --> p[Prerendered page]
+    p --> c[Comments island]
+  end
+  subgraph Edge["Cloudflare edge"]
+    a[Static assets]
+    w[Worker: /api/*]
+  end
+  subgraph Data
+    d1[(D1)]
+    gh[GitHub OAuth]
+    x[X OAuth]
+  end
+  p -- HTML/CSS --> a
+  c -- fetch --> w
+  w --> d1
+  w -. sign in .-> gh
+  w -. sign in .-> x
+```
+
+Excalidraw works the same way, with `"wide"` as the image title:
+
+![The pipeline again, full width](./build-pipeline.excalidraw "wide")
+
 ## Tables
 
 A numeric table with tabular figures, so the digits line up:
