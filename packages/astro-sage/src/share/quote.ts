@@ -1,11 +1,19 @@
 /**
  * Select text in a post → a small toolbar to share it as a quote.
  * Links use a text fragment (#:~:text=…) so readers land on the passage.
+ * The image button renders the quote as a PNG card in the browser.
  */
 const MIN = 8;
 const MAX = 600;
 
-type Ctx = { root: HTMLElement; url: string; title: string };
+type Ctx = {
+  root: HTMLElement;
+  url: string;
+  title: string;
+  /** For the image card. */
+  eyebrow?: string;
+  footer?: string;
+};
 
 /** Text-fragment directive per the spec: encode, plus `-`, `,` and `&`. */
 const enc = (s: string) =>
@@ -28,6 +36,7 @@ export function shareTargets(quote: string, ctx: Ctx) {
   const q = (n: number) => `“${clip(quote, n)}” — ${ctx.title}`;
   return {
     link,
+    quote,
     text: q(MAX),
     x: `https://x.com/intent/post?text=${encodeURIComponent(q(200))}&url=${encodeURIComponent(link)}`,
     bluesky: `https://bsky.app/intent/compose?text=${encodeURIComponent(`${q(220)} ${link}`)}`,
@@ -44,6 +53,8 @@ const ICON = {
     '<path d="M8 11v5"/><path d="M8 8v.01"/><path d="M12 16v-5"/><path d="M16 16v-3a2 2 0 1 0 -4 0"/><path d="M3 7a4 4 0 0 1 4 -4h10a4 4 0 0 1 4 4v10a4 4 0 0 1 -4 4h-10a4 4 0 0 1 -4 -4z"/>',
   mail: '<path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"/><path d="M3 7l9 6l9 -6"/>',
   copy: '<path d="M9 15l6 -6"/><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/>',
+  image:
+    '<path d="M15 8h.01"/><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z"/><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5"/><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3"/>',
   share:
     '<path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M8.7 10.7l6.6 -3.4"/><path d="M8.7 13.3l6.6 3.4"/>',
 };
@@ -64,6 +75,7 @@ export function init(ctx: Ctx) {
     <a data-t="linkedin" target="_blank" rel="noopener noreferrer" aria-label="Share on LinkedIn">${svg(ICON.linkedin)}</a>
     <a data-t="mail" aria-label="Share quote via email">${svg(ICON.mail)}</a>
     <button type="button" data-t="copy" aria-label="Copy quote with link">${svg(ICON.copy)}</button>
+    <button type="button" data-t="image" aria-label="Share quote as image">${svg(ICON.image)}</button>
     ${native ? `<button type="button" data-t="native" aria-label="Share via…">${svg(ICON.share)}</button>` : ""}
     <span class="qs-status" role="status" aria-live="polite"></span>`;
   document.body.append(bar);
@@ -75,17 +87,10 @@ export function init(ctx: Ctx) {
     status.textContent = "";
   }
 
-  function update() {
-    const sel = document.getSelection();
-    const text = sel?.toString().trim() ?? "";
-    if (!sel || sel.isCollapsed || text.length < MIN || text.length > MAX * 4)
-      return hide();
-    const range = sel.getRangeAt(0);
-    if (!ctx.root.contains(range.commonAncestorContainer)) return hide();
+  function show(text: string, rect: DOMRect) {
     current = shareTargets(text, ctx);
     for (const a of bar.querySelectorAll<HTMLAnchorElement>("a[data-t]"))
       a.href = current[a.dataset.t as "x" | "bluesky" | "linkedin" | "mail"];
-    const rect = range.getBoundingClientRect();
     bar.hidden = false;
     const w = bar.offsetWidth;
     const left = Math.min(
@@ -98,12 +103,24 @@ export function init(ctx: Ctx) {
     bar.style.top = `${top + window.scrollY}px`;
   }
 
+  function update() {
+    const sel = document.getSelection();
+    const text = sel?.toString().trim() ?? "";
+    if (!sel || sel.isCollapsed || text.length < MIN || text.length > MAX * 4)
+      return hide();
+    const range = sel.getRangeAt(0);
+    if (!ctx.root.contains(range.commonAncestorContainer)) return hide();
+    show(text, range.getBoundingClientRect());
+  }
+
   let t: number | undefined;
   document.addEventListener("selectionchange", () => {
     clearTimeout(t);
     t = window.setTimeout(update, 180);
   });
-  document.addEventListener("keydown", e => e.key === "Escape" && hide());
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") hide();
+  });
   window.addEventListener("resize", () => !bar.hidden && update());
 
   // Keep the selection while clicking the toolbar.
@@ -119,6 +136,34 @@ export function init(ctx: Ctx) {
         status.textContent = "Copied";
       } catch {
         status.textContent = "Copy failed";
+      }
+    } else if (b.dataset.t === "image") {
+      status.textContent = "Rendering…";
+      const { quoteCard } = await import("./quote-image");
+      const blob = await quoteCard({
+        quote: current.quote,
+        title: ctx.title,
+        eyebrow: ctx.eyebrow,
+        footer: ctx.footer ?? new URL(ctx.url).hostname,
+      });
+      const file = new File([blob], "quote.png", { type: "image/png" });
+      if (navigator.canShare?.({ files: [file] })) {
+        status.textContent = "";
+        await navigator
+          .share({
+            files: [file],
+            title: ctx.title,
+            text: current.text,
+            url: current.link,
+          })
+          .catch(() => {});
+      } else {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "quote.png";
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        status.textContent = "Image saved";
       }
     } else if (b.dataset.t === "native") {
       navigator

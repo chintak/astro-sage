@@ -178,6 +178,8 @@ const ogImage = ogImageUrl
           ).href
         }
         title={title}
+        eyebrow={series ?? config.site.title}
+        footer={`${post.data.author} · ${new URL(config.site.url).hostname}`}
       />
 
       {showToc && (

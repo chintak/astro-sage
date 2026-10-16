@@ -1,23 +1,46 @@
 ---
-type Props = { url: string; title: string };
-const { url, title } = Astro.props;
+type Props = {
+  url: string;
+  title: string;
+  eyebrow?: string;
+  footer: string;
+};
+const { url, title, eyebrow, footer } = Astro.props;
 ---
 
-<div hidden data-quote-share data-url={url} data-title={title}></div>
+<div
+  hidden
+  data-quote-share
+  data-url={url}
+  data-title={title}
+  data-eyebrow={eyebrow}
+  data-footer={footer}
+></div>
 
 <script>
   // Load the quote-share toolbar only once the reader selects some text.
   const cfg = document.querySelector<HTMLElement>("[data-quote-share]");
   const root = document.getElementById("article");
   if (cfg && root) {
-    const onSelect = () => {
-      const s = document.getSelection();
-      if (!s || s.isCollapsed || !root.contains(s.anchorNode)) return;
+    let loaded = false;
+    const load = () => {
+      if (loaded) return;
+      loaded = true;
       document.removeEventListener("selectionchange", onSelect);
-      import("@sage/share/quote").then(m => {
-        m.init({ root, url: cfg.dataset.url!, title: cfg.dataset.title! });
+      return import("@sage/share/quote").then(m => {
+        m.init({
+          root,
+          url: cfg.dataset.url!,
+          title: cfg.dataset.title!,
+          eyebrow: cfg.dataset.eyebrow,
+          footer: cfg.dataset.footer,
+        });
         document.dispatchEvent(new Event("selectionchange"));
       });
+    };
+    const onSelect = () => {
+      const s = document.getSelection();
+      if (s && !s.isCollapsed && root.contains(s.anchorNode)) load();
     };
     document.addEventListener("selectionchange", onSelect);
   }

@@ -57,36 +57,57 @@ const bibtex = `@article{${key},
 }`;
 ---
 
-<section class="citation" aria-labelledby="cite-heading" data-pagefind-ignore>
-  <h2 id="cite-heading" class="citation-heading small-caps">
-    Cite this post
-  </h2>
-  <p class="citation-lede">
-    If you found this useful, please cite this write-up as:
-  </p>
-  <blockquote class="citation-text">
-    {citeName}. ({month} {year}). <cite>{title}</cite>. {publication}.{" "}
-    <a href={url}>{url}</a>
-  </blockquote>
-  <p class="citation-lede">or</p>
-  <figure class="citation-bib">
-    <figcaption>
-      <span>BibTeX</span>
-      <button type="button" class="citation-copy" data-copy-bib>
-        Copy
-      </button>
-    </figcaption>
-    <pre tabindex="0"><code>{bibtex}</code></pre>
-  </figure>
-  <span class="sr-only">{text}</span>
-</section>
+<details class="citation" data-pagefind-ignore>
+  <summary class="citation-heading small-caps">Cite this post</summary>
+  <div class="citation-body">
+    <p class="citation-lede">
+      If you found this useful, please cite this write-up as:
+    </p>
+    <blockquote class="citation-text">
+      {citeName}. ({month} {year}). <cite>{title}</cite>. {publication}.{" "}
+      <a href={url}>{url}</a>
+    </blockquote>
+    <p class="citation-lede">or</p>
+    <figure class="citation-bib">
+      <figcaption>
+        <span>BibTeX</span>
+        <button type="button" class="citation-copy" data-copy-bib>
+          Copy
+        </button>
+      </figcaption>
+      <pre tabindex="0"><code>{bibtex}</code></pre>
+    </figure>
+    <span class="sr-only">{text}</span>
+  </div>
+</details>
 
 <style>
   .citation {
+    border-block: 1px solid var(--border);
+    padding-block: 0.6rem;
+  }
+  .citation-body {
     display: grid;
     /* minmax(0, …) lets long BibTeX lines scroll inside the block on phones. */
     grid-template-columns: minmax(0, 1fr);
     gap: 0.75rem;
+    padding-top: 0.75rem;
+  }
+  .citation summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  .citation summary::-webkit-details-marker {
+    display: none;
+  }
+  .citation summary::before {
+    content: "▸";
+    display: inline-block;
+    margin-inline-end: 0.5em;
+    transition: transform 120ms;
+  }
+  .citation[open] summary::before {
+    transform: rotate(90deg);
   }
   .citation-heading {
     font-size: var(--ui-size);

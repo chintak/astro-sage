@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
@@ -418,9 +419,17 @@ test("share sheet links to every platform with the canonical URL and title", asy
   await expect(page.locator(".share [data-copy]")).toBeVisible();
 });
 
-test("citation block offers text and BibTeX", async ({ page }) => {
+test("citation block is folded and offers text and BibTeX", async ({
+  page,
+}) => {
   await page.goto(SHOWCASE);
-  const cite = page.locator(".citation");
+  const cite = page.locator("details.citation");
+  // Folded by default, and not a heading (so it stays out of the TOC).
+  await expect(cite).not.toHaveAttribute("open");
+  await expect(cite.locator(".citation-text")).toBeHidden();
+  await expect(cite.locator("h2, h3")).toHaveCount(0);
+  await expect(page.locator(".toc a", { hasText: /cite/i })).toHaveCount(0);
+  await cite.locator("summary").click();
   await expect(cite.locator(".citation-text")).toContainText(
     "Sheth, Chintak. (Oct 2026). AstroSage: every element, set in type. astro-sage.pages.dev."
   );
@@ -456,6 +465,69 @@ test("selecting text offers to share it as a quote", async ({ page }) => {
   expect(x).toContain(encodeURIComponent(link));
   await page.keyboard.press("Escape");
   await expect(bar).toBeHidden();
+});
+
+test("a selection can be shared as an image card", async ({ page }) => {
+  // Desktop path: without file sharing, the card downloads as a PNG.
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "canShare", { value: undefined });
+  });
+  await page.goto(SHOWCASE);
+  await page.evaluate(() => {
+    const text = document.querySelector("#article > p")!.firstChild!;
+    const range = document.createRange();
+    range.setStart(text, 0);
+    range.setEnd(text, "Good typography is invisible.".length);
+    document.getSelection()!.removeAllRanges();
+    document.getSelection()!.addRange(range);
+  });
+  const bar = page.locator(".quote-share");
+  await expect(bar).toBeVisible();
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    bar.locator('button[data-t="image"]').click(),
+  ]);
+  expect(download.suggestedFilename()).toBe("quote.png");
+  const png = await readFile((await download.path())!);
+  expect(png.subarray(1, 4).toString()).toBe("PNG");
+  // 1200×630 at 2×.
+  expect(png.readUInt32BE(16)).toBe(2400);
+  expect(png.readUInt32BE(20)).toBe(1260);
+  await expect(bar.locator(".qs-status")).toHaveText("Image saved");
+});
+
+test("task-list checkboxes are round, filled when checked", async ({
+  page,
+}) => {
+  await page.goto(SHOWCASE);
+  const boxes = page.locator(".task-list-item input[type=checkbox]");
+  const style = (i: number) =>
+    boxes.nth(i).evaluate(el => {
+      const cs = getComputedStyle(el);
+      const sage = getComputedStyle(document.documentElement)
+        .getPropertyValue("--sage")
+        .trim();
+      return {
+        radius: cs.borderTopLeftRadius,
+        appearance: cs.appearance,
+        bg: cs.backgroundColor,
+        sage,
+      };
+    });
+  const done = await style(0);
+  expect(done.appearance).toBe("none");
+  expect(done.radius).toBe("50%");
+  expect(done.bg).not.toBe("rgba(0, 0, 0, 0)");
+  const open = await style(2);
+  expect(open.bg).toBe("rgba(0, 0, 0, 0)");
+  // Done items are struck through; open ones are not.
+  const deco = (i: number) =>
+    page
+      .locator(".task-list-item")
+      .nth(i)
+      .evaluate(el => getComputedStyle(el).textDecorationLine);
+  expect(await deco(0)).toBe("line-through");
+  expect(await deco(2)).toBe("none");
 });
 
 test("social meta tags for share previews", async ({ page }) => {

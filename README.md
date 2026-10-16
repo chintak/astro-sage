@@ -17,10 +17,12 @@ Forked from [AstroPaper](https://github.com/satnaing/astro-paper) by Sat Naing a
 - **Code:** Expressive Code with Gruvbox, "hairline" blocks (no fill, a 1px frame) that sit on the paper, titles, line numbers, high-contrast diff lines, collapsible sections, terminal frames and a copy button. Every token is ≥ 5.5:1 against the page.
 - **Diagrams:** Mermaid and Excalidraw (inline JSON, share links or files), rendered at build time to inline SVG that matches the palette. Includes a zoom/pan viewer and a full-width option. See below.
 - **Callouts:** GitHub alerts (`> [!NOTE]`) or directives (`:::warning[Title]`). Both produce the same markup.
+- **Task lists:** round checkboxes; done items get a sage tick and are struck through.
 - **Series:** `series: "Name"` in frontmatter gives an index page, a per-series page and "Part N of M" navigation.
 - **Comments (optional):** GitHub and X sign-in, comments, replies, edit, delete and moderation on Cloudflare Workers + D1 (free tier). Off by default.
 - **Sharing:** X, LinkedIn, Bluesky, Reddit, Hacker News and email, plus copy-link and the native share sheet on supporting devices. Configure with `shareLinks` (`{url}` / `{title}` placeholders).
-- **Citations:** a "Cite this post" block with a text citation and copyable BibTeX on every post (`citation: { author: "Sheth, Chintak" }`; `cite: false` in frontmatter to hide).
+- **Quote sharing:** select any passage to share it with a link that scrolls to that passage (a text fragment), or as an image: a 1200×630 quote card drawn in the browser, handed to the native share sheet on phones or downloaded as `quote.png` on desktop. Nothing is pre-rendered and no server is involved; the code loads only after the first selection.
+- **Citations:** a folded "Cite this post" block (not a heading, so it stays out of the TOC) with a text citation and copyable BibTeX on every post (`citation: { author: "Sheth, Chintak" }`; `cite: false` in frontmatter to hide).
 - Pagefind search, RSS, sitemap, generated OG images, reading time, archives, tags with post counts, native view transitions.
 - About 2.8 KB of gzipped JS on an article page. Lighthouse desktop 100/100/100/100.
 

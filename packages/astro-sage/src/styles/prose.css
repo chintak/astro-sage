@@ -206,10 +206,43 @@
       list-style: none;
       padding-inline-start: 0.25em;
     }
+    /* Round checkboxes: an open ring, or a sage disc with a paper-coloured tick. */
     & .task-list-item input[type="checkbox"] {
-      accent-color: var(--sage);
-      margin-inline-end: 0.5em;
-      translate: 0 0.1em;
+      appearance: none;
+      display: inline-grid;
+      place-content: center;
+      width: 1.05em;
+      height: 1.05em;
+      margin: 0 0.55em 0 0;
+      border: 1.5px solid var(--fg-muted);
+      border-radius: 50%;
+      background: transparent;
+      vertical-align: -0.15em;
+      opacity: 1;
+      &::before {
+        content: "";
+        width: 0.62em;
+        height: 0.62em;
+        background: var(--bg);
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")
+          center / contain no-repeat;
+        scale: 0;
+        transition: scale 120ms ease;
+      }
+      &:checked {
+        border-color: var(--sage);
+        background: var(--sage);
+        &::before {
+          scale: 1;
+        }
+      }
+    }
+    /* Done items: struck through and lighter, but still >= 4.5:1. */
+    & .task-list-item:has(> input:checked) {
+      color: color-mix(in srgb, var(--fg-muted) 90%, var(--bg));
+      text-decoration: line-through;
+      text-decoration-thickness: 1px;
+      text-decoration-color: color-mix(in srgb, currentColor 70%, transparent);
     }
 
     & dl {
