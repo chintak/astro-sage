@@ -31,7 +31,7 @@ AstroSage is a readability-first blog theme for [Astro](https://astro.build/), m
 
 ## Use it for your blog
 
-You'll need Node 22.12 or later and [pnpm](https://pnpm.io).
+You'll need Node 22.12 or later. The template uses [pnpm](https://pnpm.io); the npm package works with any package manager.
 
 ### Start a new blog
 
@@ -49,14 +49,13 @@ This gives you the theme and a ready-made site (`apps/demo`), the same code as t
 
 ### Add it to an existing Astro site
 
-AstroSage isn't on npm. Add it as a git submodule pinned to a release:
+Install the theme from npm:
 
 ```bash
-git submodule add https://github.com/chintak/astro-sage vendor/astro-sage
-git -C vendor/astro-sage checkout astro-sage@0.1.1
+pnpm add astro-sage
 ```
 
-List `vendor/astro-sage/packages/*` in `pnpm-workspace.yaml`, add `"astro-sage": "workspace:*"` to your dependencies, then register the theme. It adds every page itself, so you can delete your `src/pages/`:
+Then register it. It adds every page itself, so you can delete your `src/pages/`:
 
 ```ts title="astro.config.ts"
 import { defineConfig } from "astro/config";
@@ -123,6 +122,6 @@ The [[showcase|showcase post]] shows the syntax for everything else, and [its so
 
 ## Staying up to date
 
-AstroSage follows semantic versioning. Releases are tagged on [GitHub](https://github.com/chintak/astro-sage/releases), with notes in the [changelog](https://github.com/chintak/astro-sage/blob/main/packages/astro-sage/CHANGELOG.md). To upgrade, check out a newer tag in `vendor/astro-sage`.
+AstroSage follows semantic versioning and is published to npm as [`astro-sage`](https://www.npmjs.com/package/astro-sage). Each release is listed on [GitHub](https://github.com/chintak/astro-sage/releases), with notes in the [changelog](https://github.com/chintak/astro-sage/blob/main/packages/astro-sage/CHANGELOG.md). To upgrade, run `pnpm update astro-sage`.
 
 Questions and bug reports are welcome as [GitHub issues](https://github.com/chintak/astro-sage/issues). AstroSage is MIT-licensed.

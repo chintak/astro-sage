@@ -27,11 +27,11 @@ Working examples live in the demo site:
 | Comments (optional) | utterances (GitHub Issues) or giscus (GitHub Discussions), client-side embeds |
 | Tests | Playwright + axe-core (desktop and mobile), oxlint, Prettier |
 | Output | Fully static (SSG): `astro build` writes plain files to `dist/`; no adapter, server or database; any static host |
-| Package manager | pnpm workspaces; Node ≥ 22.12 |
+| Distribution | npm package `astro-sage` (TypeScript source, no build step); any package manager; Node ≥ 22.12. The repo is a pnpm workspace |
 
 ## Setup
 
-Three files wire a site up (full versions in the [README](README.md#quick-start)):
+Three files wire a site up (`pnpm add astro-sage`; full versions in the [README](README.md#add-it-to-an-existing-astro-site)):
 
 ```ts
 // astro.config.ts

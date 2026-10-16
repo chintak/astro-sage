@@ -17,7 +17,7 @@
     "test": "pnpm --filter astro-sage test && pnpm --filter @astro-sage/demo test",
     "changeset": "changeset",
     "version-packages": "changeset version && pnpm install --lockfile-only",
-    "release": "changeset tag && git push --follow-tags",
+    "release": "changeset publish",
     "deploy:demo": "pnpm build && pnpm --filter @astro-sage/demo exec wrangler deploy"
   },
   "devDependencies": {

@@ -2,9 +2,13 @@ import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import satori from "satori";
-import sharp from "sharp";
+import type Sharp from "sharp";
+import { packageDir } from "virtual:astro-sage/user-config";
 
-const require = createRequire(import.meta.url);
+// Resolve from the theme package, not from this (bundled) file: sharp stays
+// external to Vite's build, and under pnpm only the theme can see it.
+const require = createRequire(join(packageDir, "index.ts"));
+const sharp = require("sharp") as typeof Sharp;
 const fontFile = (pkg: string, file: string) =>
   join(dirname(require.resolve(`${pkg}/package.json`)), "files", file);
 

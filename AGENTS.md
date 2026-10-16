@@ -31,4 +31,5 @@ docs/decisions/        ADRs
 - Text and UI colours stay ≥ 4.5:1 in both themes (the axe tests enforce it). Use tokens from `src/styles/theme.css`, never raw colours.
 - In MDX, mdast plugins must emit JSX nodes (see `jsx()` / `rawHtml()` in `src/markdown/index.ts`), not raw HTML.
 - Commit `apps/demo/.sage-cache/diagrams/` so builds need no browser.
-- Versioning is SemVer via Changesets: add one with `pnpm changeset` for any user-facing change to `astro-sage`. Releases: `pnpm version-packages`, merge, then `pnpm release`.
+- Versioning is SemVer via Changesets: add one with `pnpm changeset` for any user-facing change to `astro-sage`. Releases are automated by `.github/workflows/release.yml`: merging to `main` opens a "Release astro-sage" PR; merging that publishes to npm (trusted publishing, no token) and tags `astro-sage@x.y.z`.
+- The package ships `src/` as-is. Bundled build code (routes, `utils/ogImage.ts`) must resolve the theme's own dependencies from `packageDir` (the virtual config module), not `import.meta.url`: under pnpm a site can't see them. `scripts/pack-docs.mjs` copies README/FEATURES/LICENSE into the tarball.
