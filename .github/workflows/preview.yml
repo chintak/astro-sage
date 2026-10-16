@@ -80,6 +80,7 @@ jobs:
           VERSION_URL: ${{ steps.upload.outputs.version_url }}
           ALIAS_URL: ${{ steps.upload.outputs.alias_url }}
           REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail
           marker='<!-- astro-sage-preview -->'
@@ -91,7 +92,7 @@ jobs:
             echo "- This commit: $VERSION_URL"
             echo "- Showcase: $ALIAS_URL/posts/showcase/"
             echo
-            echo "<sub>Updated $(date -u '+%Y-%m-%d %H:%M UTC') by the Preview workflow. Not indexed by search engines.</sub>"
+            echo "<sub>Updated $(date -u '+%Y-%m-%d %H:%M UTC') by [this run]($RUN_URL). Not indexed by search engines.</sub>"
           } > "$RUNNER_TEMP/comment.md"
           id=$(gh api "repos/$REPO/issues/$PR/comments" --paginate \
             --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | startswith(\"$marker\"))) | .id" | head -n 1)
