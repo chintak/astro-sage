@@ -1,5 +1,11 @@
 # astro-sage
 
+## 0.1.4
+
+### Patch Changes
+
+- 48ce06a: Posts with a "Cite this post" block no longer show two horizontal rules with an empty band between them above it: the citation's own rule is now the post footer's only divider.
+
 ## 0.1.3
 
 ### Patch Changes
