@@ -1,6 +1,7 @@
 ---
 import Layout from "./Layout.astro";
 import config from "@sage/config";
+import katexCss from "katex/dist/katex.min.css?url";
 
 type Props = {
   title?: string;
@@ -9,8 +10,8 @@ type Props = {
   canonicalURL?: string;
   pubDatetime?: Date;
   modDatetime?: Date | null;
-  /** Extra stylesheet URLs for this page only (e.g. KaTeX when the post has math). */
-  stylesheets?: string[];
+  /** Load KaTeX styles (only pages that render math need them). */
+  math?: boolean;
 };
 
 const { site } = config;
@@ -22,7 +23,7 @@ const {
   canonicalURL,
   pubDatetime,
   modDatetime,
-  stylesheets = [],
+  math = false,
 } = Astro.props;
 
 const structuredData = {
@@ -44,9 +45,7 @@ const structuredData = {
 
 <Layout {title} {description} {ogImage} {canonicalURL}>
   <Fragment slot="head">
-    {stylesheets.map(href => (
-      <link rel="stylesheet" href={href} />
-    ))}
+    {math && <link rel="stylesheet" href={katexCss} />}
     <!-- Override og:type for article pages -->
     <meta property="og:type" content="article" />
 
@@ -68,6 +67,7 @@ const structuredData = {
       is:inline
       set:html={JSON.stringify(structuredData)}
     />
+    <slot name="head" />
   </Fragment>
 
   <slot />

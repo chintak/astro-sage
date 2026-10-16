@@ -280,17 +280,7 @@
     }
 
     /* ---------- Math ---------- */
-    & .math-display {
-      overflow-x: auto;
-      overflow-y: hidden;
-      padding-block: 0.25em;
-      & .katex-display {
-        margin: 0;
-      }
-    }
-    & .katex {
-      font-size: 1.08em;
-    }
+    /* Display-math spacing lives outside @layer below; see the note there. */
 
     /* ---------- Code (Expressive Code renders its own frames) ---------- */
     & .expressive-code {
@@ -394,4 +384,21 @@
       white-space: nowrap;
     }
   }
+}
+
+/*
+ * KaTeX's stylesheet is unlayered, and unlayered rules beat anything inside
+ * @layer regardless of specificity. These overrides must stay unlayered too,
+ * or `.katex-display { margin: 1em 0 }` doubles the space around equations.
+ */
+.app-prose .math-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 0.15em;
+}
+.app-prose .math-display .katex-display {
+  margin: 0;
+}
+.app-prose .katex {
+  font-size: 1.08em;
 }
