@@ -183,3 +183,45 @@ export const a11yPlugin: HastPluginDefinition = {
     },
   },
 };
+
+/**
+ * Breakout images in plain Markdown: an image alone in a paragraph whose title
+ * is `wide` or `full` becomes a figure of that size, captioned with its alt:
+ *
+ *   ![Hills at dusk](./hills.jpg "full")
+ */
+export const breakoutImagesPlugin: HastPluginDefinition = {
+  name: "astro-sage-breakout-images",
+  element: {
+    filter: ["p"],
+    visit(node: Node, ctx: Node) {
+      const kids = (node.children ?? []).filter(
+        (c: Node) => !(c.type === "text" && !String(c.value).trim())
+      );
+      const img = kids.length === 1 ? kids[0] : undefined;
+      if (img?.type !== "element" || img.tagName !== "img") return;
+      const size = img.properties?.title;
+      if (size !== "wide" && size !== "full") return;
+      ctx.setProperty(img, "title", null);
+      const alt = String(img.properties?.alt ?? "");
+      ctx.replaceNode(node, {
+        type: "element",
+        tagName: "figure",
+        properties: { className: [`figure-${size}`] },
+        children: [
+          img,
+          ...(alt
+            ? [
+                {
+                  type: "element",
+                  tagName: "figcaption",
+                  properties: {},
+                  children: [{ type: "text", value: alt }],
+                },
+              ]
+            : []),
+        ],
+      });
+    },
+  },
+};

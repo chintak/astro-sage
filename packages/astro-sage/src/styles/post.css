@@ -22,12 +22,6 @@
   .post-toc-inline {
     display: none;
   }
-  /* With the rail, wide figures span column + gap + rail, aligned to the text. */
-  .post-grid.has-toc .post-body .full-bleed {
-    width: calc(var(--measure) + var(--rail-gap) + var(--rail));
-    margin-inline-start: 0;
-    translate: none;
-  }
 }
 @media (max-width: 69.999rem) {
   .post-rail {
@@ -68,4 +62,60 @@
   margin-top: 2rem;
   padding-top: 2rem;
   border-top: 1px solid var(--border);
+}
+
+/*
+ * Breakout figures (images, diagrams, anything with these classes):
+ *
+ *   .figure-wide  column + TOC rail on desktop; up to 64rem elsewhere
+ *   .figure-full  the whole viewport minus the page gutter on each side
+ *
+ * Widths use container units against <body> (cqw), not vw: 100vw includes the
+ * scrollbar and would cause horizontal scrolling. --bleed-left is the distance
+ * from the text column's left edge to the viewport's left edge.
+ */
+.post-body {
+  --col-w: min(var(--measure), 100cqw - 2 * var(--gutter));
+  /* Single centred column (no rail, or narrow screens). */
+  --bleed-left: calc((100cqw - var(--col-w)) / 2);
+}
+@media (min-width: 70rem) {
+  .post-grid.has-toc .post-body {
+    /* Column is the left track of a centred [measure | gap | rail] grid. */
+    --bleed-left: calc(
+      max(0px, (100cqw - var(--page-max) - 2 * var(--gutter)) / 2) +
+        var(--gutter)
+    );
+  }
+}
+
+.post-body :is(.figure-wide, .figure-full, .full-bleed) {
+  max-width: none;
+}
+
+.post-body .figure-wide {
+  width: min(100cqw - 2 * var(--gutter), 64rem);
+  margin-inline-start: calc(
+    (var(--col-w) - min(100cqw - 2 * var(--gutter), 64rem)) / 2
+  );
+}
+@media (min-width: 70rem) {
+  .post-grid.has-toc .post-body .figure-wide {
+    width: var(--page-max);
+    margin-inline-start: 0;
+  }
+}
+
+/* Full: edge to edge, keeping the page gutter as a safety margin. */
+.post-body :is(.figure-full, .full-bleed) {
+  width: calc(100cqw - 2 * var(--gutter));
+  margin-inline-start: calc(var(--gutter) - var(--bleed-left));
+}
+/* Keep captions on the reading column even when the figure bleeds. */
+.post-body :is(.figure-full, .full-bleed) > figcaption {
+  width: var(--col-w);
+  margin-inline-start: calc(var(--bleed-left) - var(--gutter));
+}
+.post-body :is(.figure-full, .full-bleed) img {
+  width: 100%;
 }

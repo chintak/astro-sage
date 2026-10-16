@@ -18,6 +18,10 @@ export default defineSageConfig({
 });
 ```
 
+## A full-bleed image in plain Markdown
+
+![Warm hills, edge to edge](./showcase/paper-hills.svg "full")
+
 ## Why serif?
 
 For long-form reading, a well-made serif with a large x-height and moderate contrast reads as comfortably as a sans on modern screens, and it gives the page a bookish warmth.

@@ -245,11 +245,11 @@ You can also paste a drawing straight into the post: in Excalidraw, select every
 
 Or link a shared drawing with `![caption](https://excalidraw.com/#json=…)`. It's fetched and decrypted once at build time, then cached.
 
-### Full-width diagrams
+### Wide and full-width diagrams
 
-Large diagrams can break out of the text column with `wide`. On desktop they span the column and the table-of-contents rail, which steps aside while they pass:
+Diagrams use the same two sizes. Add `wide` to the fence (or `"wide"` as an Excalidraw image title) to span the column and the table-of-contents rail, which steps aside while it passes:
 
-```mermaid wide title="A request through the stack, full width"
+```mermaid wide title="A request through the stack (wide)"
 flowchart LR
   subgraph Browser
     r[Reader] --> p[Prerendered page]
@@ -271,9 +271,9 @@ flowchart LR
   w -. sign in .-> x
 ```
 
-Excalidraw works the same way, with `"wide"` as the image title:
+Use `full` to go edge to edge:
 
-![The pipeline again, full width](./build-pipeline.excalidraw "wide")
+![The pipeline, full bleed](./build-pipeline.excalidraw "full")
 
 ## Tables
 
@@ -300,9 +300,17 @@ An image with a caption:
 
 <Figure src={hills} alt="Stylized hills in warm sepia tones under a pale sun" caption="Figures get a caption set in italic, centred under the image." />
 
-A full-bleed image breaks out of the text column:
+Figures come in three sizes. The default stays in the text column. `size="wide"` spans the column and the table-of-contents rail:
 
-<Figure src={hills} alt="The same hills, wider" caption="Full-bleed figures stretch past the measure on wide screens." fullBleed />
+<Figure src={hills} alt="The same hills, wide" caption="A wide figure: column plus rail on desktop." size="wide" />
+
+`size="full"` bleeds edge to edge. The caption stays on the reading column:
+
+<Figure src={hills} alt="The same hills, full bleed" caption="A full-bleed figure: the whole viewport, edge to edge." size="full" />
+
+In plain Markdown, use the image title: `![Caption](./hills.jpg "wide")` or `"full"`.
+
+![The hills once more, set in plain Markdown](./paper-hills.svg "full")
 
 ## Footnotes
 

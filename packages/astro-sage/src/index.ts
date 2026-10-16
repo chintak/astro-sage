@@ -11,7 +11,12 @@ import expressiveCode from "astro-expressive-code";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
 import tailwindcss from "@tailwindcss/vite";
-import { a11yPlugin, calloutsPlugin, katexPlugin } from "./markdown";
+import {
+  a11yPlugin,
+  breakoutImagesPlugin,
+  calloutsPlugin,
+  katexPlugin,
+} from "./markdown";
 import { diagramsPlugin } from "./diagrams/plugin";
 import {
   SYNTAX_CANDIDATES,
@@ -189,7 +194,7 @@ export default function astroSage(config: SageConfig): AstroIntegration {
                 katexPlugin,
                 calloutsPlugin,
               ] as never[],
-              hastPlugins: [a11yPlugin] as never[],
+              hastPlugins: [a11yPlugin, breakoutImagesPlugin] as never[],
             }),
           },
           fonts: [
@@ -230,8 +235,8 @@ export default function astroSage(config: SageConfig): AstroIntegration {
                 codeFontSize: "0.875rem",
                 codeLineHeight: "1.65",
                 borderRadius: "0.375rem",
-                // No frame at all: code sits directly on the paper.
-                borderColor: "transparent",
+                // Hairline frame, no fill: code sits on the paper inside a 1px border.
+                borderColor: "var(--border)",
                 // "Hairline": no fill, a 1px frame; code sits on the page paper.
                 // codeBackground stays the theme bg (= page colour) so contrast
                 // correction is computed against the real paper; prose.css then

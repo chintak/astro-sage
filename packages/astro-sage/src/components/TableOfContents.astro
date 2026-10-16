@@ -182,7 +182,9 @@ const items = headings.filter(h => h.depth >= 2 && h.depth <= 3);
   // Hide the pinned rail while a full-width element overlaps its band.
   function initRailYield() {
     const rail = document.querySelector<HTMLElement>(".toc-rail");
-    const wide = document.querySelectorAll<HTMLElement>("#article .full-bleed");
+    const wide = document.querySelectorAll<HTMLElement>(
+      "#article :is(.figure-wide, .figure-full, .full-bleed)"
+    );
     if (!rail || wide.length === 0) return;
     const visible = new Set<Element>();
     let observer: IntersectionObserver | undefined;

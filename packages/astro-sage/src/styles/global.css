@@ -9,6 +9,10 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @layer base {
+  /* Lets breakout figures measure the viewport without its scrollbar (cqw). */
+  body {
+    container-type: inline-size;
+  }
   html {
     font-family: var(--font-body);
     font-optical-sizing: auto;

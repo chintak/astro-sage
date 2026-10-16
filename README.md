@@ -14,7 +14,7 @@ Forked from [AstroPaper](https://github.com/satnaing/astro-paper) by Sat Naing a
 - **Warm palette:** warm paper in light mode, espresso in dark. Every colour is a CSS variable in one file and is WCAG-checked.
 - **Pinned TOC:** a right rail at ≥ 1280px that highlights the section you're reading. It becomes a collapsible "On this page" block on smaller screens.
 - **Math:** `$…$` and `$$…$$` rendered by KaTeX at build time. No math JavaScript, and KaTeX CSS loads only on posts that use it.
-- **Code:** Expressive Code with Gruvbox, frameless "hairline" blocks that sit on the paper, titles, line numbers, high-contrast diff lines, collapsible sections, terminal frames and a copy button. Every token is ≥ 5.5:1 against the page.
+- **Code:** Expressive Code with Gruvbox, "hairline" blocks (no fill, a 1px frame) that sit on the paper, titles, line numbers, high-contrast diff lines, collapsible sections, terminal frames and a copy button. Every token is ≥ 5.5:1 against the page.
 - **Diagrams:** Mermaid and Excalidraw (inline JSON, share links or files), rendered at build time to inline SVG that matches the palette. Includes a zoom/pan viewer and a full-width option. See below.
 - **Callouts:** GitHub alerts (`> [!NOTE]`) or directives (`:::warning[Title]`). Both produce the same markup.
 - **Series:** `series: "Name"` in frontmatter gives an index page, a per-series page and "Part N of M" navigation.
@@ -96,7 +96,19 @@ flowchart LR
 ![A drawing in the repo](./system.excalidraw "wide")
 ````
 
-Diagrams are rendered once, at build time, in headless Chromium (`pnpm add -D playwright && npx playwright install chromium`, or an installed Chrome). The SVG is cached in `.sage-cache/diagrams/`. **Commit that folder**, and deploy builds won't need a browser or network. Add `wide` (a code-fence flag or the image title) for full-width diagrams. Readers can expand any diagram into a zoom/pan viewer. Design notes: [docs/decisions/005-code-and-diagrams.md](docs/decisions/005-code-and-diagrams.md).
+Diagrams are rendered once, at build time, in headless Chromium (`pnpm add -D playwright && npx playwright install chromium`, or an installed Chrome). The SVG is cached in `.sage-cache/diagrams/`. **Commit that folder**, and deploy builds won't need a browser or network. Add `wide` or `full` (a code-fence flag or the image title) to break out of the column. See Breakout figures below. Readers can expand any diagram into a zoom/pan viewer. Design notes: [docs/decisions/005-code-and-diagrams.md](docs/decisions/005-code-and-diagrams.md).
+
+## Breakout figures
+
+Images, diagrams and figures come in three sizes, written the same way everywhere:
+
+| Size | Width | Markdown image / Excalidraw | Diagram fence | Component |
+|---|---|---|---|---|
+| column | the reading column | `![alt](./x.jpg)` | ` ```mermaid ` | `<Figure src={x} alt="…" />` |
+| wide | column + TOC rail (up to 64rem without the rail) | `![alt](./x.jpg "wide")` | ` ```mermaid wide ` | `<Figure … size="wide" />` |
+| full | the whole viewport, minus the page gutter on each side | `![alt](./x.jpg "full")` | ` ```mermaid full ` | `<Figure … size="full" />` |
+
+Captions on `full` figures stay on the reading column. The pinned TOC fades out while a `wide` or `full` figure passes beneath it. Markdown images use their alt text as the caption.
 
 ## Comments (Cloudflare Workers + D1)
 

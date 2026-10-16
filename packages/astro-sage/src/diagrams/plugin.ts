@@ -16,6 +16,15 @@ import { parseShareUrl } from "./excalidraw-share";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Node = any;
 
+/** Breakout size from a fence meta string or image title: `wide` or `full`. */
+export type Size = "column" | "wide" | "full";
+export const sizeFrom = (s: string | null | undefined): Size =>
+  /(^|\s)full(\s|$)/.test(s ?? "")
+    ? "full"
+    : /(^|\s)wide(\s|$)/.test(s ?? "")
+      ? "wide"
+      : "column";
+
 const esc = (s: string) =>
   s.replace(
     /[&<>"]/g,
@@ -44,7 +53,7 @@ function figure(
   r: Rendered,
   caption?: string,
   invertInDark = false,
-  wide = false
+  size: Size = "column"
 ) {
   const label = caption || r.title || `${kind} diagram`;
   const desc = r.description
@@ -53,7 +62,7 @@ function figure(
   const dark = invertInDark
     ? ""
     : `<div class="diagram-svg diagram-dark">${fluid(r.dark)}</div>`;
-  return `<figure class="diagram${invertInDark ? " diagram-invert" : ""}${wide ? " full-bleed" : ""}" data-diagram="${kind}">
+  return `<figure class="diagram${invertInDark ? " diagram-invert" : ""}${size === "column" ? "" : ` figure-${size}`}" data-diagram="${kind}">
 <div class="diagram-canvas" role="img" aria-label="${esc(label)}">
 <div class="diagram-svg diagram-light">${fluid(r.light)}</div>${dark}
 </div>${desc}
@@ -82,7 +91,8 @@ function fallback(kind: string, source: string, error: unknown) {
  *   { …scene or clipboard JSON… }
  *   ```
  *
- * Full width: ```mermaid wide title="…"   or   ![Caption](./system.excalidraw "wide")
+ * Breakout: add `wide` (column + TOC rail) or `full` (edge to edge) to the fence,
+ * or use it as the image title: ![Caption](./system.excalidraw "full").
  */
 export function diagramsPlugin(opts: DiagramOptions): MdastPluginDefinition {
   return {
@@ -92,7 +102,7 @@ export function diagramsPlugin(opts: DiagramOptions): MdastPluginDefinition {
       const mdx = ctx.sourceFormat === "mdx";
       const meta = node.meta ?? "";
       const caption = /title="([^"]+)"/.exec(meta)?.[1];
-      const wide = /(^|\s)wide(\s|$)/.test(meta);
+      const size = sizeFrom(meta);
       let html: string;
       try {
         html =
@@ -102,14 +112,14 @@ export function diagramsPlugin(opts: DiagramOptions): MdastPluginDefinition {
                 await renderMermaid(node.value, opts),
                 caption,
                 false,
-                wide
+                size
               )
             : figure(
                 "excalidraw",
                 await renderExcalidraw(normalizeScene(node.value), opts),
                 caption,
                 false,
-                wide
+                size
               );
       } catch (e) {
         html = fallback(
@@ -128,7 +138,7 @@ export function diagramsPlugin(opts: DiagramOptions): MdastPluginDefinition {
       const share = parseShareUrl(img.url);
       if (!share && !/\.excalidraw(\.json|\.svg)?$/.test(img.url)) return;
       const mdx = ctx.sourceFormat === "mdx";
-      const wide = img.title === "wide";
+      const size = sizeFrom(img.title);
       let html: string;
       try {
         if (share) {
@@ -138,7 +148,7 @@ export function diagramsPlugin(opts: DiagramOptions): MdastPluginDefinition {
             await renderExcalidraw(scene, opts),
             img.alt,
             false,
-            wide
+            size
           );
         } else {
           const text = await readFile(
@@ -151,14 +161,14 @@ export function diagramsPlugin(opts: DiagramOptions): MdastPluginDefinition {
                 prepareExcalidrawSvg(text),
                 img.alt,
                 true,
-                wide
+                size
               )
             : figure(
                 "excalidraw",
                 await renderExcalidraw(normalizeScene(text), opts),
                 img.alt,
                 false,
-                wide
+                size
               );
         }
       } catch (e) {

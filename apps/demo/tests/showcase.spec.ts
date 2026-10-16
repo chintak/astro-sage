@@ -30,9 +30,10 @@ test("showcase renders every content feature", async ({ page }) => {
 
   // Footnotes and figures.
   await expect(article.locator("section.footnotes li")).toHaveCount(2);
+  // Column, wide and full <Figure>s plus a plain-Markdown "full" image.
   await expect(
     page.locator("#article > figure:not(.diagram) > figcaption")
-  ).toHaveCount(2);
+  ).toHaveCount(4);
 });
 
 test("no horizontal page overflow", async ({ page }) => {
@@ -207,7 +208,7 @@ test("wide diagrams break out and the TOC rail steps aside", async ({
 }) => {
   test.skip(isMobile, "rail is desktop-only");
   await page.goto(SHOWCASE);
-  const wide = page.locator("#article .diagram.full-bleed").first();
+  const wide = page.locator("#article .diagram.figure-wide").first();
   const col = await page
     .locator("#article > p")
     .first()
@@ -271,5 +272,50 @@ for (const theme of ["light", "dark"] as const) {
       return m;
     });
     expect(min).toBeGreaterThanOrEqual(4.5);
+  });
+}
+
+for (const width of [375, 1024, 1440, 1920]) {
+  test(`full-bleed figures keep a gutter on both edges at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(SHOWCASE);
+    const result = await page.evaluate(() => {
+      const vw = document.documentElement.clientWidth;
+      const gutter = parseFloat(
+        getComputedStyle(document.querySelector(".app-layout")!).paddingLeft
+      );
+      const col = document
+        .querySelector("#article > p")!
+        .getBoundingClientRect();
+      return {
+        vw,
+        gutter,
+        overflow: document.documentElement.scrollWidth - vw,
+        figures: [
+          ...document.querySelectorAll<HTMLElement>("#article .figure-full"),
+        ].map(el => {
+          const b = el.getBoundingClientRect();
+          const cap = el
+            .querySelector(":scope > figcaption")
+            ?.getBoundingClientRect();
+          return {
+            left: b.left,
+            right: vw - b.right,
+            capLeft: cap?.left,
+            colLeft: col.left,
+          };
+        }),
+      };
+    });
+    expect(result.overflow).toBeLessThanOrEqual(0);
+    expect(result.figures.length).toBeGreaterThanOrEqual(3);
+    for (const f of result.figures) {
+      expect(Math.abs(f.left - result.gutter)).toBeLessThanOrEqual(1);
+      expect(Math.abs(f.right - result.gutter)).toBeLessThanOrEqual(1);
+      if (f.capLeft !== undefined)
+        expect(Math.abs(f.capLeft - f.colLeft)).toBeLessThanOrEqual(1);
+    }
   });
 }

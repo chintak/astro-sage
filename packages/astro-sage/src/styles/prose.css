@@ -242,13 +242,7 @@
       font-style: italic;
       color: var(--fg-muted);
     }
-    /* Wide figures: break out of the text column (see post.css for the TOC-rail layout). */
-    & .full-bleed {
-      width: min(100vw - 2 * var(--gutter), 64rem);
-      margin-inline-start: 50%;
-      translate: -50% 0;
-      max-width: none;
-    }
+    /* Wide / full-width figures: see post.css (they depend on the page grid). */
 
     /* ---------- Tables ---------- */
     & .table-wrap,
