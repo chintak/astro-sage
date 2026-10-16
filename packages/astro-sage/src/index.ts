@@ -407,7 +407,7 @@ export default function astroSage(config: SageConfig): AstroIntegration {
                   id === virtualId ? `\0${virtualId}` : undefined,
                 load: id =>
                   id === `\0${virtualId}`
-                    ? `export default ${JSON.stringify(config)};\nexport const publicFiles = ${JSON.stringify(publicFiles)};`
+                    ? `export default ${JSON.stringify(config)};\nexport const publicFiles = ${JSON.stringify(publicFiles)};\nexport const packageDir = ${JSON.stringify(srcDir)};`
                     : undefined,
               },
             ],

@@ -48,14 +48,13 @@ This gives you the theme (`packages/astro-sage`) and a ready-to-edit site (`apps
 
 ### Add it to an existing Astro site
 
-AstroSage isn't on npm; pin a release tag from git. In a pnpm workspace:
+Install the theme from npm (any package manager works):
 
 ```bash
-git submodule add https://github.com/chintak/astro-sage vendor/astro-sage
-git -C vendor/astro-sage checkout astro-sage@0.1.1
+pnpm add astro-sage
 ```
 
-Add `vendor/astro-sage/packages/*` to `pnpm-workspace.yaml`, then `"astro-sage": "workspace:*"` to your site's dependencies, and wire it up:
+Then wire it up:
 
 ```ts
 // astro.config.ts
@@ -187,7 +186,7 @@ The showcase post (`apps/demo/src/content/posts/showcase/index.mdx`) exercises e
 
 ## Versioning
 
-AstroSage follows [SemVer](https://semver.org). Releases are git tags (`astro-sage@0.1.1`) with notes in [`packages/astro-sage/CHANGELOG.md`](packages/astro-sage/CHANGELOG.md) and on [GitHub Releases](https://github.com/chintak/astro-sage/releases). Changes are recorded with [Changesets](.changeset/README.md).
+AstroSage follows [SemVer](https://semver.org) and is published to npm as [`astro-sage`](https://www.npmjs.com/package/astro-sage); upgrade with `pnpm update astro-sage`. Each release is also a git tag (`astro-sage@x.y.z`) with notes in [`packages/astro-sage/CHANGELOG.md`](packages/astro-sage/CHANGELOG.md) and on [GitHub Releases](https://github.com/chintak/astro-sage/releases). Changes are recorded with [Changesets](.changeset/README.md).
 
 ## Repository layout
 
