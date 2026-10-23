@@ -1,0 +1,77 @@
+---
+/** Syntax-theme lab (dev tool, not committed). Run dev with SAGE_SYNTAX_LAB=1. */
+import { getEntry, render } from "astro:content";
+import PostLayout from "astro-sage/layouts/PostLayout.astro";
+import Header from "astro-sage/components/Header.astro";
+import Footer from "astro-sage/components/Footer.astro";
+import TableOfContents from "astro-sage/components/TableOfContents.astro";
+import "astro-sage/styles/post.css";
+import "./syntax-lab.css";
+
+const post = (await getEntry("posts", "showcase"))!;
+const { Content, headings } = await render(post);
+const toc = headings.filter(h => h.depth >= 2 && h.depth <= 3 && h.slug !== "footnote-label");
+
+const OPTIONS = [
+  { id: "S1", name: "Gruvbox", note: "Current. Retro, earthy; warm oranges and olive greens. Matches the paper most naturally." },
+  { id: "S2", name: "Rosé Pine", note: "Dawn / main. Soft, muted rose and pine; very low visual noise." },
+  { id: "S3", name: "Everforest", note: "Sage-forward greens and browns; echoes the sage accent. Dark is the most legible natively." },
+  { id: "S4", name: "Solarized", note: "The classic. Precise, cool blues/cyans against the warm paper." },
+  { id: "S5", name: "Kanagawa", note: "Lotus / Wave. Japanese ink-wash palette; rich but calm." },
+  { id: "S6", name: "GitHub", note: "Neutral baseline most readers already know; least 'designed'." },
+];
+---
+
+<PostLayout title="Syntax lab | AstroSage" description="Syntax themes" math>
+  <Fragment slot="head">
+    <script is:inline>
+      (function () {
+        var q = new URLSearchParams(location.search).get("s");
+        document.documentElement.dataset.syntax = q || localStorage.getItem("sage-syntax-lab") || "S1";
+      })();
+    </script>
+  </Fragment>
+
+  <div class="lab-bar" role="toolbar" aria-label="Syntax themes">
+    <span class="lab-label">Syntax lab</span>
+    <div class="lab-buttons">
+      {OPTIONS.map(o => <button type="button" data-s={o.id} title={o.note}><span class="num">{o.id}</span> {o.name}</button>)}
+      <button type="button" data-theme-toggle>Light / dark</button>
+    </div>
+    <p class="lab-note" aria-live="polite"></p>
+  </div>
+
+  <Header />
+  <main id="main-content" class="app-layout mt-10 sm:mt-14">
+    <div class="post-grid has-toc">
+      <header class="post-header"><h1 class="post-title">{post.data.title}</h1></header>
+      <TableOfContents headings={toc} variant="inline" class="post-toc-inline" />
+      <article id="article" class="app-prose post-body"><Content /></article>
+      <aside class="post-rail" aria-label="Table of contents"><TableOfContents headings={toc} variant="rail" /></aside>
+    </div>
+  </main>
+  <Footer />
+</PostLayout>
+
+<script define:vars={{ OPTIONS }}>
+  const bar = document.querySelector(".lab-bar");
+  const note = bar.querySelector(".lab-note");
+  function select(id) {
+    const o = OPTIONS.find(x => x.id === id) ?? OPTIONS[0];
+    document.documentElement.dataset.syntax = o.id;
+    localStorage.setItem("sage-syntax-lab", o.id);
+    const url = new URL(location.href);
+    url.searchParams.set("s", o.id);
+    history.replaceState(null, "", url);
+    note.textContent = `${o.id} ${o.name}: ${o.note}`;
+    bar.querySelectorAll("button[data-s]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.s === o.id)));
+  }
+  bar.addEventListener("click", e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.s) select(b.dataset.s);
+    if ("themeToggle" in b.dataset) document.getElementById("theme-btn")?.click();
+  });
+  select(document.documentElement.dataset.syntax);
+  if (!location.hash) requestAnimationFrame(() => document.getElementById("code")?.scrollIntoView());
+</script>

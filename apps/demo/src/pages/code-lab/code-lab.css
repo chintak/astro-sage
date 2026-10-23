@@ -1,0 +1,87 @@
+.lab-bar { position: sticky; top: 0; z-index: 40; display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; padding: 0.6rem var(--gutter); background: color-mix(in oklab, var(--bg) 90%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); font: 500 0.75rem/1.3 var(--font-ui); color: var(--fg-muted); }
+.lab-label { text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: var(--accent); }
+.lab-buttons { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.lab-bar button { padding: 0.3rem 0.7rem; border: 1px solid var(--border); border-radius: 999px; background: var(--bg); color: var(--fg); font: inherit; }
+.lab-bar button .num { font-weight: 700; color: var(--fg-muted); }
+.lab-bar button[aria-pressed="true"] { background: var(--fg); border-color: var(--fg); color: var(--bg); }
+.lab-bar button[aria-pressed="true"] .num { color: var(--bg); }
+.lab-note { flex-basis: 100%; margin: 0; font-weight: 400; }
+html .toc-rail { top: 5.5rem; }
+html { scroll-padding-top: 6rem; }
+
+/* ---------- C1 Hairline ---------- */
+html[data-code="C1"] .expressive-code {
+  --ec-codeBg: transparent;
+  --ec-frm-edBg: transparent;
+  --ec-frm-trmBg: transparent;
+  --ec-frm-edTabBarBg: transparent;
+  --ec-frm-edActTabBg: transparent;
+  --ec-frm-trmTtbBg: transparent;
+  --ec-brdCol: var(--border);
+}
+html[data-code="C1"] .app-prose :not(pre) > code {
+  background: transparent;
+  border-color: var(--border);
+}
+
+/* ---------- C2 Whisper tint ---------- */
+html[data-code="C2"] .expressive-code {
+  --tint: color-mix(in oklab, var(--bg) 96.5%, var(--fg));
+  --ec-codeBg: var(--tint);
+  --ec-frm-edBg: var(--tint);
+  --ec-frm-trmBg: var(--tint);
+  --ec-frm-edTabBarBg: var(--tint);
+  --ec-frm-edActTabBg: var(--tint);
+  --ec-frm-trmTtbBg: var(--tint);
+  --ec-brdCol: transparent;
+  --ec-frm-edTabBarBrdBtmCol: color-mix(in oklab, var(--border) 60%, transparent);
+  --ec-frm-trmTtbBrdBtmCol: color-mix(in oklab, var(--border) 60%, transparent);
+}
+html[data-code="C2"] .app-prose :not(pre) > code {
+  background: color-mix(in oklab, var(--bg) 95%, var(--fg));
+  border-color: transparent;
+}
+
+/* ---------- C3 Margin rule ---------- */
+html[data-code="C3"] .expressive-code {
+  --ec-codeBg: transparent;
+  --ec-frm-edBg: transparent;
+  --ec-frm-trmBg: transparent;
+  --ec-frm-edTabBarBg: transparent;
+  --ec-frm-edActTabBg: transparent;
+  --ec-frm-trmTtbBg: transparent;
+  --ec-brdCol: transparent;
+  --ec-brdRad: 0;
+  --ec-frm-edTabBarBrdBtmCol: transparent;
+  --ec-frm-trmTtbBrdBtmCol: transparent;
+}
+html[data-code="C3"] .expressive-code .frame {
+  border-inline-start: 2px solid var(--border);
+}
+html[data-code="C3"] .expressive-code .frame pre {
+  padding-inline-start: 0.25rem;
+}
+html[data-code="C3"] .app-prose :not(pre) > code {
+  background: transparent;
+  border-color: transparent;
+  padding-inline: 0;
+  color: var(--accent);
+}
+
+/* ---------- C4 Recessed ---------- */
+html[data-code="C4"] .expressive-code {
+  --ec-codeBg: var(--bg);
+  --ec-frm-edBg: var(--bg);
+  --ec-frm-trmBg: var(--bg);
+  --ec-frm-edTabBarBg: var(--bg);
+  --ec-frm-edActTabBg: var(--bg);
+  --ec-frm-trmTtbBg: var(--bg);
+  --ec-brdCol: color-mix(in oklab, var(--border) 70%, transparent);
+}
+html[data-code="C4"] .expressive-code .frame pre {
+  box-shadow: inset 0 1px 3px color-mix(in oklab, var(--fg) 9%, transparent);
+}
+html[data-code="C4"] .app-prose :not(pre) > code {
+  background: var(--bg);
+  box-shadow: inset 0 1px 2px color-mix(in oklab, var(--fg) 8%, transparent);
+}

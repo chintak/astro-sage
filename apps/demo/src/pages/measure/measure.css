@@ -1,0 +1,152 @@
+/* Column-width explorer panel */
+.mx-panel {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 60;
+  width: min(22rem, calc(100vw - 2rem));
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background: color-mix(in oklab, var(--bg-raised) 92%, transparent);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 32px -16px rgb(0 0 0 / 0.35);
+  font: 0.78rem/1.45 var(--font-ui);
+  color: var(--fg);
+}
+.mx-panel header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.mx-collapse {
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 1px solid var(--border);
+  border-radius: 0.3rem;
+  background: var(--bg);
+}
+.mx-panel[data-collapsed] .mx-body {
+  display: none;
+}
+.mx-body {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.7rem;
+}
+.mx-mode {
+  display: flex;
+  gap: 1rem;
+}
+.mx-mode input,
+.mx-check input {
+  accent-color: var(--accent);
+}
+.mx-row {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr 3.5rem;
+  align-items: center;
+  gap: 0.5rem;
+}
+.mx-row input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+.mx-row output {
+  text-align: end;
+  font-weight: 600;
+}
+.mx-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem 1rem;
+  margin: 0;
+  padding: 0.6rem 0;
+  border-block: 1px solid var(--border);
+}
+.mx-stats div {
+  display: contents;
+}
+.mx-stats dt {
+  color: var(--fg-muted);
+}
+.mx-stats dd {
+  margin: 0;
+  text-align: end;
+  font-weight: 600;
+}
+#st-chars {
+  font-size: 1.1rem;
+}
+[data-level="good"] {
+  color: var(--callout-tip);
+}
+[data-level="ok"] {
+  color: var(--callout-warning);
+}
+[data-level="short"],
+[data-level="long"] {
+  color: var(--callout-caution);
+}
+.mx-verdict {
+  margin: 0;
+}
+.mx-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.mx-actions button {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--fg);
+}
+.mx-actions button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.mx-css {
+  display: block;
+  white-space: pre-wrap;
+  padding: 0.5rem;
+  border-radius: 0.3rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-size: 0.72rem;
+}
+
+/* 45 / 66 / 75 character guides */
+#article {
+  position: relative;
+}
+.ruler {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.ruler span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 1px dashed color-mix(in oklab, var(--accent) 45%, transparent);
+}
+.ruler span[data-ch="66"] {
+  border-left-style: solid;
+  border-left-color: color-mix(in oklab, var(--callout-tip) 55%, transparent);
+}
+.ruler i {
+  position: sticky;
+  top: 0.5rem;
+  display: inline-block;
+  translate: -50% -1.4rem;
+  padding: 0 0.3rem;
+  font: 600 0.65rem var(--font-ui);
+  font-style: normal;
+  color: var(--fg-muted);
+  background: var(--bg);
+  border-radius: 0.2rem;
+}

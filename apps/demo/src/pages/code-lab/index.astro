@@ -1,0 +1,76 @@
+---
+/** Code-block style lab (dev tool, not committed). */
+import { getEntry, render } from "astro:content";
+import PostLayout from "astro-sage/layouts/PostLayout.astro";
+import Header from "astro-sage/components/Header.astro";
+import Footer from "astro-sage/components/Footer.astro";
+import TableOfContents from "astro-sage/components/TableOfContents.astro";
+import "astro-sage/styles/post.css";
+import "./code-lab.css";
+
+const post = (await getEntry("posts", "showcase"))!;
+const { Content, headings } = await render(post);
+const toc = headings.filter(h => h.depth >= 2 && h.depth <= 3 && h.slug !== "footnote-label");
+
+const OPTIONS = [
+  { id: "C0", name: "Current card", note: "Raised fill (#f0e7d6) + border. The block reads as a separate card." },
+  { id: "C1", name: "Hairline", note: "No fill; a 1px hairline frame and a quiet title tab. Code sits on the page paper." },
+  { id: "C2", name: "Whisper tint", note: "A barely-there tint (≈3% ink), no border. Grouped without boxing." },
+  { id: "C3", name: "Margin rule", note: "No fill, no frame; a left rule like a blockquote. Most editorial." },
+  { id: "C4", name: "Recessed", note: "Page-coloured well with a soft inner shadow. Tactile but low-contrast." },
+];
+---
+
+<PostLayout title="Code lab | AstroSage" description="Code block styles" math>
+  <Fragment slot="head">
+    <script is:inline>
+      (function () {
+        var q = new URLSearchParams(location.search).get("c");
+        document.documentElement.dataset.code = q || localStorage.getItem("sage-code-lab") || "C1";
+      })();
+    </script>
+  </Fragment>
+
+  <div class="lab-bar" role="toolbar" aria-label="Code block styles">
+    <span class="lab-label">Code lab</span>
+    <div class="lab-buttons">
+      {OPTIONS.map(o => <button type="button" data-c={o.id} title={o.note}><span class="num">{o.id}</span> {o.name}</button>)}
+      <button type="button" data-theme-toggle>Light / dark</button>
+    </div>
+    <p class="lab-note" aria-live="polite"></p>
+  </div>
+
+  <Header />
+  <main id="main-content" class="app-layout mt-10 sm:mt-14">
+    <div class="post-grid has-toc">
+      <header class="post-header"><h1 class="post-title">{post.data.title}</h1></header>
+      <TableOfContents headings={toc} variant="inline" class="post-toc-inline" />
+      <article id="article" class="app-prose post-body"><Content /></article>
+      <aside class="post-rail" aria-label="Table of contents"><TableOfContents headings={toc} variant="rail" /></aside>
+    </div>
+  </main>
+  <Footer />
+</PostLayout>
+
+<script define:vars={{ OPTIONS }}>
+  const bar = document.querySelector(".lab-bar");
+  const note = bar.querySelector(".lab-note");
+  function select(id) {
+    const o = OPTIONS.find(x => x.id === id) ?? OPTIONS[1];
+    document.documentElement.dataset.code = o.id;
+    localStorage.setItem("sage-code-lab", o.id);
+    const url = new URL(location.href);
+    url.searchParams.set("c", o.id);
+    history.replaceState(null, "", url);
+    note.textContent = `${o.id} ${o.name}: ${o.note}`;
+    bar.querySelectorAll("button[data-c]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.c === o.id)));
+  }
+  bar.addEventListener("click", e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.c) select(b.dataset.c);
+    if ("themeToggle" in b.dataset) document.getElementById("theme-btn")?.click();
+  });
+  select(document.documentElement.dataset.code);
+  if (!location.hash) requestAnimationFrame(() => document.getElementById("code")?.scrollIntoView());
+</script>

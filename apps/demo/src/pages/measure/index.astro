@@ -1,0 +1,221 @@
+---
+/** Column-width explorer (dev tool, not committed): drag to feel the right measure. */
+import { getEntry, render } from "astro:content";
+import PostLayout from "astro-sage/layouts/PostLayout.astro";
+import Header from "astro-sage/components/Header.astro";
+import Footer from "astro-sage/components/Footer.astro";
+import Datetime from "astro-sage/components/Datetime.astro";
+import TableOfContents from "astro-sage/components/TableOfContents.astro";
+import "astro-sage/styles/post.css";
+import "./measure.css";
+
+const post = (await getEntry("posts", "showcase"))!;
+const { Content, headings } = await render(post);
+const toc = headings.filter(
+  h => h.depth >= 2 && h.depth <= 3 && h.slug !== "footnote-label"
+);
+---
+
+<PostLayout title="Column width | AstroSage" description="Measure explorer" math>
+  <Header />
+
+  <main id="main-content" class="app-layout mt-10 sm:mt-14">
+    <div class="post-grid has-toc">
+      <header class="post-header">
+        <p class="small-caps text-sage mb-2 text-sm font-semibold">{post.data.series}</p>
+        <h1 class="post-title">{post.data.title}</h1>
+        <p class="post-dek">{post.data.description}</p>
+        <div class="post-meta">
+          <Datetime pubDatetime={post.data.pubDatetime} />
+        </div>
+      </header>
+      <TableOfContents headings={toc} variant="inline" class="post-toc-inline" />
+      <article id="article" class="app-prose post-body">
+        <div class="ruler" aria-hidden="true">
+          <span data-ch="45"><i>45</i></span>
+          <span data-ch="66"><i>66</i></span>
+          <span data-ch="75"><i>75</i></span>
+        </div>
+        <Content />
+      </article>
+      <aside class="post-rail" aria-label="Table of contents">
+        <TableOfContents headings={toc} variant="rail" />
+      </aside>
+    </div>
+  </main>
+  <Footer />
+
+  <section class="mx-panel" aria-label="Column width controls">
+    <header>
+      <strong>Column width</strong>
+      <button type="button" class="mx-collapse" aria-expanded="true" aria-label="Collapse panel">–</button>
+    </header>
+    <div class="mx-body">
+      <div class="mx-mode" role="radiogroup" aria-label="Unit">
+        <label><input type="radio" name="mode" value="pct" checked /> % of viewport</label>
+        <label><input type="radio" name="mode" value="rem" /> fixed rem</label>
+      </div>
+
+      <label class="mx-row">
+        <span>Column</span>
+        <input id="mx-col" type="range" min="20" max="100" step="1" value="44" />
+        <output id="mx-col-out"></output>
+      </label>
+      <label class="mx-row">
+        <span>Body size</span>
+        <input id="mx-size" type="range" min="16" max="22" step="0.5" value="18.5" />
+        <output id="mx-size-out"></output>
+      </label>
+      <label class="mx-check"><input id="mx-ruler" type="checkbox" checked /> Show 45 / 66 / 75 char guides</label>
+
+      <dl class="mx-stats">
+        <div><dt>Chars / line</dt><dd id="st-chars"></dd></div>
+        <div><dt>Column</dt><dd id="st-px"></dd></div>
+        <div><dt>Of viewport</dt><dd id="st-pct"></dd></div>
+        <div><dt>Side margin</dt><dd id="st-margin"></dd></div>
+        <div><dt>Viewport</dt><dd id="st-vw"></dd></div>
+      </dl>
+      <p id="mx-verdict" class="mx-verdict"></p>
+
+      <div class="mx-actions">
+        <button type="button" id="mx-reset">Reset to theme (40rem · 18.5px)</button>
+        <button type="button" id="mx-copy">Copy CSS</button>
+      </div>
+      <code id="mx-css" class="mx-css"></code>
+    </div>
+  </section>
+</PostLayout>
+
+<script>
+  const $ = <T extends HTMLElement>(s: string) => document.querySelector<T>(s)!;
+  const root = document.documentElement;
+  const col = $<HTMLInputElement>("#mx-col");
+  const size = $<HTMLInputElement>("#mx-size");
+  const ruler = $<HTMLInputElement>("#mx-ruler");
+  const article = $<HTMLElement>("#article");
+  const firstPara = () =>
+    [...article.querySelectorAll<HTMLElement>(":scope > p")].find(p => p.innerText.length > 200)!;
+  let mode: "pct" | "rem" = "pct";
+
+  const KEY = "sage-measure-lab";
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY) ?? "null");
+    if (saved) {
+      mode = saved.mode;
+      size.value = saved.size;
+      document.querySelector<HTMLInputElement>(`input[name=mode][value=${mode}]`)!.checked = true;
+      configureSlider(saved.col);
+    }
+  } catch {}
+
+  function configureSlider(value?: string) {
+    if (mode === "pct") Object.assign(col, { min: "20", max: "100", step: "1" });
+    else Object.assign(col, { min: "26", max: "60", step: "0.5" });
+    if (value) col.value = value;
+  }
+
+  function charWidth(el: HTMLElement) {
+    const cs = getComputedStyle(el);
+    const ctx = document.createElement("canvas").getContext("2d")!;
+    ctx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    return ctx.measureText("abcdefghijklmnopqrstuvwxyz").width / 26;
+  }
+
+  function apply() {
+    const vw = document.documentElement.clientWidth;
+    const rem = parseFloat(getComputedStyle(root).fontSize);
+    const railVisible = vw >= 70 * rem;
+    const gutter = parseFloat(getComputedStyle(root).getPropertyValue("--gutter")) || 32;
+    // Never let column + rail overflow the viewport.
+    const railSpace = railVisible ? 15 * rem + 3.5 * rem : 0;
+    const maxPx = vw - railSpace - 2 * Math.min(Math.max(16, vw * 0.04), 32);
+    const wantPx = mode === "pct" ? (vw * Number(col.value)) / 100 : Number(col.value) * rem;
+    const px = Math.min(wantPx, maxPx);
+
+    root.style.setProperty("--measure", `${px / rem}rem`);
+    root.style.setProperty("--text-body", `${Number(size.value) / 16}rem`);
+
+    requestAnimationFrame(() => {
+      const p = firstPara();
+      const cw = charWidth(p);
+      const w = p.getBoundingClientRect().width;
+      const chars = Math.round(w / cw);
+      const left = Math.round(article.getBoundingClientRect().left);
+
+      $("#mx-col-out").textContent = mode === "pct" ? `${col.value}%` : `${col.value}rem`;
+      $("#mx-size-out").textContent = `${size.value}px`;
+      $("#st-chars").textContent = String(chars);
+      $("#st-px").textContent = `${Math.round(w)}px · ${(w / rem).toFixed(1)}rem`;
+      $("#st-pct").textContent = `${Math.round((w / vw) * 100)}%`;
+      $("#st-margin").textContent = `${left}px each`;
+      $("#st-vw").textContent = `${vw}px${railVisible ? " · TOC rail on" : " · TOC inline"}`;
+
+      const v = $("#mx-verdict");
+      const [cls, msg] =
+        chars < 45 ? ["short", "Too short: lines break too often, eye jumps a lot."] :
+        chars < 60 ? ["ok", "Slightly short: fine on small screens, a bit choppy on desktop."] :
+        chars <= 75 ? ["good", "Comfortable: the classic 60–75 sweet spot for long-form."] :
+        chars <= 85 ? ["ok", "Slightly long: OK for technical prose, harder to find the next line."] :
+                      ["long", "Too long: readers lose their place returning to the next line."];
+      v.dataset.level = cls;
+      v.textContent = msg;
+      $("#st-chars").dataset.level = cls;
+      if (wantPx > maxPx) v.textContent += " (capped so the TOC rail still fits)";
+
+      // Position the 45 / 66 / 75 character guides.
+      document.querySelectorAll<HTMLElement>(".ruler span").forEach(s => {
+        s.style.left = `${Number(s.dataset.ch) * cw}px`;
+        s.hidden = Number(s.dataset.ch) * cw > w + 2;
+      });
+      $(".ruler").hidden = !ruler.checked;
+
+      const css =
+        mode === "pct"
+          ? `--measure: clamp(34rem, ${col.value}vw, 46rem); /* ≈ ${(w / rem).toFixed(1)}rem here */\n--text-body: ${Number(size.value) / 16}rem;`
+          : `--measure: ${col.value}rem;\n--text-body: ${Number(size.value) / 16}rem;`;
+      $("#mx-css").textContent = css;
+
+      try {
+        localStorage.setItem(KEY, JSON.stringify({ mode, col: col.value, size: size.value }));
+      } catch {}
+    });
+  }
+
+  document.querySelectorAll<HTMLInputElement>("input[name=mode]").forEach(r =>
+    r.addEventListener("change", () => {
+      const vw = document.documentElement.clientWidth;
+      const rem = parseFloat(getComputedStyle(root).fontSize);
+      const currentPx = parseFloat(getComputedStyle(root).getPropertyValue("--measure")) * rem;
+      mode = r.value as "pct" | "rem";
+      configureSlider(
+        mode === "pct" ? String(Math.round((currentPx / vw) * 100)) : String(Math.round((currentPx / rem) * 2) / 2)
+      );
+      apply();
+    })
+  );
+  [col, size, ruler].forEach(i => i.addEventListener("input", apply));
+  window.addEventListener("resize", apply);
+  document.fonts.ready.then(apply);
+
+  $("#mx-reset").addEventListener("click", () => {
+    mode = "rem";
+    document.querySelector<HTMLInputElement>("input[name=mode][value=rem]")!.checked = true;
+    configureSlider("40");
+    size.value = "18.5";
+    apply();
+  });
+  $("#mx-copy").addEventListener("click", async () => {
+    await navigator.clipboard.writeText($("#mx-css").textContent ?? "");
+    $("#mx-copy").textContent = "Copied";
+    setTimeout(() => ($("#mx-copy").textContent = "Copy CSS"), 900);
+  });
+  $(".mx-collapse").addEventListener("click", e => {
+    const panel = $(".mx-panel");
+    const collapsed = panel.toggleAttribute("data-collapsed");
+    (e.currentTarget as HTMLElement).setAttribute("aria-expanded", String(!collapsed));
+    (e.currentTarget as HTMLElement).textContent = collapsed ? "+" : "–";
+  });
+
+  configureSlider();
+  apply();
+</script>
