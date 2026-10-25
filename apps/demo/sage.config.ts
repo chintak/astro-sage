@@ -6,8 +6,8 @@ export default defineSageConfig({
     title: "AstroSage",
     description:
       "A readability-first Astro blog theme: serif type, warm paper, and a pinned table of contents.",
-    author: "Chintak Sheth",
-    profile: "https://chintak.sh",
+    author: "Ada Lovelace",
+    profile: "https://example.com",
     ogImage: "default-og.jpg",
     lang: "en",
     timezone: "UTC",
@@ -38,8 +38,9 @@ export default defineSageConfig({
     search: "pagefind",
   },
   socials: [
-    { name: "github", url: "https://github.com/chintak/astro-sage" },
-    { name: "x", url: "https://x.com/chintaksheth" },
+    // Sample links: point these at your own profiles.
+    { name: "github", url: "https://github.com" },
+    { name: "x", url: "https://x.com" },
   ],
   // shareLinks: defaults to X, LinkedIn, Bluesky, Reddit, Hacker News and email.
 });
