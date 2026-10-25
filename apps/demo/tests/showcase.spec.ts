@@ -431,10 +431,10 @@ test("citation block is folded and offers text and BibTeX", async ({
   await expect(page.locator(".toc a", { hasText: /cite/i })).toHaveCount(0);
   await cite.locator("summary").click();
   await expect(cite.locator(".citation-text")).toContainText(
-    "Sheth, Chintak. (Oct 2026). AstroSage: every element, set in type. astro-sage.chintak.sh."
+    "Lovelace, Ada. (Oct 2026). AstroSage: every element, set in type. astro-sage.chintak.sh."
   );
   const bib = await cite.locator(".citation-bib code").textContent();
-  expect(bib).toContain("@article{sheth2026showcase,");
+  expect(bib).toContain("@article{lovelace2026showcase,");
   expect(bib).toContain(
     "url     = {https://astro-sage.chintak.sh/posts/showcase/}"
   );
@@ -625,7 +625,7 @@ test("RSS feed carries full, self-contained posts", async ({
   // Published posts only; drafts and not-yet-due scheduled posts stay out.
   expect(feed!.length).toBeGreaterThanOrEqual(2);
   const showcase = feed!.find(i => i.link?.endsWith("/posts/showcase/"))!;
-  expect(showcase.creator).toBe("Chintak Sheth");
+  expect(showcase.creator).toBe("Ada Lovelace");
   expect(showcase.categories).toContain("typography");
   expect(showcase.pubDate).toBe("Thu, 15 Oct 2026 09:00:00 GMT");
   const html = showcase.html;
