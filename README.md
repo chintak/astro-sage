@@ -95,7 +95,7 @@ export default defineSageConfig({
 
 Every option is listed in [FEATURES.md](FEATURES.md#configuration-sageconfigts).
 
-Write posts in `src/content/posts/` (`.md` or `.mdx`; a folder with `index.mdx` works too) and pages in `src/content/pages/` (`about.md`). The theme injects every route, so your site needs no page files.
+Write posts in `src/content/posts/` (`.md` or `.mdx`; a folder with `index.mdx` works too) and pages in `src/content/pages/` (`about.md`). The theme injects every route, so your site needs no page files. Any folder or file whose name starts with `_` (`_template/index.md`, `notes/_wip/idea.md`, `_scratch.md`) is ignored, in dev and in builds, so keep templates and notes there.
 
 ### Frontmatter
 

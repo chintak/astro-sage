@@ -45,7 +45,9 @@ export default defineSageConfig({ site: { url, title, description, author } });
 
 Package entry points: `astro-sage` (integration, `defineSageConfig`), `astro-sage/content` (`defineSageCollections`), `astro-sage/components/*`, `astro-sage/layouts/*`, `astro-sage/styles/*`, `astro-sage/markdown`.
 
-Content goes in `src/content/posts/` (`.md`, `.mdx`, or a folder with `index.md(x)`; files and folders starting with `_` are skipped) and `src/content/pages/`. A site needs no `src/pages/`.
+Content goes in `src/content/posts/` (`.md`, `.mdx`, or a folder with `index.md(x)`) and `src/content/pages/`. A site needs no `src/pages/`.
+
+Any folder or file under either one whose name starts with `_` is ignored: `_template/index.md`, `notes/_wip/idea.md` and `_scratch.md` never load, in `astro dev` or a build, whatever `draft` says. Use them for templates and notes kept beside your posts. Only a leading `_` counts: `my_post.md` and `a_b/index.md` load as usual.
 
 ## Configuration (`sage.config.ts`)
 

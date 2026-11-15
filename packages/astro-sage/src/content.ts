@@ -1,7 +1,7 @@
 import { defineCollection } from "astro:content";
 import { z } from "astro/zod";
-import { glob } from "astro/loaders";
 
+import { contentGlob } from "./contentGlob";
 import { BLOG_PATH } from "./paths";
 
 export { BLOG_PATH };
@@ -17,7 +17,7 @@ export { BLOG_PATH };
  */
 export function defineSageCollections({ author }: { author: string }) {
   const posts = defineCollection({
-    loader: glob({ pattern: "**/[^_]*.{md,mdx}", base: `./${BLOG_PATH}` }),
+    loader: contentGlob(`./${BLOG_PATH}`),
     schema: ({ image }) =>
       z.object({
         author: z.string().default(author),
@@ -46,7 +46,7 @@ export function defineSageCollections({ author }: { author: string }) {
   });
 
   const pages = defineCollection({
-    loader: glob({ pattern: "**/[^_]*.{md,mdx}", base: "./src/content/pages" }),
+    loader: contentGlob("./src/content/pages"),
     schema: z.object({
       title: z.string(),
       description: z.string().optional(),
