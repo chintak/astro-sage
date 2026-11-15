@@ -1,0 +1,37 @@
+---
+import { showDraftBadge } from "@sage/utils/postFilter";
+import { useTranslations } from "@sage/i18n";
+import config from "@sage/config";
+
+/**
+ * Marks a draft post "Draft" while developing. Drafts are never built, and
+ * the `import.meta.env.DEV` guard keeps the markup out of builds regardless.
+ */
+type Props = { draft?: boolean };
+
+const t = useTranslations(Astro.currentLocale ?? config.site.lang);
+---
+
+{showDraftBadge(Astro.props.draft) && (
+  <span class="draft-badge" data-draft-badge data-pagefind-ignore>
+    {t.post.draft}
+  </span>
+)}
+
+<style>
+  .draft-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.05rem 0.5rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.5;
+    text-transform: uppercase;
+    letter-spacing: var(--label-tracking);
+    color: var(--accent);
+    white-space: nowrap;
+  }
+</style>

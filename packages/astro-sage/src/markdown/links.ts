@@ -90,6 +90,8 @@ export type WikiLinkOptions = {
   trailingSlash: boolean;
   /** Treat future-dated posts as published (dev), as `postFilter` does. */
   includeScheduled: boolean;
+  /** Link drafts like published posts (dev), as `postFilter` does. */
+  includeDrafts: boolean;
   scheduledPostMargin: number;
 };
 
@@ -117,7 +119,7 @@ function postIndex(opts: WikiLinkOptions) {
   const unavailable = (post: Post | undefined) =>
     !post
       ? "matches no post"
-      : post.draft
+      : post.draft && !opts.includeDrafts
         ? "points to a draft"
         : !opts.includeScheduled &&
             post.published - opts.scheduledPostMargin > Date.now()
@@ -149,7 +151,7 @@ export function wikiLinkFingerprint(opts: WikiLinkOptions) {
  *   [[#Callouts]]                 → a heading in this post
  *
  * Targets match a post's slug, path or title, ignoring case. Unknown targets,
- * drafts and (in builds) scheduled posts render as plain text marked
+ * and (in builds) drafts and scheduled posts, render as plain text marked
  * `.wikilink-broken`, with a warning.
  */
 export function wikiLinksPlugin(opts: WikiLinkOptions): MdastPluginDefinition {

@@ -20,8 +20,9 @@ Built for Astro 7 with Tailwind CSS 4, MDX, Expressive Code, KaTeX and Pagefind.
 - **Diagrams:** Mermaid and Excalidraw (inline JSON, share links or files), rendered at build time to inline SVG that matches the palette. Includes a zoom/pan viewer and a full-width option. See below.
 - **Callouts:** GitHub alerts (`> [!NOTE]`) or directives (`:::warning[Title]`). Both produce the same markup.
 - **Task lists:** round checkboxes; done items get a sage tick and are struck through.
-- **Wiki-links:** `[[slug]]`, `[[slug|text]]`, `[[slug#Heading]]` and `[[#Heading]]` link posts by slug, path or title (case-insensitive), titled for you. A target that's missing, a draft or still scheduled renders as muted text and warns at build time. Inside a table, escape the pipe: `[[slug\|text]]`.
+- **Wiki-links:** `[[slug]]`, `[[slug|text]]`, `[[slug#Heading]]` and `[[#Heading]]` link posts by slug, path or title (case-insensitive), titled for you. A target that's missing, a draft or still scheduled renders as muted text and warns at build time (`astro dev` links drafts and scheduled posts so you can preview them). Inside a table, escape the pipe: `[[slug\|text]]`.
 - **Link styles:** links to other sites get a small ↗ (and `rel="noopener"`); links within the site keep a plain underline.
+- **Drafts:** `draft: true` keeps a post out of every build. Under `astro dev` it still renders, in lists and on its own page, marked with a "Draft" badge so you can preview it; RSS leaves it out even in dev.
 - **Series:** `series: "Name"` in frontmatter gives an index page, a per-series page and "Part N of M" navigation.
 - **Comments (optional):** [utterances](https://utteranc.es) (GitHub Issues) or [giscus](https://giscus.app) (GitHub Discussions), loaded only when readers scroll to them and kept in sync with the light/dark toggle. No server or database. Off by default.
 - **Sharing:** X, LinkedIn, Bluesky, Reddit, Hacker News and email, plus copy-link and the native share sheet on supporting devices. Configure with `shareLinks` (`{url}` / `{title}` placeholders).
@@ -168,11 +169,11 @@ Both load only when the comments section nears the viewport, follow the theme to
 pnpm install
 pnpm dev        # demo site at http://localhost:4321, showcase at /posts/showcase/
 pnpm build
-pnpm test       # Playwright + axe, desktop and mobile
+pnpm test       # unit tests; Playwright + axe on the build (desktop, mobile); Playwright on astro dev
 pnpm lint && pnpm format:check
 ```
 
-The showcase post (`apps/demo/src/content/posts/showcase/index.mdx`) exercises every feature and is what the tests run against.
+The showcase post (`apps/demo/src/content/posts/showcase/index.mdx`) exercises every feature and is what the tests run against. `apps/demo/tests/` runs against the build in `dist`; `apps/demo/tests-dev/` runs against `astro dev` (draft preview).
 
 Every pull request gets a live preview of the demo. `.github/workflows/preview.yml` uploads each push as a version of the demo Worker without deploying it, and keeps one PR comment up to date with the preview URL and the commit it serves.
 
@@ -194,7 +195,7 @@ AstroSage follows [SemVer](https://semver.org) and is published to npm as [`astr
 
 ```
 packages/astro-sage/   the theme (integration, routes, components, styles, markdown plugins, comments)
-apps/demo/             demo site and showcase post; Playwright tests
+apps/demo/             demo site and showcase post; Playwright tests (tests/ on the build, tests-dev/ on astro dev)
 docs/decisions/        architecture decision records
 FEATURES.md            every feature, option and frontmatter field, with examples
 AGENTS.md              conventions for contributors and coding agents

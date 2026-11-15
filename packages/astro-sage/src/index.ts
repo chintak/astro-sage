@@ -250,8 +250,10 @@ export default function astroSage(config: SageConfig): AstroIntegration {
           postsDir: BLOG_PATH,
           base: astroConfig.base,
           trailingSlash: astroConfig.trailingSlash !== "never",
-          // Same rule as postFilter: dev shows scheduled posts, builds don't.
+          // Same rule as postFilter: dev shows drafts and scheduled posts,
+          // builds don't.
           includeScheduled: command === "dev",
+          includeDrafts: command === "dev",
           scheduledPostMargin:
             config.posts?.scheduledPostMargin ?? 15 * 60 * 1000,
         };

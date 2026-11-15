@@ -20,6 +20,8 @@ export interface UIStrings {
     editPage: string;
     previousPost: string;
     nextPost: string;
+    /** Badge on draft posts, shown only in dev. */
+    draft: string;
   };
   pagination: {
     prev: string;
