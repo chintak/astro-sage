@@ -20,7 +20,7 @@ Built for Astro 7 with Tailwind CSS 4, MDX, Expressive Code, KaTeX and Pagefind.
 - **Diagrams:** Mermaid and Excalidraw (inline JSON, share links or files), rendered at build time to inline SVG that matches the palette. Includes a zoom/pan viewer and a full-width option. See below.
 - **Callouts:** GitHub alerts (`> [!NOTE]`) or directives (`:::warning[Title]`). Both produce the same markup.
 - **Task lists:** round checkboxes; done items get a sage tick and are struck through.
-- **Wiki-links:** `[[slug]]`, `[[slug|text]]`, `[[slug#Heading]]` and `[[#Heading]]` link posts by slug, path or title (case-insensitive), titled for you. A target that's missing, a draft or still scheduled renders as muted text and warns at build time. Inside a table, escape the pipe: `[[slug\|text]]`.
+- **Wiki-links:** `[[slug]]`, `[[slug|text]]`, `[[slug#Heading]]` and `[[#Heading]]` link posts by slug, path or title (case-insensitive), titled for you. A target that's missing, a draft or still scheduled renders as muted text and warns at build time (`astro dev` links drafts and scheduled posts so you can preview them). Inside a table, escape the pipe: `[[slug\|text]]`.
 - **Link styles:** links to other sites get a small ↗ (and `rel="noopener"`); links within the site keep a plain underline.
 - **Series:** `series: "Name"` in frontmatter gives an index page, a per-series page and "Part N of M" navigation.
 - **Comments (optional):** [utterances](https://utteranc.es) (GitHub Issues) or [giscus](https://giscus.app) (GitHub Discussions), loaded only when readers scroll to them and kept in sync with the light/dark toggle. No server or database. Off by default.

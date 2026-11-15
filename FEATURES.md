@@ -7,6 +7,7 @@ Working examples live in the demo site:
 - [`apps/demo/src/content/posts/showcase/index.mdx`](apps/demo/src/content/posts/showcase/index.mdx) — every content feature, one section each (cited below as *Showcase › Section*).
 - [`apps/demo/src/content/posts/colophon.md`](apps/demo/src/content/posts/colophon.md) — a plain-Markdown post; wiki-link target.
 - [`apps/demo/src/content/posts/series-part-two.md`](apps/demo/src/content/posts/series-part-two.md) — part 2 of a series; scheduled (future `pubDatetime`).
+- [`apps/demo/src/content/posts/draft-preview.md`](apps/demo/src/content/posts/draft-preview.md) — a draft: previewable under `astro dev`, never built.
 - [`apps/demo/src/content/pages/about.md`](apps/demo/src/content/pages/about.md) — a page.
 - [`apps/demo/sage.config.ts`](apps/demo/sage.config.ts), [`apps/demo/astro.config.ts`](apps/demo/astro.config.ts) — a full configuration (utterances comments). Live at [astro-sage.chintak.sh](https://astro-sage.chintak.sh).
 
@@ -88,7 +89,7 @@ Schema: [`packages/astro-sage/src/content.ts`](packages/astro-sage/src/content.t
 | `tags` | `["others"]` | Tag pages with counts |
 | `series` | — | Series pages and "Part N of M" navigation |
 | `featured` | — | Featured on the home page |
-| `draft` | — | Never built |
+| `draft` | — | Never built. Under `astro dev` the post renders, with a "Draft" badge on its page and cards, in lists, tags, series and prev/next; feeds still leave it out (see [Drafts](#drafts)) |
 | `ogImage` | generated | Image import or URL |
 | `canonicalURL`, `timezone`, `hideEditPost` | — | |
 | `toc` | `true` | Pinned table of contents |
@@ -96,6 +97,22 @@ Schema: [`packages/astro-sage/src/content.ts`](packages/astro-sage/src/content.t
 | `cite` | `true` | "Cite this post" block |
 | `comments` | `true` | Comments (when a provider is configured) |
 | `slug` | from path | Overrides the URL segment |
+
+### Drafts
+
+`draft: true` previews a post under `astro dev` and keeps it out of every build. One rule set decides each surface: [`utils/postVisibility.ts`](packages/astro-sage/src/utils/postVisibility.ts).
+
+| Surface | `astro dev` | `astro build` |
+|---|---|---|
+| Post page | Rendered, "Draft" badge by the date | No page |
+| Home, `/posts`, archives, featured | Listed, "Draft" badge on the card | Left out |
+| Tag pages and counts, series, prev/next | Included | Left out |
+| OG image (`index.png`) | Generated | Not generated |
+| Wiki-links to it | Linked | Muted text, build warning |
+| RSS | Left out | Left out |
+| Sitemap, search | Not generated in dev | Left out (no page to index) |
+
+Scheduled posts are unchanged: shown in dev, built once `pubDatetime` minus `posts.scheduledPostMargin` has passed.
 
 ## Routes (injected)
 
@@ -117,7 +134,7 @@ Schema: [`packages/astro-sage/src/content.ts`](packages/astro-sage/src/content.t
 | Tables | GFM; wide tables scroll and are keyboard-focusable | Showcase › Tables |
 | Figures | `![alt](./x.jpg "wide")` / `"full"`, or `<Figure src alt caption size="column\|wide\|full" />` in MDX | Showcase › Figures |
 | Footnotes | `[^1]` | Showcase › Footnotes |
-| Wiki-links | `[[slug]]`, `[[slug\|text]]`, `[[slug#Heading]]`, `[[#Heading]]`; match slug, path or title; drafts, scheduled and missing targets render as muted text and warn | Showcase › Inline elements; `colophon.md` |
+| Wiki-links | `[[slug]]`, `[[slug\|text]]`, `[[slug#Heading]]`, `[[#Heading]]`; match slug, path or title; missing targets, and in builds drafts and scheduled posts, render as muted text and warn | Showcase › Inline elements; `colophon.md` |
 | Link styles | automatic: external links get ↗ and `rel="noopener"`, internal links a plain underline | Showcase › Inline elements |
 
 Diagrams need Chromium at build time (`pnpm add -D playwright && npx playwright install chromium`) unless `.sage-cache/diagrams/` is committed.
@@ -137,7 +154,7 @@ Diagrams need Chromium at build time (`pnpm add -D playwright && npx playwright 
 | Citation | Folded "Cite this post" with text citation and BibTeX copy | bottom of any post |
 | Comments | utterances or giscus (GitHub sign-in), lazy-loaded, follows light/dark; off by default; `comments: false` per post | README › Comments; any demo post |
 | SEO | Canonical URLs, Open Graph + Twitter cards (image type matches the file), JSON-LD, sitemap, robots.txt | `layouts/Layout.astro` |
-| RSS | `/rss.xml`: full post HTML (absolute links, MathML, inline diagrams; no scripts), tags as categories, `dc:creator`, self link; drafts and scheduled posts excluded; autodiscovery `<link>` and header button | `routes/rss.xml.ts`, `utils/feedContent.ts` |
+| RSS | `/rss.xml`: full post HTML (absolute links, MathML, inline diagrams; no scripts), tags as categories, `dc:creator`, self link; drafts excluded (even in dev), scheduled posts excluded in builds; autodiscovery `<link>` and header button | `routes/rss.xml.ts`, `utils/feedContent.ts` |
 | OG images | Drawn per post with Satori + sharp at build time and written as static PNGs (`/posts/<slug>/index.png`, site-wide `/og.png`); or `ogImage` in frontmatter; off with `features.dynamicOgImage: false` | `utils/ogImage.ts` |
 | Accessibility | Skip link, focus styles, labelled controls, axe-clean in both themes | `apps/demo/tests/` |
 | Performance | ~2.8 KB gzipped JS per article; fonts with metric-matched fallbacks | — |
