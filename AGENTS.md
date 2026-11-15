@@ -18,15 +18,16 @@ packages/astro-sage/   the published package
   src/markdown/        Sätteri plugins (callouts, KaTeX, links/wiki-links, code labels)
   src/routes/          injected pages and endpoints
   src/components/, layouts/, styles/, share/, diagrams/, comments/ (utterances/giscus embed)
-apps/demo/             demo site; showcase post exercises every feature; Playwright tests in tests/
+apps/demo/             demo site; showcase post exercises every feature; Playwright tests in tests/ (against dist) and tests-dev/ (against astro dev, playwright.dev.config.ts)
 docs/decisions/        ADRs
 .changeset/            pending release notes (Changesets)
 ```
 
 ## Conventions
 
-- `pnpm lint && pnpm format:check && pnpm check && pnpm build && pnpm test` must pass before a PR. Each PR push also uploads a demo preview (`.github/workflows/preview.yml`); its URL is in the PR's "Demo preview" comment. Run `pnpm build` before `pnpm test`: tests run against `apps/demo/dist`.
+- `pnpm lint && pnpm format:check && pnpm check && pnpm build && pnpm test` must pass before a PR. Each PR push also uploads a demo preview (`.github/workflows/preview.yml`); its URL is in the PR's "Demo preview" comment. Run `pnpm build` before `pnpm test`: `tests/` runs against `apps/demo/dist`; `tests-dev/` starts its own `astro dev` (with `--ignore-lock`, so Astro doesn't background it).
 - New content features get a showcase section and a Playwright test.
+- Post visibility (drafts, scheduled posts, feeds) goes through `src/utils/postVisibility.ts` via `postFilter.ts`; never filter `data.draft` inline in a route.
 - The theme is pure SSG and host-agnostic: no adapters, server routes, databases or host-specific APIs. Do work at build time; client JS must be small and lazy-loaded.
 - Text and UI colours stay ≥ 4.5:1 in both themes (the axe tests enforce it). Use tokens from `src/styles/theme.css`, never raw colours.
 - In MDX, mdast plugins must emit JSX nodes (see `jsx()` / `rawHtml()` in `src/markdown/index.ts`), not raw HTML.
