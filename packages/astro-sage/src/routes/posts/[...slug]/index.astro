@@ -5,6 +5,7 @@ import PostLayout from "@sage/layouts/PostLayout.astro";
 import Header from "@sage/components/Header.astro";
 import Footer from "@sage/components/Footer.astro";
 import Datetime from "@sage/components/Datetime.astro";
+import DraftBadge from "@sage/components/DraftBadge.astro";
 import Tag from "@sage/components/Tag.astro";
 import { getPostSlug, getPostUrl } from "@sage/utils/getPostPaths";
 import { getSortedPosts } from "@sage/utils/getSortedPosts";
@@ -86,6 +87,7 @@ const {
   series,
   toc,
   math,
+  draft,
 } = post.data;
 
 const { Content, headings } = await render(post);
@@ -146,6 +148,7 @@ const ogImage = ogImageUrl
         <h1 class="post-title">{title}</h1>
         {description && <p class="post-dek">{description}</p>}
         <div class="post-meta">
+          <DraftBadge {draft} />
           <Datetime {pubDatetime} {modDatetime} {timezone} />
           <span aria-hidden="true">·</span>
           <span>{minutes} min read</span>

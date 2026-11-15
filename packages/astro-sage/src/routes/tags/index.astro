@@ -9,7 +9,7 @@ import { getUniqueTags } from "@sage/utils/getUniqueTags";
 import { useTranslations } from "@sage/i18n";
 import config from "@sage/config";
 
-const posts = await getCollection("posts", ({ data }) => !data.draft);
+const posts = await getCollection("posts");
 const tags = getUniqueTags(posts);
 
 const locale = Astro.currentLocale ?? config.site.lang;

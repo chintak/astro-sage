@@ -1,18 +1,22 @@
 import rss from "@astrojs/rss";
 import { getCollection } from "astro:content";
 import { getSortedPosts } from "@sage/utils/getSortedPosts";
+import { feedFilter } from "@sage/utils/postFilter";
 import { getPostUrl } from "@sage/utils/getPostPaths";
 import { feedContent } from "@sage/utils/feedContent";
 import config from "@sage/config";
 
 /**
- * RSS 2.0 feed of published posts (drafts and scheduled posts excluded), with
+ * RSS 2.0 feed of published posts (drafts excluded even in dev; scheduled posts
+ * excluded in builds), with
  * each post's full HTML so it can be read in a feed reader.
  */
 export async function GET() {
-  const posts = getSortedPosts(await getCollection("posts")).sort(
-    (a, b) => b.data.pubDatetime.getTime() - a.data.pubDatetime.getTime()
-  );
+  const posts = getSortedPosts(await getCollection("posts"))
+    .filter(feedFilter)
+    .sort(
+      (a, b) => b.data.pubDatetime.getTime() - a.data.pubDatetime.getTime()
+    );
   const site = new URL(config.site.url);
   const feedUrl = new URL("rss.xml", site).href;
 
