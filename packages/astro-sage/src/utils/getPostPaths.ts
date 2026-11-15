@@ -14,9 +14,8 @@ function getPostPathSegments(filePath: string | undefined): string[] {
   const dirs = /^index\.mdx?$/.test(parts.at(-1) ?? "")
     ? parts.slice(0, -2)
     : parts.slice(0, -1);
-  return dirs
-    .filter(path => !path.startsWith("_"))
-    .map(segment => slugifyStr(segment));
+  // `_`-prefixed folders never reach here: the collection skips them.
+  return dirs.map(segment => slugifyStr(segment));
 }
 
 function getIdSlug(id: string): string {
