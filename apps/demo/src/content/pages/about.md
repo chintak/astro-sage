@@ -115,7 +115,7 @@ Inline math like $e^{i\pi} + 1 = 0$,
 a [[colophon|link to another post]], and a callout:
 
 > [!TIP]
-> Set `draft: true` to keep a post out of the build.
+> Set `draft: true` to keep a post out of the build. `astro dev` still shows it, marked "Draft".
 ```
 
 The [[showcase|showcase post]] shows the syntax for everything else, and [its source](https://github.com/chintak/astro-sage/blob/main/apps/demo/src/content/posts/showcase/index.mdx) is a good template.
